@@ -134,7 +134,7 @@ async function sendMarketingNotification(email: string): Promise<void> {
   })
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM || 'noreply@blipee.com',
+    from: process.env.EMAIL_FROM || 'no-reply@blipee.com',
     to: 'marketing@blipee.com',
     subject: 'New Newsletter Subscription',
     html: `

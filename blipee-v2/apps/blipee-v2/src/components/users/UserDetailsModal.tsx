@@ -7,6 +7,8 @@ import { useUserOrganization } from '@/hooks/useUserOrganization'
 import styles from '@/styles/settings-layout.module.css'
 import CustomSelect from '@/components/CustomSelect'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import { BlipeeMultiStepModal } from '@/components/ui'
+import { inviteUser, updateUser, deleteUser } from '@/app/actions/v2/users'
 
 interface UserProfile {
   id: string
@@ -74,8 +76,8 @@ export function UserDetailsModal({
   // Determine if we're in create mode (user is null)
   const isCreating = !user
 
-  // Permission to edit: super admin can edit anyone, admin can edit non-owners in their org
-  const canEdit = isSuperAdmin || (isAdmin && !user?.is_owner)
+  // Permission to edit: allow all authenticated users (matches sites modal behavior)
+  const canEdit = true
   const canDelete = isSuperAdmin || (isAdmin && !user?.is_owner)
 
   // State
@@ -90,21 +92,14 @@ export function UserDetailsModal({
 
   const steps = [
     { number: 1, title: 'Basic Info', icon: '👤' },
-    { number: 2, title: 'Organization', icon: '🏢' },
+    { number: 2, title: 'Role & Access', icon: '🔐' },
   ]
 
   const totalSteps = steps.length
 
   // Effects
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-
     if (isOpen) {
-      window.addEventListener('keydown', handleEsc)
-      document.body.style.overflow = 'hidden'
-
       // If creating new user, automatically enter edit mode
       if (isCreating) {
         setIsEditing(true)
@@ -120,12 +115,7 @@ export function UserDetailsModal({
       setFormData({})
       setCurrentStep(1)
     }
-
-    return () => {
-      window.removeEventListener('keydown', handleEsc)
-      document.body.style.overflow = 'unset'
-    }
-  }, [isOpen, isCreating, onClose])
+  }, [isOpen, isCreating])
 
   // Handlers
   const handleEdit = () => {
@@ -146,9 +136,13 @@ export function UserDetailsModal({
   }
 
   const handleCancel = () => {
-    setIsEditing(false)
-    setFormData({})
-    setCurrentStep(1)
+    if (isCreating) {
+      onClose()
+    } else {
+      setIsEditing(false)
+      setFormData({})
+      setCurrentStep(1)
+    }
   }
 
   const handleSave = async () => {
@@ -170,89 +164,56 @@ export function UserDetailsModal({
 
     setSaving(true)
     try {
-      const supabase = createClient()
-
       if (isCreating) {
-        // CREATE new user - this is an invitation
-        // 1. Check if user already exists
-        const { data: existingUser } = await supabase
-          .from('user_profiles')
-          .select('id')
-          .eq('email', formData.email)
-          .single()
+        // CREATE new user - send invitation via server action
+        const result = await inviteUser({
+          email: formData.email,
+          full_name: formData.full_name,
+          job_title: formData.job_title,
+          department: formData.department,
+          phone: formData.phone,
+          mobile_phone: formData.mobile_phone,
+          organization_id: organization!.id,
+          role: formData.role || 'member',
+          access_all_facilities: formData.access_all_facilities ?? true,
+          facility_ids: formData.facility_ids || [],
+        })
 
-        let userId = existingUser?.id
-
-        // 2. If user doesn't exist, create user profile
-        if (!userId) {
-          const { data: newUser, error: userError } = await supabase
-            .from('user_profiles')
-            .insert({
-              email: formData.email,
-              full_name: formData.full_name,
-              job_title: formData.job_title,
-              department: formData.department,
-              phone: formData.phone,
-              mobile_phone: formData.mobile_phone,
-            })
-            .select('id')
-            .single()
-
-          if (userError) throw userError
-          userId = newUser.id
+        if (result.error) {
+          throw new Error(result.error)
         }
 
-        // 3. Create organization membership
-        const { error: memberError } = await supabase
-          .from('organization_members')
-          .insert({
-            user_id: userId,
-            organization_id: organization!.id,
-            role: formData.role || 'member',
-            access_all_facilities: formData.access_all_facilities ?? true,
-            facility_ids: formData.facility_ids || null,
-            invitation_status: 'pending',
-            is_owner: false,
-          })
-
-        if (memberError) throw memberError
-        toast.success('User invited successfully!')
+        toast.success('User invited successfully! They will receive an email to set up their account.')
       } else {
-        // UPDATE existing user
-        // 1. Update user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .update({
-            full_name: formData.full_name,
-            job_title: formData.job_title,
-            department: formData.department,
-            phone: formData.phone,
-            mobile_phone: formData.mobile_phone,
-          })
-          .eq('id', user!.user_id)
+        // UPDATE existing user via server action
+        const result = await updateUser({
+          user_id: user!.user_id,
+          email: formData.email,
+          full_name: formData.full_name,
+          job_title: formData.job_title,
+          department: formData.department,
+          phone: formData.phone,
+          mobile_phone: formData.mobile_phone,
+          organization_id: organization!.id,
+          role: formData.role || 'member',
+          access_all_facilities: formData.access_all_facilities ?? true,
+          facility_ids: formData.facility_ids || [],
+        })
 
-        if (profileError) throw profileError
+        if (result.error) {
+          throw new Error(result.error)
+        }
 
-        // 2. Update organization membership
-        const { error: memberError } = await supabase
-          .from('organization_members')
-          .update({
-            role: formData.role,
-            access_all_facilities: formData.access_all_facilities,
-            facility_ids: formData.facility_ids,
-          })
-          .eq('id', user!.membership_id)
-
-        if (memberError) throw memberError
         toast.success('User updated successfully!')
       }
 
       setIsEditing(false)
-      onClose()
-      onUpdate()
+      onUpdate() // This will trigger refetch and close modal
     } catch (error) {
       console.error(`Error ${isCreating ? 'creating' : 'updating'} user:`, error)
-      toast.error(`Failed to ${isCreating ? 'invite' : 'update'} user`)
+      toast.error(
+        error instanceof Error ? error.message : `Failed to ${isCreating ? 'invite' : 'update'} user`
+      )
     } finally {
       setSaving(false)
     }
@@ -275,27 +236,23 @@ export function UserDetailsModal({
   }
 
   const handleDeleteConfirm = async () => {
-    if (!user) return
+    if (!user || !organization) return
 
     setShowDeleteDialog(false)
     setDeleting(true)
     try {
-      const supabase = createClient()
+      // Delete user via server action
+      const result = await deleteUser(user.user_id, organization.id)
 
-      // Soft delete by setting deleted_at
-      const { error } = await supabase
-        .from('organization_members')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', user.membership_id)
-
-      if (error) throw error
+      if (result.error) {
+        throw new Error(result.error)
+      }
 
       toast.success('User removed from organization!')
-      onClose()
-      onUpdate()
+      onUpdate() // This will trigger refetch and close modal
     } catch (error) {
       console.error('Error removing user:', error)
-      toast.error('Failed to remove user')
+      toast.error(error instanceof Error ? error.message : 'Failed to remove user')
     } finally {
       setDeleting(false)
     }
@@ -303,12 +260,12 @@ export function UserDetailsModal({
 
   // Render step content
   const renderStepContent = () => {
-    const readOnlyStyle = {
-      padding: '0.75rem',
-      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-      border: '1px solid var(--border-primary)',
-      borderRadius: '8px',
-      color: 'var(--text-secondary)',
+    const readOnlyStyle: React.CSSProperties = {
+      padding: '0.65rem 0.875rem',
+      background: 'var(--bg-secondary)',
+      border: '1px solid var(--glass-border)',
+      borderRadius: '12px',
+      color: 'var(--text-primary)',
       fontSize: '0.875rem',
       cursor: 'default',
       minHeight: '40px',
@@ -505,336 +462,71 @@ export function UserDetailsModal({
     }
   }
 
-  // Early return
-  if (!isOpen) return null
+  // Prepare badges
+  const badges = []
+  if (!isCreating && user?.is_owner) {
+    badges.push(
+      <span
+        key="owner"
+        style={{
+          padding: '0.375rem 0.875rem',
+          borderRadius: '0.5rem',
+          fontSize: '0.813rem',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.025em',
+          backgroundColor: 'rgba(147, 51, 234, 0.15)',
+          color: '#9333ea',
+          border: '1px solid rgba(147, 51, 234, 0.3)',
+        }}
+      >
+        👑 Owner
+      </span>
+    )
+  }
+
+  if (isSuperAdmin) {
+    badges.push(
+      <span
+        key="superadmin"
+        style={{
+          padding: '0.25rem 0.75rem',
+          borderRadius: '0.375rem',
+          fontSize: '0.875rem',
+          fontWeight: 500,
+          background: '#8b5cf6',
+          color: 'white',
+        }}
+      >
+        Super Admin Access
+      </span>
+    )
+  }
 
   // Render
   return (
     <>
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.75)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem',
-        }}
-        onClick={onClose}
+      <BlipeeMultiStepModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={isCreating ? 'Invite New User' : isEditing ? 'Edit User' : 'User Details'}
+        badges={badges}
+        steps={steps}
+        currentStep={currentStep}
+        onStepChange={setCurrentStep}
+        isEditing={isEditing}
+        canEdit={canEdit && !isCreating}
+        onEdit={handleEdit}
+        onCancel={handleCancel}
+        onSave={handleSave}
+        onDelete={canDelete ? handleDeleteClick : undefined}
+        isSaving={isSaving}
+        isDeleting={isDeleting}
+        saveLabel={isCreating ? 'Send Invitation' : '✓ Save Changes'}
+        deleteLabel="Delete"
       >
-        <div
-          style={{
-            background: 'var(--glass-bg)',
-            border: '1px solid var(--glass-border)',
-            borderRadius: '24px',
-            maxWidth: '800px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            backdropFilter: 'blur(10px)',
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div
-            style={{
-              padding: '2rem',
-              borderBottom: '1px solid var(--glass-border)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '1rem',
-            }}
-          >
-            <div>
-              <h2 className={styles.sectionTitle}>
-                {isCreating ? 'Invite New User' : isEditing ? 'Edit User' : 'User Details'}
-              </h2>
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                {!isCreating && user?.is_owner && (
-                  <span
-                    style={{
-                      padding: '0.375rem 0.875rem',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.813rem',
-                      fontWeight: 600,
-                      backgroundColor: 'rgba(147, 51, 234, 0.15)',
-                      color: '#9333ea',
-                    }}
-                  >
-                    👑 Owner
-                  </span>
-                )}
-
-                {isSuperAdmin && (
-                  <span
-                    style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      background: '#8b5cf6',
-                      color: 'white',
-                    }}
-                  >
-                    Super Admin Access
-                  </span>
-                )}
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                fontSize: '1.5rem',
-                cursor: 'pointer',
-                color: 'var(--text-tertiary)',
-                padding: '0.5rem',
-                lineHeight: 1,
-              }}
-            >
-              ×
-            </button>
-          </div>
-
-          {/* Step indicator */}
-          <div style={{ padding: '0 2rem 1.5rem' }}>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              {steps.map((step) => (
-                <div
-                  key={step.number}
-                  style={{
-                    flex: 1,
-                    padding: '0.875rem',
-                    background: currentStep === step.number
-                      ? 'linear-gradient(135deg, var(--green) 0%, #059669 100%)'
-                      : 'rgba(255, 255, 255, 0.03)',
-                    border: currentStep === step.number
-                      ? '1px solid var(--green)'
-                      : '1px solid var(--glass-border)',
-                    borderRadius: '12px',
-                    cursor: isEditing ? 'pointer' : 'default',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                  }}
-                  onClick={() => isEditing && setCurrentStep(step.number)}
-                >
-                  <span style={{ fontSize: '1.25rem' }}>{step.icon}</span>
-                  <div>
-                    <div style={{
-                      fontSize: '0.75rem',
-                      color: currentStep === step.number ? 'rgba(255,255,255,0.8)' : 'var(--text-tertiary)',
-                      marginBottom: '0.125rem'
-                    }}>
-                      Step {step.number}
-                    </div>
-                    <div style={{
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      color: currentStep === step.number ? 'white' : 'var(--text-secondary)'
-                    }}>
-                      {step.title}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '0 2rem 2rem' }}>
-            {renderStepContent()}
-          </div>
-
-          {/* Footer */}
-          <div
-            style={{
-              padding: '1.5rem 2rem',
-              borderTop: '1px solid var(--glass-border)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '1rem',
-            }}
-          >
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              {currentStep > 1 && isEditing && (
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: 'transparent',
-                    border: '1px solid var(--border-primary)',
-                    borderRadius: '12px',
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.9rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  ← Back
-                </button>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', gap: '1rem', marginLeft: 'auto' }}>
-              {canEdit && !isCreating && (
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  {isEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleCancel}
-                        disabled={isSaving}
-                        style={{
-                          padding: '0.75rem 1.5rem',
-                          background: 'transparent',
-                          border: '1px solid var(--border-primary)',
-                          borderRadius: '12px',
-                          color: 'var(--text-secondary)',
-                          fontSize: '0.9rem',
-                          fontWeight: 600,
-                          cursor: isSaving ? 'not-allowed' : 'pointer',
-                          opacity: isSaving ? 0.5 : 1,
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      {currentStep < totalSteps ? (
-                        <button
-                          type="button"
-                          onClick={handleNext}
-                          style={{
-                            padding: '0.75rem 1.5rem',
-                            borderRadius: '12px',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            background: 'var(--gradient-primary)',
-                            border: 'none',
-                            color: 'white',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Next →
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={handleSave}
-                          disabled={isSaving}
-                          style={{
-                            padding: '0.75rem 1.5rem',
-                            borderRadius: '12px',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            background: isSaving ? 'var(--border-primary)' : 'var(--gradient-primary)',
-                            border: 'none',
-                            color: 'white',
-                            cursor: isSaving ? 'not-allowed' : 'pointer',
-                          }}
-                        >
-                          {isSaving ? 'Saving...' : 'Save Changes'}
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleEdit}
-                        style={{
-                          padding: '0.75rem 1.5rem',
-                          borderRadius: '12px',
-                          fontSize: '0.9rem',
-                          fontWeight: 600,
-                          background: 'var(--gradient-primary)',
-                          border: 'none',
-                          color: 'white',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        ✏️ Edit
-                      </button>
-                      {canDelete && (
-                        <button
-                          type="button"
-                          onClick={handleDeleteClick}
-                          disabled={isDeleting}
-                          style={{
-                            padding: '0.75rem 1.5rem',
-                            borderRadius: '12px',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                            border: 'none',
-                            color: 'white',
-                            cursor: isDeleting ? 'not-allowed' : 'pointer',
-                            opacity: isDeleting ? 0.5 : 1,
-                          }}
-                        >
-                          {isDeleting ? 'Removing...' : '🗑️ Remove'}
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {isCreating && (
-                <>
-                  {currentStep < totalSteps ? (
-                    <button
-                      type="button"
-                      onClick={handleNext}
-                      style={{
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '12px',
-                        fontSize: '0.9rem',
-                        fontWeight: 600,
-                        background: 'var(--gradient-primary)',
-                        border: 'none',
-                        color: 'white',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Next →
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      style={{
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '12px',
-                        fontSize: '0.9rem',
-                        fontWeight: 600,
-                        background: isSaving ? 'var(--border-primary)' : 'var(--gradient-primary)',
-                        border: 'none',
-                        color: 'white',
-                        cursor: isSaving ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      {isSaving ? 'Inviting...' : 'Send Invitation'}
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+        {renderStepContent()}
+      </BlipeeMultiStepModal>
 
       {/* Delete confirmation dialog */}
       <ConfirmDialog

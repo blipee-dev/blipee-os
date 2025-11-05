@@ -1,32 +1,34 @@
 /**
  * Auth Server Actions (V2)
  *
- * These are Server Actions that handle authentication using native Supabase auth.
- * They replace the need for API routes for auth operations.
+ * These are Server Actions that handle authentication using safe-link proof tokens.
+ * Custom tokens resist email security systems (Microsoft Safe Links, Gmail, etc.)
+ * that pre-fetch links and consume one-time tokens.
  *
  * Key Features:
- * - Native Supabase JWT auth (no custom session tokens)
+ * - Safe-link proof tokens (stored in user_metadata, not consumed on first use)
  * - Form-friendly (works without JavaScript)
  * - Automatic revalidation
  * - Type-safe with Zod validation
  *
- * Based on: https://supabase.com/docs/guides/auth/server-side/nextjs
+ * Based on: retail-platform's auth-middleware approach
  */
 
 'use server'
 
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
-import { createClient } from '@/lib/supabase/v2/server'
+import { createClient, createAdminClient } from '@/lib/supabase/v2/server'
 import { success as toastSuccess, error as toastError } from '@/lib/toast'
 import { z } from 'zod'
-import { 
-  authRateLimit, 
-  passwordResetRateLimit, 
-  getClientIP, 
+import {
+  authRateLimit,
+  passwordResetRateLimit,
+  getClientIP,
   checkRateLimit,
-  formatResetTime 
+  formatResetTime
 } from '@/lib/rate-limit'
+import { storeToken, generateTokenUrl } from '@/lib/auth/tokens'
 
 // Validation schemas
 const SignInSchema = z.object({
@@ -124,6 +126,8 @@ export async function signIn(formData: FormData): Promise<void> {
 /**
  * Sign up with email and password
  *
+ * SAFE-LINK PROOF: Uses custom tokens stored in user_metadata
+ *
  * @example
  * ```tsx
  * <form action={signUp}>
@@ -140,7 +144,7 @@ export async function signUp(formData: FormData): Promise<void> {
   const headersList = await headers()
   const ip = getClientIP(headersList)
   const rateLimit = await checkRateLimit(authRateLimit, ip)
-  
+
   if (!rateLimit.success) {
     const resetTime = formatResetTime(rateLimit.reset)
     await toastError(`Too many signup attempts. Please try again in ${resetTime}.`)
@@ -163,22 +167,65 @@ export async function signUp(formData: FormData): Promise<void> {
   const { email, password, name } = validation.data
 
   try {
-    const supabase = await createClient()
+    // Create user with admin client (email confirmation disabled initially)
+    const adminClient = createAdminClient()
 
-    const { error } = await supabase.auth.signUp({
+    const { data: authUser, error: signUpError } = await adminClient.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          name,
-        },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      email_confirm: false, // We'll confirm via our custom token
+      user_metadata: {
+        name,
       },
     })
 
-    if (error) {
+    if (signUpError) {
+      console.error('[SIGNUP] Error creating user:', signUpError)
       await toastError('Could not create account. Please try again.')
       redirect('/signup')
+    }
+
+    if (!authUser?.user) {
+      await toastError('Could not create account. Please try again.')
+      redirect('/signup')
+    }
+
+    console.log('[SIGNUP] User created:', authUser.user.id)
+
+    // Generate confirmation token
+    const { token, error: tokenError } = await storeToken(email, 'email_confirmation')
+
+    if (tokenError || !token) {
+      console.error('[SIGNUP] Error generating token:', tokenError)
+      await toastError('Could not send confirmation email. Please contact support.')
+      redirect('/signup')
+    }
+
+    // Generate confirmation URL
+    const confirmationUrl = generateTokenUrl(
+      process.env.NEXT_PUBLIC_APP_URL!,
+      'email_confirmation',
+      email,
+      token
+    )
+
+    console.log('[SIGNUP] Confirmation URL:', confirmationUrl)
+
+    // Send confirmation email
+    const { sendEmail } = await import('@/lib/email/mailer')
+    const { emailConfirmationTemplate } = await import('@/lib/email/templates')
+
+    const emailResult = await sendEmail({
+      to: email,
+      subject: 'Confirm your email - blipee',
+      html: emailConfirmationTemplate(name || '', confirmationUrl),
+    })
+
+    if (!emailResult.success) {
+      console.error('[SIGNUP] Failed to send confirmation email:', emailResult.error)
+      // Don't fail signup if email fails - user can request new link
+    } else {
+      console.log('[SIGNUP] Confirmation email sent successfully')
     }
 
     await toastSuccess('Check your email to confirm your account')
@@ -188,6 +235,7 @@ export async function signUp(formData: FormData): Promise<void> {
       throw error
     }
 
+    console.error('[SIGNUP] Exception:', error)
     await toastError('An unexpected error occurred. Please try again.')
     redirect('/signup')
   }
@@ -212,6 +260,8 @@ export async function signOut(): Promise<void> {
 
 /**
  * Request password reset email
+ *
+ * SAFE-LINK PROOF: Uses custom tokens stored in user_metadata
  *
  * @example
  * ```tsx
@@ -255,26 +305,44 @@ export async function resetPassword(formData: FormData): Promise<void> {
   console.log('[RESET PASSWORD] Email validated:', email)
 
   try {
-    const supabase = await createClient()
-    console.log('[RESET PASSWORD] Supabase client created')
+    // Generate password reset token
+    const { token, error: tokenError } = await storeToken(email, 'password_reset')
 
-    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/reset-password`
-    console.log('[RESET PASSWORD] Redirect URL:', redirectUrl)
-
-    const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl,
-    })
-
-    console.log('[RESET PASSWORD] Supabase response:', { error, data })
-
-    if (error) {
-      console.log('[RESET PASSWORD] Supabase error:', error)
-      // Don't expose whether email exists
+    // Don't expose whether email exists - always show success
+    if (tokenError || !token) {
+      console.log('[RESET PASSWORD] Token generation failed (email may not exist):', tokenError)
       await toastSuccess('If that email is registered, you will receive a password reset link.')
       redirect('/forgot-password')
+      return
     }
 
-    console.log('[RESET PASSWORD] Success - email should be sent')
+    // Generate reset URL
+    const resetUrl = generateTokenUrl(
+      process.env.NEXT_PUBLIC_APP_URL!,
+      'password_reset',
+      email,
+      token
+    )
+
+    console.log('[RESET PASSWORD] Reset URL:', resetUrl)
+
+    // Send password reset email
+    const { sendEmail } = await import('@/lib/email/mailer')
+    const { passwordResetTemplate } = await import('@/lib/email/templates')
+
+    const emailResult = await sendEmail({
+      to: email,
+      subject: 'Reset your password - blipee',
+      html: passwordResetTemplate(email, resetUrl),
+    })
+
+    if (!emailResult.success) {
+      console.error('[RESET PASSWORD] Failed to send reset email:', emailResult.error)
+      // Don't expose email sending failure - show generic success message
+    } else {
+      console.log('[RESET PASSWORD] Password reset email sent successfully')
+    }
+
     await toastSuccess('Check your email for a password reset link')
     redirect('/forgot-password')
   } catch (error) {
@@ -328,6 +396,11 @@ export async function updatePassword(formData: FormData): Promise<void> {
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     console.log('[UPDATE PASSWORD] User check:', { user: user?.id, error: userError })
 
+    if (!user) {
+      await toastError('Session expired. Please request a new password reset link.')
+      redirect('/forgot-password')
+    }
+
     const { error } = await supabase.auth.updateUser({
       password,
     })
@@ -339,6 +412,11 @@ export async function updatePassword(formData: FormData): Promise<void> {
       await toastError('Could not update password. Please try again.')
       redirect('/reset-password')
     }
+
+    // Clear the password reset token
+    const { clearToken } = await import('@/lib/auth/tokens')
+    await clearToken(user.id, 'password_reset')
+    console.log('[UPDATE PASSWORD] Cleared password reset token')
 
     console.log('[UPDATE PASSWORD] Password updated successfully')
     await toastSuccess('Password updated successfully! You can now sign in.')

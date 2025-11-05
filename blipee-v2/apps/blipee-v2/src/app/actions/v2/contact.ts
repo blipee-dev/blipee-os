@@ -144,7 +144,7 @@ async function sendTeamNotification(data: {
   })
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM || 'noreply@blipee.com',
+    from: process.env.EMAIL_FROM || 'no-reply@blipee.com',
     to: 'info@blipee.com',
     subject: `New Contact Form Submission - ${subject}`,
     html: `

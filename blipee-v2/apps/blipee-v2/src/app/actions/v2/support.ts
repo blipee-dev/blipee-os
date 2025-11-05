@@ -167,7 +167,7 @@ async function sendSupportNotification(data: {
   })
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM || 'noreply@blipee.com',
+    from: process.env.EMAIL_FROM || 'no-reply@blipee.com',
     to: 'support@blipee.com',
     subject: `${emoji} New Support Ticket - ${priority.toUpperCase()} - ${category}`,
     html: `
