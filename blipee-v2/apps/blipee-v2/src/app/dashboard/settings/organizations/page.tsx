@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { useUserOrganizations, Organization } from '@/hooks/useUserOrganizations'
 import { OrganizationDetailsModal } from '@/components/organizations/OrganizationDetailsModal'
 import styles from '@/styles/settings-layout.module.css'
 
 export default function OrganizationsPage() {
+  const t = useTranslations('settings.settings.organizations')
   const { organizations, loading, isSuperAdmin, refetch } = useUserOrganizations()
 
   // Filters state
@@ -147,8 +149,8 @@ export default function OrganizationsPage() {
 
           {/* Loading text */}
           <div className="text-center">
-            <p className="text-slate-300 font-semibold">Loading Organizations</p>
-            <p className="text-slate-500 text-sm mt-1">Fetching your organization data...</p>
+            <p className="text-slate-300 font-semibold">{t('loadingTitle')}</p>
+            <p className="text-slate-500 text-sm mt-1">{t('loadingDescription')}</p>
           </div>
 
           {/* Animated dots */}
