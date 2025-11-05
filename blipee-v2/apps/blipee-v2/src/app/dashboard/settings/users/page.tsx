@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/v2/client'
 import { useUserOrganization } from '@/hooks/useUserOrganization'
 import { useIsSuperAdmin } from '@/hooks/useIsSuperAdmin'
 import { UserDetailsModal } from '@/components/users/UserDetailsModal'
+import { useTranslations } from 'next-intl'
 import styles from '@/styles/settings-layout.module.css'
 
 interface Member {
@@ -89,6 +90,7 @@ async function fetchMembers(organizationId: string): Promise<Member[]> {
 export default function UsersPage() {
   const { organization, loading: orgLoading } = useUserOrganization()
   const { isSuperAdmin, loading: superAdminLoading } = useIsSuperAdmin()
+  const t = useTranslations('settings.settings.users')
 
   // Filters state
   const [searchTerm, setSearchTerm] = useState('')
@@ -270,8 +272,8 @@ export default function UsersPage() {
 
           {/* Loading text */}
           <div className="text-center">
-            <p className="text-slate-300 font-semibold">Loading Users</p>
-            <p className="text-slate-500 text-sm mt-1">Fetching your user data...</p>
+            <p className="text-slate-300 font-semibold">{t('loadingTitle')}</p>
+            <p className="text-slate-500 text-sm mt-1">{t('loadingDescription')}</p>
           </div>
 
           {/* Animated dots */}
@@ -288,9 +290,9 @@ export default function UsersPage() {
   if (!organization) {
     return (
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>No Organization</h2>
+        <h2 className={styles.sectionTitle}>{t('noOrganizationTitle')}</h2>
         <p className={styles.sectionDescription}>
-          You are not associated with any organization.
+          {t('noOrganizationDescription')}
         </p>
       </div>
     )
@@ -299,15 +301,14 @@ export default function UsersPage() {
   if (members.length === 0) {
     return (
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>No Users</h2>
+        <h2 className={styles.sectionTitle}>{t('noUsersTitle')}</h2>
         <p className={styles.sectionDescription}>
-          Your organization has no members yet.
+          {t('noUsersDescription')}
         </p>
         {isSuperAdmin && (
           <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-              💡 As a super admin, you should see all members. If this list is empty,
-              no members have been added yet.
+              {t('superAdminNote')}
             </p>
           </div>
         )}
@@ -327,10 +328,10 @@ export default function UsersPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
           <div>
             <h2 className={styles.sectionTitle}>
-              Organization Users
+              {t('titleOrganizationUsers')}
             </h2>
             <p className={styles.sectionDescription}>
-              Members of {organization.name} ({filteredMembers.length} of {members.length})
+              {`${t('descriptionMembers')} ${organization.name} (${filteredMembers.length} ${t('of')} ${members.length})`}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -367,7 +368,7 @@ export default function UsersPage() {
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                Add User
+                {t('addUserButton')}
               </button>
             )}
             {isSuperAdmin && (
@@ -381,7 +382,7 @@ export default function UsersPage() {
                   fontWeight: 600,
                 }}
               >
-                🔐 Super Admin
+                {t('superAdminBadge')}
               </span>
             )}
           </div>
@@ -397,7 +398,7 @@ export default function UsersPage() {
         }}>
           <input
             type="text"
-            placeholder="Search by name, email..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -424,7 +425,7 @@ export default function UsersPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="all">All Roles</option>
+            <option value="all">{t('allRoles')}</option>
             {roles.map((role) => (
               <option key={role} value={role}>
                 {role.charAt(0).toUpperCase() + role.slice(1)}
@@ -445,7 +446,7 @@ export default function UsersPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="all">All Departments</option>
+            <option value="all">{t('allDepartments')}</option>
             {departments.map((dept) => (
               <option key={dept} value={dept}>
                 {dept}
@@ -470,7 +471,7 @@ export default function UsersPage() {
                 textDecoration: 'underline',
               }}
             >
-              Clear
+              {t('clearFilters')}
             </button>
           )}
         </div>
@@ -488,9 +489,9 @@ export default function UsersPage() {
                 <circle cx="9" cy="7" r="4" />
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
-              <p>No users found</p>
+              <p>{t('noUsersFoundTitle')}</p>
               {(searchTerm || roleFilter !== 'all' || departmentFilter !== 'all') && (
-                <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Try adjusting your filters</p>
+                <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>{t('noUsersFoundDescription')}</p>
               )}
             </div>
           ) : (
@@ -514,7 +515,7 @@ export default function UsersPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Name
+                        {t('tableHeaderName')}
                         {sortField === 'name' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -539,7 +540,7 @@ export default function UsersPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Email
+                        {t('tableHeaderEmail')}
                         {sortField === 'email' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -564,7 +565,7 @@ export default function UsersPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Department
+                        {t('tableHeaderDepartment')}
                         {sortField === 'department' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -589,7 +590,7 @@ export default function UsersPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Role
+                        {t('tableHeaderRole')}
                         {sortField === 'role' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -614,7 +615,7 @@ export default function UsersPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Joined
+                        {t('tableHeaderJoined')}
                         {sortField === 'joined' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -706,7 +707,7 @@ export default function UsersPage() {
                                   : 'rgba(59, 130, 246, 0.3)'
                             }`,
                           }}>
-                            {member.is_owner ? '● Owner' : member.role === 'admin' ? '● Admin' : '● Member'}
+                            {member.is_owner ? t('roleBadgeOwner') : member.role === 'admin' ? t('roleBadgeAdmin') : t('roleBadgeMember')}
                           </span>
                         </td>
                         <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
@@ -727,7 +728,7 @@ export default function UsersPage() {
           color: 'var(--text-tertiary)',
           fontStyle: 'italic'
         }}>
-          💡 Click on any row to view details
+          {t('clickRowHint')}
         </p>
       </div>
 

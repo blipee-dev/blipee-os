@@ -244,8 +244,8 @@ export default function SitesPage() {
 
           {/* Loading text */}
           <div className="text-center">
-            <p className="text-slate-300 font-semibold">Loading Sites</p>
-            <p className="text-slate-500 text-sm mt-1">Fetching your site data...</p>
+            <p className="text-slate-300 font-semibold">{t('loadingTitle')}</p>
+            <p className="text-slate-500 text-sm mt-1">{t('loadingDescription')}</p>
           </div>
 
           {/* Animated dots */}
@@ -262,9 +262,9 @@ export default function SitesPage() {
   if (!organization && !isSuperAdmin) {
     return (
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>No Organization</h2>
+        <h2 className={styles.sectionTitle}>{t('noOrganization')}</h2>
         <p className={styles.sectionDescription}>
-          You are not associated with any organization.
+          {t('noOrganizationDescription')}
         </p>
       </div>
     )
@@ -273,17 +273,16 @@ export default function SitesPage() {
   if (sites.length === 0) {
     return (
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>No Sites</h2>
+        <h2 className={styles.sectionTitle}>{t('noSitesTitle')}</h2>
         <p className={styles.sectionDescription}>
           {isSuperAdmin
-            ? 'No sites have been created in the system yet.'
-            : 'Your organization has not registered any sites yet.'}
+            ? t('noSitesDescriptionAdmin')
+            : t('noSitesDescriptionUser')}
         </p>
         {isSuperAdmin && (
           <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-              💡 As a super admin, you should see all sites. If this list is empty,
-              no sites have been created in the system yet.
+              {t('superAdminNote')}
             </p>
           </div>
         )}
@@ -303,12 +302,12 @@ export default function SitesPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <div>
           <h2 className={styles.sectionTitle}>
-            {isSuperAdmin ? 'All Sites' : 'Your Sites'}
+            {isSuperAdmin ? t('titleAll') : t('titleYour')}
           </h2>
           <p className={styles.sectionDescription}>
             {isSuperAdmin
-              ? `Manage all sites in the system (${filteredSites.length} of ${sites.length})`
-              : `Sites and facilities for your organization (${filteredSites.length} of ${sites.length})`}
+              ? `${t('descriptionAll')} (${filteredSites.length} ${t('of')} ${sites.length})`
+              : `${t('descriptionYour')} (${filteredSites.length} ${t('of')} ${sites.length})`}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -344,7 +343,7 @@ export default function SitesPage() {
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Add Site
+            {t('addSiteButton')}
           </button>
           {isSuperAdmin && (
             <span
@@ -357,7 +356,7 @@ export default function SitesPage() {
                 fontWeight: 600,
               }}
             >
-              🔐 Super Admin
+              {t('superAdminBadge')}
             </span>
           )}
         </div>
@@ -373,7 +372,7 @@ export default function SitesPage() {
       }}>
         <input
           type="text"
-          placeholder="Search by name or location..."
+          placeholder={t('searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -400,7 +399,7 @@ export default function SitesPage() {
             cursor: 'pointer',
           }}
         >
-          <option value="all">All Types</option>
+          <option value="all">{t('allTypes')}</option>
           {types.map((type) => (
             <option key={type} value={type}>
               {type}
@@ -421,7 +420,7 @@ export default function SitesPage() {
             cursor: 'pointer',
           }}
         >
-          <option value="all">All Locations</option>
+          <option value="all">{t('allLocations')}</option>
           {locations.map((location) => (
             <option key={location} value={location}>
               {location}
@@ -442,9 +441,9 @@ export default function SitesPage() {
             cursor: 'pointer',
           }}
         >
-          <option value="all">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="all">{t('allStatuses')}</option>
+          <option value="active">{t('statusActive')}</option>
+          <option value="inactive">{t('statusInactive')}</option>
         </select>
 
         {(searchTerm || typeFilter !== 'all' || locationFilter !== 'all' || statusFilter !== 'all') && (
@@ -465,7 +464,7 @@ export default function SitesPage() {
               textDecoration: 'underline',
             }}
           >
-            Clear
+            {t('clearFilters')}
           </button>
         )}
       </div>
@@ -482,9 +481,9 @@ export default function SitesPage() {
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            <p>No sites found</p>
+            <p>{t('noSitesFoundTitle')}</p>
             {(searchTerm || typeFilter !== 'all' || locationFilter !== 'all' || statusFilter !== 'all') && (
-              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Try adjusting your filters</p>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>{t('noSitesFoundDescription')}</p>
             )}
           </div>
         ) : (
@@ -508,7 +507,7 @@ export default function SitesPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      Site Name
+                      {t('tableHeaderSiteName')}
                       {sortField === 'name' && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           {sortDirection === 'asc' ? (
@@ -534,7 +533,7 @@ export default function SitesPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Organization
+                        {t('tableHeaderOrganization')}
                         {sortField === 'organization' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -560,7 +559,7 @@ export default function SitesPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      Type
+                      {t('tableHeaderType')}
                       {sortField === 'type' && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           {sortDirection === 'asc' ? (
@@ -585,7 +584,7 @@ export default function SitesPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      Location
+                      {t('tableHeaderLocation')}
                       {sortField === 'location' && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           {sortDirection === 'asc' ? (
@@ -610,7 +609,7 @@ export default function SitesPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      Employees
+                      {t('tableHeaderEmployees')}
                       {sortField === 'employees' && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           {sortDirection === 'asc' ? (
@@ -623,7 +622,7 @@ export default function SitesPage() {
                     </div>
                   </th>
                   <th style={{ padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.875rem' }}>
-                    Status
+                    {t('tableHeaderStatus')}
                   </th>
                   <th
                     onClick={() => handleSort('created')}
@@ -638,7 +637,7 @@ export default function SitesPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      Created
+                      {t('tableHeaderCreated')}
                       {sortField === 'created' && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           {sortDirection === 'asc' ? (
@@ -712,7 +711,7 @@ export default function SitesPage() {
                         color: site.status === 'active' ? '#22c55e' : '#ef4444',
                         border: `1px solid ${site.status === 'active' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
                       }}>
-                        {site.status === 'active' ? '● Active' : '✖ Inactive'}
+                        {site.status === 'active' ? t('statusBadgeActive') : t('statusBadgeInactive')}
                       </span>
                     </td>
                     <td style={{ padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
@@ -732,7 +731,7 @@ export default function SitesPage() {
           color: 'var(--text-tertiary)',
           fontStyle: 'italic'
         }}>
-          💡 Click on any row to view details
+          {t('clickRowHint')}
         </p>
       </div>
 
