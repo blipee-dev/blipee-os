@@ -1,0 +1,93 @@
+{
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "pricing": "Pricing",
+    "documentation": "Documentation",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "reset": "Reset",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "download": "Download",
+    "upload": "Upload",
+    "view": "View",
+    "add": "Add",
+    "remove": "Remove"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "error": "Error",
+    "success": "Success",
+    "pending": "Pending",
+    "active": "Active",
+    "inactive": "Inactive",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "messages": {
+    "saveSuccess": "Changes saved successfully",
+    "saveError": "Failed to save changes",
+    "deleteSuccess": "Deleted successfully",
+    "deleteError": "Failed to delete",
+    "createSuccess": "Created successfully",
+    "createError": "Failed to create",
+    "updateSuccess": "Updated successfully",
+    "updateError": "Failed to update",
+    "loadError": "Failed to load data",
+    "confirmDelete": "Are you sure you want to delete this?",
+    "noData": "No data available",
+    "comingSoon": "Coming soon"
+  },
+  "forms": {
+    "required": "Required",
+    "optional": "Optional",
+    "select": "Select...",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "clear": "Clear"
+  },
+  "time": {
+    "seconds": "seconds",
+    "minutes": "minutes",
+    "hours": "hours",
+    "days": "days",
+    "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+    "ago": "ago",
+    "just
+
+Now": "just now"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "to": "to",
+    "results": "results"
+  }
+}

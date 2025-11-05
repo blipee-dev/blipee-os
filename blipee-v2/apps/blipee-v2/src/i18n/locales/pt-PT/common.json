@@ -1,0 +1,91 @@
+{
+  "navigation": {
+    "home": "Início",
+    "about": "Sobre",
+    "pricing": "Preços",
+    "documentation": "Documentação",
+    "dashboard": "Dashboard",
+    "profile": "Perfil",
+    "settings": "Definições",
+    "signIn": "Iniciar Sessão",
+    "signUp": "Registar",
+    "signOut": "Terminar Sessão"
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Criar",
+    "update": "Atualizar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Seguinte",
+    "submit": "Enviar",
+    "reset": "Repor",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "download": "Transferir",
+    "upload": "Carregar",
+    "view": "Ver",
+    "add": "Adicionar",
+    "remove": "Remover"
+  },
+  "status": {
+    "loading": "A carregar...",
+    "saving": "A guardar...",
+    "saved": "Guardado",
+    "error": "Erro",
+    "success": "Sucesso",
+    "pending": "Pendente",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "completed": "Concluído",
+    "cancelled": "Cancelado"
+  },
+  "messages": {
+    "saveSuccess": "Alterações guardadas com sucesso",
+    "saveError": "Erro ao guardar as alterações",
+    "deleteSuccess": "Eliminado com sucesso",
+    "deleteError": "Erro ao eliminar",
+    "createSuccess": "Criado com sucesso",
+    "createError": "Erro ao criar",
+    "updateSuccess": "Atualizado com sucesso",
+    "updateError": "Erro ao atualizar",
+    "loadError": "Erro ao carregar os dados",
+    "confirmDelete": "Tem a certeza de que pretende eliminar isto?",
+    "noData": "Sem dados disponíveis",
+    "comingSoon": "Brevemente"
+  },
+  "forms": {
+    "required": "Obrigatório",
+    "optional": "Opcional",
+    "select": "Selecionar...",
+    "selectAll": "Selecionar tudo",
+    "deselectAll": "Desselecionar tudo",
+    "clear": "Limpar"
+  },
+  "time": {
+    "seconds": "segundos",
+    "minutes": "minutos",
+    "hours": "horas",
+    "days": "dias",
+    "weeks": "semanas",
+    "months": "meses",
+    "years": "anos",
+    "ago": "atrás",
+    "justNow": "agora mesmo"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Seguinte",
+    "page": "Página",
+    "of": "de",
+    "showing": "A mostrar",
+    "to": "a",
+    "results": "resultados"
+  }
+}
