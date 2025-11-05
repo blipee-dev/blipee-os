@@ -1,0 +1,80 @@
+{
+  "carbonDashboard": {
+    "title": "Dashboard de Carbono",
+    "subtitle": "Acompanhe e reduza as emissões de carbono na sua organização",
+    "filters": {
+      "allSites": "Todos os Locais",
+      "headquarters": "Sede",
+      "manufacturingPlantA": "Fábrica A",
+      "warehouseB": "Armazém B",
+      "currentYear": "Ano Atual",
+      "last12Months": "Últimos 12 Meses",
+      "lastQuarter": "Último Trimestre",
+      "lastMonth": "Último Mês"
+    },
+    "kpis": {
+      "totalEmissions": "Emissões Totais",
+      "scope1Emissions": "Emissões Scope 1",
+      "scope2Emissions": "Emissões Scope 2",
+      "targetAchievement": "Cumprimento de Objetivos",
+      "vsLastYear": "vs ano anterior",
+      "vsTarget": "vs objetivo"
+    },
+    "charts": {
+      "emissionsByScope": "Emissões por Scope",
+      "emissionsByScopeDesc": "Distribuição por categorias de emissão",
+      "reductionProgress": "Progresso de Redução",
+      "reductionProgressDesc": "Cumprimento de objetivos por categoria de emissão",
+      "annualTarget": "Cumprimento do Objetivo Anual",
+      "annualTargetDesc": "Progresso em relação aos objetivos de redução de 2024",
+      "ofAnnualTarget": "do objetivo anual",
+      "emissionsDistribution": "Distribuição de Emissões",
+      "emissionsDistributionDesc": "Por fonte e categoria",
+      "monthlyEmissions": "Emissões Mensais",
+      "monthlyEmissionsDesc": "Emissões de carbono por mês (tCO₂)",
+      "emissionIntensity": "Intensidade de Emissão",
+      "emissionIntensityDesc": "Padrões horários durante a semana"
+    },
+    "categories": {
+      "transportation": "Transporte",
+      "electricity": "Eletricidade",
+      "heating": "Aquecimento",
+      "cooling": "Arrefecimento",
+      "manufacturing": "Fabrico",
+      "supplyChain": "Cadeia de Fornecimento",
+      "transport": "Transporte",
+      "energy": "Energia",
+      "supply": "Fornecimento"
+    },
+    "scopes": {
+      "scope1": "Scope 1",
+      "scope2": "Scope 2",
+      "scope3": "Scope 3"
+    },
+    "table": {
+      "title": "Emissões por Categoria",
+      "description": "Análise detalhada das emissões de carbono",
+      "category": "Categoria",
+      "emissions": "Emissões (tCO₂)",
+      "percentOfTotal": "% do Total",
+      "trend": "Tendência",
+      "status": "Estado",
+      "onTrack": "No Caminho Certo",
+      "atRisk": "Em Risco"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fev",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Set",
+      "oct": "Out",
+      "nov": "Nov",
+      "dec": "Dez"
+    }
+  }
+}

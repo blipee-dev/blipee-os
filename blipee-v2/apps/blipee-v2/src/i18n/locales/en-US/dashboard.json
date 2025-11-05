@@ -1,0 +1,80 @@
+{
+  "carbonDashboard": {
+    "title": "Carbon Dashboard",
+    "subtitle": "Track and reduce carbon emissions across your organization",
+    "filters": {
+      "allSites": "All Sites",
+      "headquarters": "Headquarters",
+      "manufacturingPlantA": "Manufacturing Plant A",
+      "warehouseB": "Warehouse B",
+      "currentYear": "Current Year",
+      "last12Months": "Last 12 Months",
+      "lastQuarter": "Last Quarter",
+      "lastMonth": "Last Month"
+    },
+    "kpis": {
+      "totalEmissions": "Total Emissions",
+      "scope1Emissions": "Scope 1 Emissions",
+      "scope2Emissions": "Scope 2 Emissions",
+      "targetAchievement": "Target Achievement",
+      "vsLastYear": "vs last year",
+      "vsTarget": "vs target"
+    },
+    "charts": {
+      "emissionsByScope": "Emissions by Scope",
+      "emissionsByScopeDesc": "Distribution across emission categories",
+      "reductionProgress": "Reduction Progress",
+      "reductionProgressDesc": "Target achievement by emission category",
+      "annualTarget": "Annual Target Achievement",
+      "annualTargetDesc": "Progress towards 2024 reduction goals",
+      "ofAnnualTarget": "of annual target",
+      "emissionsDistribution": "Emissions Distribution",
+      "emissionsDistributionDesc": "By source and category",
+      "monthlyEmissions": "Monthly Emissions",
+      "monthlyEmissionsDesc": "Carbon emissions by month (tCO₂)",
+      "emissionIntensity": "Emission Intensity",
+      "emissionIntensityDesc": "Hourly patterns throughout the week"
+    },
+    "categories": {
+      "transportation": "Transportation",
+      "electricity": "Electricity",
+      "heating": "Heating",
+      "cooling": "Cooling",
+      "manufacturing": "Manufacturing",
+      "supplyChain": "Supply Chain",
+      "transport": "Transport",
+      "energy": "Energy",
+      "supply": "Supply"
+    },
+    "scopes": {
+      "scope1": "Scope 1",
+      "scope2": "Scope 2",
+      "scope3": "Scope 3"
+    },
+    "table": {
+      "title": "Emissions by Category",
+      "description": "Detailed breakdown of carbon emissions",
+      "category": "Category",
+      "emissions": "Emissions (tCO₂)",
+      "percentOfTotal": "% of Total",
+      "trend": "Trend",
+      "status": "Status",
+      "onTrack": "On Track",
+      "atRisk": "At Risk"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dec"
+    }
+  }
+}

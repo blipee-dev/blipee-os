@@ -57,6 +57,7 @@ export default getRequestConfig(async () => {
       // Load all translation files
       auth: (await import(`./locales/${locale}/auth.json`)).default,
       common: (await import(`./locales/${locale}/common.json`)).default,
+      dashboard: (await import(`./locales/${locale}/dashboard.json`)).default,
     }
   }
 })
