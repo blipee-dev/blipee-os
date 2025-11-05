@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/v2/client'
 import { useUserOrganization } from '@/hooks/useUserOrganization'
@@ -73,6 +74,7 @@ async function fetchAllSites(): Promise<Site[]> {
 }
 
 export default function SitesPage() {
+  const t = useTranslations('settings.settings.sites')
   const { organization, loading: orgLoading } = useUserOrganization()
   const { isSuperAdmin, loading: superAdminLoading } = useIsSuperAdmin()
 

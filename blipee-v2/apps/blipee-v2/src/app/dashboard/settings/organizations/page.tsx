@@ -167,15 +167,14 @@ export default function OrganizationsPage() {
   if (organizations.length === 0) {
     return (
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>No Organizations</h2>
+        <h2 className={styles.sectionTitle}>{t('noOrganizationsTitle')}</h2>
         <p className={styles.sectionDescription}>
-          You are not associated with any organization.
+          {t('noOrganizationsDescription')}
         </p>
         {isSuperAdmin && (
           <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-              💡 As a super admin, you should see all organizations. If this list is empty,
-              no organizations have been created in the system yet.
+              {t('superAdminNote')}
             </p>
           </div>
         )}
@@ -195,12 +194,12 @@ export default function OrganizationsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
           <div>
             <h2 className={styles.sectionTitle}>
-              {isSuperAdmin ? 'All Organizations' : 'Your Organizations'}
+              {isSuperAdmin ? t('titleAll') : t('titleYour')}
             </h2>
             <p className={styles.sectionDescription}>
               {isSuperAdmin
-                ? `Manage all organizations in the system (${filteredOrganizations.length} of ${organizations.length})`
-                : `Organizations you are a member of (${filteredOrganizations.length} of ${organizations.length})`}
+                ? `${t('descriptionAll')} (${filteredOrganizations.length} ${t('of')} ${organizations.length})`
+                : `${t('descriptionYour')} (${filteredOrganizations.length} ${t('of')} ${organizations.length})`}
             </p>
           </div>
           {isSuperAdmin && (
@@ -214,7 +213,7 @@ export default function OrganizationsPage() {
                 fontWeight: 600,
               }}
             >
-              🔐 Super Admin
+              {t('superAdminBadge')}
             </span>
           )}
         </div>
@@ -229,7 +228,7 @@ export default function OrganizationsPage() {
         }}>
           <input
             type="text"
-            placeholder="Search by name..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -256,7 +255,7 @@ export default function OrganizationsPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="all">All Industries</option>
+            <option value="all">{t('allIndustries')}</option>
             {industries.map((industry) => (
               <option key={industry} value={industry}>
                 {industry}
@@ -277,7 +276,7 @@ export default function OrganizationsPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="all">All Sizes</option>
+            <option value="all">{t('allSizes')}</option>
             <option value="1-10">1-10</option>
             <option value="11-50">11-50</option>
             <option value="51-200">51-200</option>
@@ -300,10 +299,10 @@ export default function OrganizationsPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="setup">Setup Required</option>
-            <option value="inactive">Inactive</option>
+            <option value="all">{t('allStatuses')}</option>
+            <option value="active">{t('statusActive')}</option>
+            <option value="setup">{t('statusSetup')}</option>
+            <option value="inactive">{t('statusInactive')}</option>
           </select>
 
           {(searchTerm || industryFilter !== 'all' || sizeFilter !== 'all' || statusFilter !== 'all') && (
@@ -324,7 +323,7 @@ export default function OrganizationsPage() {
                 textDecoration: 'underline',
               }}
             >
-              Clear
+              {t('clearFilters')}
             </button>
           )}
         </div>
@@ -341,9 +340,9 @@ export default function OrganizationsPage() {
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
-              <p>No organizations found</p>
+              <p>{t('noOrganizationsFound')}</p>
               {(searchTerm || industryFilter !== 'all' || sizeFilter !== 'all') && (
-                <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Try adjusting your filters</p>
+                <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>{t('adjustFilters')}</p>
               )}
             </div>
           ) : (
@@ -367,7 +366,7 @@ export default function OrganizationsPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Organization
+                        {t('tableHeaderOrganization')}
                         {sortField === 'name' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -392,7 +391,7 @@ export default function OrganizationsPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Primary Industry
+                        {t('tableHeaderPrimaryIndustry')}
                         {sortField === 'industry' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -417,7 +416,7 @@ export default function OrganizationsPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Size
+                        {t('tableHeaderSize')}
                         {sortField === 'size' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -442,7 +441,7 @@ export default function OrganizationsPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Status
+                        {t('tableHeaderStatus')}
                         {sortField === 'status' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -455,7 +454,7 @@ export default function OrganizationsPage() {
                       </div>
                     </th>
                     <th style={{ padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.875rem' }}>
-                      {isSuperAdmin ? 'Access Level' : 'Your Role'}
+                      {isSuperAdmin ? t('tableHeaderAccessLevel') : t('tableHeaderYourRole')}
                     </th>
                     <th
                       onClick={() => handleSort('created')}
@@ -470,7 +469,7 @@ export default function OrganizationsPage() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        Created
+                        {t('tableHeaderCreated')}
                         {sortField === 'created' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {sortDirection === 'asc' ? (
@@ -530,7 +529,7 @@ export default function OrganizationsPage() {
                           color: org.status === 'active' ? '#22c55e' : org.status === 'setup' ? '#fb923c' : '#ef4444',
                           border: `1px solid ${org.status === 'active' ? 'rgba(34, 197, 94, 0.3)' : org.status === 'setup' ? 'rgba(251, 146, 60, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
                         }}>
-                          {org.status === 'active' ? '● Active' : org.status === 'setup' ? '⚙ Setup' : '✖ Inactive'}
+                          {org.status === 'active' ? t('statusBadgeActive') : org.status === 'setup' ? t('statusBadgeSetup') : t('statusBadgeInactive')}
                         </span>
                       </td>
                       <td style={{ padding: '1rem 1.5rem' }}>
@@ -541,7 +540,7 @@ export default function OrganizationsPage() {
                           backgroundColor: (isSuperAdmin || org.role === 'platform_admin') ? '#8b5cf6' : (org.is_owner ? 'var(--primary-bg)' : 'var(--info-bg)'),
                           color: (isSuperAdmin || org.role === 'platform_admin') ? 'white' : (org.is_owner ? 'var(--primary-text)' : 'var(--info-text)'),
                         }}>
-                          {(isSuperAdmin || org.role === 'platform_admin') ? 'Super Admin' : `${org.role}${org.is_owner ? ' ⭐' : ''}`}
+                          {(isSuperAdmin || org.role === 'platform_admin') ? t('roleSuperAdmin') : `${org.role}${org.is_owner ? ` ${t('roleOwnerStar')}` : ''}`}
                         </span>
                       </td>
                       <td style={{ padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
@@ -561,7 +560,7 @@ export default function OrganizationsPage() {
           color: 'var(--text-tertiary)',
           fontStyle: 'italic'
         }}>
-          💡 Click on any row to view details and manage the organization
+          {t('clickRowHint')}
         </p>
       </div>
 
