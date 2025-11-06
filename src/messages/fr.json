@@ -1231,5 +1231,1625 @@
         "dialogRemoveConfirmText": "remove_user"
       }
     }
+  },
+  "defaults": {
+    "organization": {
+      "name": "Organisation par Défaut",
+      "country": "France",
+      "timezone": "Europe/Paris"
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "message": "La page que vous recherchez n'existe pas. Vous avez peut-être mal saisi l'adresse ou la page a été déplacée.",
+    "goHome": "Retour à l'accueil",
+    "blipee": "blipee"
+  },
+  "cta": {
+    "title": "Prêt à Transformer Votre Durabilité ?",
+    "description": "Accédez à votre plateforme de durabilité alimentée par IA et commencez à prendre des décisions basées sur les données dès aujourd'hui.",
+    "signInToDashboard": "Se connecter au Dashboard",
+    "requestAccess": "Demander l'Accès",
+    "waitingMessage": "Votre équipe IA de durabilité vous attend"
+  },
+  "footer": {
+    "features": "Fonctionnalités",
+    "industries": "Industries",
+    "aiTechnology": "Technologie IA",
+    "about": "À propos",
+    "contact": "Contact",
+    "support": "Support",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "cookies": "Cookies",
+    "security": "Sécurité",
+    "dpa": "DPA",
+    "copyright": "© 2025 blipee. Tous droits réservés."
+  },
+  "navigation": {
+    "features": "Fonctionnalités",
+    "industries": "Industries",
+    "aiTechnology": "Technologie IA",
+    "about": "À propos",
+    "signIn": "Se Connecter",
+    "signOut": "Se Déconnecter",
+    "dashboard": "Dashboard",
+    "menu": "Menu",
+    "toggleTheme": "Changer le thème",
+    "toggleLanguage": "Changer la langue"
+  },
+  "blipee-ai": {
+    "defaultOrganization": "Votre Organisation",
+    "dashboard": {
+      "monthlyReduction": "Réduction Mensuelle",
+      "targetProgress": "Progrès de l'Objectif",
+      "reportsReady": "Reports Prêts",
+      "newReports": "{{count}} nouveau{{count, plural, one {} other {x}}}",
+      "platformBadge": "Plateforme Durabilité d'Abord"
+    }
+  },
+  "carbonEquivalentTooltip": {
+    "intro": "Cette émission équivaut à :",
+    "howThisWorks": "Comment ça fonctionne :",
+    "didYouKnow": "Le saviez-vous ?",
+    "badges": {
+      "ghgProtocol": "Protocole GES",
+      "gri305": "GRI 305",
+      "tcfd": "TCFD",
+      "esrsE1": "ESRS E1"
+    },
+    "compliantWith": "Conforme à :"
+  },
+  "hero": {
+    "title": "L'IA Derrière",
+    "subtitle": "blipee",
+    "tagline": "La Première IA Conversationnelle de Durabilité au Monde",
+    "headline1": "Intelligence de Durabilité",
+    "headline2": "Par la Conversation",
+    "description": "Ce n'est pas juste une autre plateforme ESG. blipee est votre équipe IA autonome qui travaille 24/7 pour gérer, optimiser et améliorer vos performances en durabilité.",
+    "mainDescription": "Là où l'IA rencontre la durabilité avec une touche de magie ✨ La révolution n'arrive pas—elle est là, et elle parle votre langue. Bienvenue dans le futur où sauver la planète, c'est comme parler à votre ami le plus intelligent.",
+    "cta": {
+      "getStarted": "Commencer",
+      "startSetup": "Démarrer la Configuration de 7 Minutes",
+      "seeInAction": "Voir l'IA en Action",
+      "learnMore": "En savoir plus",
+      "requestDemo": "Demander une Démonstration",
+      "watchDemo": "Voir la Démonstration",
+      "signInToDashboard": "Se connecter au Dashboard",
+      "requestAccess": "Demander l'Accès"
+    },
+    "badges": {
+      "aiPowered": "Propulsé par IA",
+      "realTime": "Analyse en Temps Réel",
+      "enterprise": "Prêt pour l'Entreprise",
+      "secure": "Sécurité Bancaire"
+    }
+  },
+  "modals": {
+    "contact": {
+      "title": "Planifier une Démonstration",
+      "description": "Contactez notre équipe pour voir blipee en action",
+      "form": {
+        "name": "Votre Nom",
+        "email": "Adresse Email",
+        "company": "Entreprise",
+        "message": "Parlez-nous de vos objectifs de durabilité",
+        "submit": "Envoyer la Demande"
+      }
+    },
+    "support": {
+      "title": "Obtenir du Support",
+      "description": "Notre équipe est là pour vous aider à réussir avec blipee",
+      "form": {
+        "name": "Votre Nom",
+        "email": "Adresse Email",
+        "issueType": "Sélectionner le Type de Problème",
+        "issueTypes": {
+          "technical": "Problème Technique",
+          "billing": "Question de Facturation",
+          "feature": "Demande de Fonctionnalité",
+          "other": "Autre"
+        },
+        "message": "Décrivez votre problème ou question",
+        "submit": "Soumettre la Demande"
+      }
+    }
+  },
+  "errors": {
+    "general": {
+      "title": "Quelque chose s'est mal passé !",
+      "subtitle": "Une erreur inattendue s'est produite",
+      "description": "Nous avons rencontré une erreur lors du traitement de votre demande. Veuillez réessayer et, si le problème persiste, contactez le support.",
+      "tryAgain": "Réessayer",
+      "goHome": "Retour à l'accueil",
+      "contactSupport": "Contacter le support"
+    },
+    "global": {
+      "title": "Quelque chose s'est mal passé !",
+      "subtitle": "Une erreur critique s'est produite",
+      "description": "Nous rencontrons une erreur système critique. Notre équipe a été notifiée et travaille à résoudre ce problème.",
+      "tryAgain": "Réessayer",
+      "goHome": "Retour à l'accueil"
+    },
+    "sso": {
+      "title": "Erreur d'Authentification SSO",
+      "subtitle": "Nous n'avons pas pu terminer le processus de connexion",
+      "authenticationError": "Erreur d'Authentification",
+      "backToSignIn": "Retour à la Connexion",
+      "tryDifferentMethod": "Essayer une méthode de connexion différente",
+      "contactAdmin": "Si vous continuez à rencontrer des problèmes, contactez votre administrateur ou",
+      "supportTeam": "notre équipe de support",
+      "errorCodes": {
+        "invalid_request": "La demande SSO était invalide. Veuillez réessayer.",
+        "access_denied": "L'accès a été refusé par le fournisseur d'identité.",
+        "unsupported_response_type": "Le fournisseur d'identité a renvoyé un type de réponse non pris en charge.",
+        "invalid_scope": "La portée demandée est invalide ou non prise en charge.",
+        "server_error": "Le fournisseur d'identité a rencontré une erreur.",
+        "temporarily_unavailable": "Le fournisseur d'identité est temporairement indisponible.",
+        "configuration_error": "Il y a un problème avec la configuration SSO.",
+        "user_not_found": "Votre compte n'a pas été trouvé ou n'est pas autorisé."
+      }
+    }
+  },
+  "about": {
+    "title": "À propos de blipee",
+    "hero": {
+      "title": "À propos de",
+      "brand": "blipee",
+      "description": "Nous construisons la première plateforme mondiale d'Intelligence de Durabilité Autonome qui transforme la gestion ESG traditionnelle basée sur des dashboards en une IA conversationnelle fonctionnant 24/7 comme votre équipe numérique de durabilité. Notre mission est de créer non seulement des logiciels, mais des employés IA qui gèrent, optimisent et améliorent de manière autonome les performances de durabilité dans n'importe quel secteur."
+    },
+    "vision": {
+      "title": "Notre Vision",
+      "description": "Un monde où chaque organisation a accès à une gestion de durabilité intelligente et autonome—où l'intendance environnementale n'est pas un fardeau, mais un avantage basé sur les données. Nous imaginons un futur où les employés IA travaillent aux côtés des équipes humaines pour prendre des décisions de durabilité en temps réel, transformant la compliance en avantage compétitif et la responsabilité environnementale en croissance commerciale."
+    },
+    "mission": {
+      "title": "Notre Mission",
+      "description": "Démocratiser l'intelligence de durabilité en construisant des systèmes IA qui éliminent la complexité, les coûts et les barrières de connaissance qui empêchent les organisations d'atteindre leurs objectifs environnementaux. Nous existons pour rendre la gestion de durabilité accessible à chaque organisation—des startups aux entreprises—en fournissant des employés IA autonomes qui comprennent, prédisent et optimisent les performances environnementales sans nécessiter d'expertise spécialisée ou de ressources massives."
+    },
+    "values": {
+      "title": "Nos Valeurs",
+      "subtitle": "Les principes qui guident comment nous travaillons, prenons des décisions et construisons notre culture",
+      "items": {
+        "relentlessInnovation": {
+          "title": "Innovation Incessante",
+          "description": "Nous croyons en repoussant les limites et en défiant le status quo. Chaque jour, nous demandons : comment pouvons-nous rendre la gestion de durabilité 10x meilleure, pas seulement améliorée de manière incrémentale ?"
+        },
+        "customerObsession": {
+          "title": "Obsession Client",
+          "description": "Le succès de nos clients est notre succès. Nous écoutons profondément, itérons rapidement, et nous ne nous reposerons pas tant que les équipes de durabilité ne se sentiront pas autonomisées plutôt qu'accablées par leurs outils."
+        },
+        "transparencyTrust": {
+          "title": "Transparence et Confiance",
+          "description": "Nous construisons avec ouverture—transparents sur nos décisions IA, notre utilisation des données et notre progrès commercial. La confiance se gagne par des actions cohérentes, pas des promesses."
+        },
+        "globalImpactMindset": {
+          "title": "Mentalité d'Impact Global",
+          "description": "Chaque fonctionnalité que nous construisons, chaque décision que nous prenons est évaluée à travers le prisme de l'impact environnemental global. Nous ne construisons pas seulement un logiciel ; nous combattons le changement climatique."
+        },
+        "qualityOverSpeed": {
+          "title": "Qualité Avant Vitesse",
+          "description": "Nous agissons rapidement mais ne compromettons jamais la qualité. Notre IA doit être fiable, nos données précises et nos insights exploitables—parce que les décisions de durabilité importent trop pour échouer."
+        },
+        "diversePerspectives": {
+          "title": "Perspectives Diverses",
+          "description": "La crise climatique affecte tout le monde différemment. Nous construisons une équipe inclusive avec des origines variées car des perspectives diverses mènent à de meilleures solutions pour un défi mondial."
+        }
+      }
+    },
+    "contact": {
+      "scheduleDemo": {
+        "title": "Planifier une Démo",
+        "description": "Contactez notre équipe pour voir blipee en action",
+        "form": {
+          "name": "Votre Nom",
+          "email": "Adresse Email",
+          "company": "Entreprise",
+          "message": "Parlez-nous de vos objectifs de durabilité",
+          "submit": "Envoyer la Demande"
+        }
+      },
+      "support": {
+        "title": "Obtenir du Support",
+        "description": "Notre équipe est là pour vous aider à réussir avec blipee",
+        "form": {
+          "name": "Votre Nom",
+          "email": "Adresse Email",
+          "issueType": "Sélectionner le Type de Problème",
+          "issueTypes": {
+            "technical": "Problème Technique",
+            "billing": "Question de Facturation",
+            "feature": "Demande de Fonctionnalité",
+            "other": "Autre"
+          },
+          "message": "Décrivez votre problème ou question",
+          "submit": "Soumettre la Demande"
+        }
+      }
+    },
+    "navigation": {
+      "skipToContent": "Aller au contenu principal",
+      "toggleTheme": "Passer en mode clair",
+      "toggleThemeDark": "Passer en mode sombre",
+      "openMenu": "Ouvrir le menu",
+      "closeMenu": "Fermer le menu",
+      "signIn": "Se Connecter",
+      "menu": {
+        "features": "Fonctionnalités",
+        "industries": "Industries",
+        "aiTechnology": "Technologie IA",
+        "about": "À propos"
+      }
+    }
+  },
+  "features": {
+    "skipToContent": "Aller au contenu principal",
+    "hero": {
+      "badge": "Chaque fonctionnalité conçue pour l'impact",
+      "title1": "Fonctionnalités qui Transforment",
+      "title2": "la Gestion de la Durabilité",
+      "description": "De l'IA conversationnelle à l'analyse prédictive, chaque fonctionnalité est conçue pour rendre la durabilité simple, actionnable et impactante."
+    },
+    "categories": {
+      "conversationalAI": {
+        "title": "IA Conversationnelle",
+        "description": "Interaction en langage naturel qui semble humaine",
+        "features": [
+          "Posez n'importe quelle question en français simple",
+          "Réponses sensibles au contexte",
+          "Conversations multi-tours",
+          "Support d'entrée vocale",
+          "Insights IA instantanés",
+          "Recommandations personnalisées",
+          "Disponibilité 24/7",
+          "Support multilingue",
+          "Réponses conscientes des émotions"
+        ]
+      },
+      "dynamicVisualization": {
+        "title": "Visualisation Dynamique",
+        "description": "L'IA génère le graphique parfait pour chaque conversation",
+        "features": [
+          "Dashboards générés automatiquement",
+          "Mises à jour de données en temps réel",
+          "Modèles 3D interactifs",
+          "Constructeur de reports personnalisés",
+          "Analyse des tendances",
+          "Visualisations prédictives",
+          "Exporter vers n'importe quel format",
+          "Design responsive mobile",
+          "Modèles de marque"
+        ]
+      },
+      "sustainabilityTracking": {
+        "title": "Suivi de la Durabilité",
+        "description": "Gestion complète des émissions simplifiée",
+        "features": [
+          "Émissions Scope 1, 2, 3",
+          "Targets basés sur la science",
+          "Gestion des crédits carbone",
+          "Suivi de la chaîne d'approvisionnement",
+          "Compliance réglementaire",
+          "Reports ESG",
+          "Analyse de benchmark",
+          "Suivi de la progression des targets",
+          "Recommandations de compensation"
+        ]
+      },
+      "documentIntelligence": {
+        "title": "Intelligence Documentaire",
+        "description": "Transformez n'importe quel document en données de durabilité actionnables",
+        "features": [
+          "Numérisation de factures",
+          "Analyse des factures de services",
+          "Analyse des reçus de voyage",
+          "Extraction de données PDF",
+          "Reconnaissance d'image",
+          "Catégorisation automatique",
+          "Support multi-format",
+          "Traitement par lots",
+          "Validation des erreurs"
+        ]
+      },
+      "predictiveAnalytics": {
+        "title": "Analyse Prédictive",
+        "description": "Voyez l'avenir avec des prévisions alimentées par IA",
+        "features": [
+          "Forecast des émissions",
+          "Prévision des défaillances d'équipement",
+          "Optimisation énergétique",
+          "Projections de coûts",
+          "Analyse de l'impact climatique",
+          "Détection d'anomalies",
+          "Évaluation des risques",
+          "ROI des investissements",
+          "Modélisation de scénarios"
+        ]
+      },
+      "enterpriseSecurity": {
+        "title": "Sécurité d'Entreprise",
+        "description": "Sécurité bancaire avec transparence totale",
+        "features": [
+          "Chiffrement de bout en bout",
+          "Compliance SOC 2",
+          "Prêt pour RGPD",
+          "Accès basé sur les rôles",
+          "Journal d'audit",
+          "Options de résidence des données",
+          "Sécurité API",
+          "SSO",
+          "Authentification multi-facteurs"
+        ]
+      }
+    },
+    "cta": {
+      "title": "Prêt à Transformer Votre Durabilité ?",
+      "description": "Accédez à votre plateforme de durabilité alimentée par IA et commencez à prendre des décisions basées sur les données aujourd'hui.",
+      "signInButton": "Se Connecter au Dashboard",
+      "requestButton": "Demander l'Accès",
+      "footer": "Votre équipe de durabilité IA vous attend"
+    },
+    "contactModal": {
+      "title": "Planifier une Démo",
+      "subtitle": "Contactez notre équipe pour voir blipee en action",
+      "namePlaceholder": "Votre Nom",
+      "emailPlaceholder": "Adresse Email",
+      "companyPlaceholder": "Entreprise",
+      "messagePlaceholder": "Parlez-nous de vos objectifs de durabilité",
+      "submitButton": "Envoyer la Demande"
+    },
+    "supportModal": {
+      "title": "Obtenir du Support",
+      "subtitle": "Notre équipe est là pour vous aider à réussir avec blipee",
+      "namePlaceholder": "Votre Nom",
+      "emailPlaceholder": "Adresse Email",
+      "issueTypePlaceholder": "Sélectionner le Type de Problème",
+      "issueTypes": {
+        "technical": "Problème Technique",
+        "billing": "Question de Facturation",
+        "feature": "Demande de Fonctionnalité",
+        "other": "Autre"
+      },
+      "descriptionPlaceholder": "Décrivez votre problème ou question",
+      "submitButton": "Soumettre la Demande"
+    }
+  },
+  "aiTechnology": {
+    "skipToContent": "Aller au contenu principal",
+    "hero": {
+      "badge": "Technologie IA de Nouvelle Génération",
+      "title1": "L'IA Derrière la",
+      "title2": "Magie de la Durabilité",
+      "description": "Découvrez l'architecture révolutionnaire de l'IA multi-cerveau qui fait de la gestion de la durabilité une véritable magie. 12 modèles d'IA spécialisés travaillant ensemble pour transformer la façon dont vous atteignez vos objectifs environnementaux."
+    },
+    "architectureSection": {
+      "badge": "Architecture IA Avancée",
+      "title": "Architecture Multi-Cerveau",
+      "subtitle": "Chaque cerveau se spécialise dans différents aspects de la durabilité, travaillant ensemble pour offrir une intelligence complète",
+      "sectionTitle": "Systèmes d'Intelligence Spécialisés",
+      "sectionDescription": "Notre architecture IA combine plusieurs systèmes spécialisés pour fournir une intelligence de durabilité complète"
+    },
+    "technologies": {
+      "multiBrain": {
+        "title": "Architecture Multi-Cerveau",
+        "description": "12 modèles d'IA spécialisés travaillant en harmonie pour une intelligence de durabilité complète",
+        "features": [
+          "Moteur conversationnel conscient du contexte",
+          "Cerveau d'analyse prédictive",
+          "Processeur d'intelligence documentaire",
+          "Système d'analyse visuelle",
+          "Moteur de recommandations",
+          "Module de planification d'actions",
+          "IA de surveillance de compliance",
+          "Orchestrateur de données en temps réel"
+        ],
+        "showMore": "Afficher {count} fonctionnalités supplémentaires",
+        "showLess": "Afficher moins"
+      },
+      "nlp": {
+        "title": "Traitement du Langage Naturel",
+        "description": "NLP avancé qui comprend le contexte de durabilité et la terminologie de l'industrie",
+        "features": [
+          "Support multilingue (50+ langues)",
+          "Vocabulaire spécifique à l'industrie",
+          "Reconnaissance d'intention et rétention de contexte",
+          "Intelligence émotionnelle dans les réponses",
+          "Compréhension de documents techniques",
+          "Intégration vocale-texte",
+          "Traduction en temps réel",
+          "Analyse de sentiment"
+        ]
+      },
+      "computerVision": {
+        "title": "Vision par Ordinateur",
+        "description": "Extrait automatiquement les données de durabilité de n'importe quel document visuel ou image",
+        "features": [
+          "Numérisation de factures et reçus",
+          "Extraction de données de factures de services",
+          "Calcul d'image en émissions",
+          "OCR avec 99,8% de précision",
+          "Reconnaissance de l'écriture manuscrite",
+          "Analyse de graphiques et tableaux",
+          "Évaluation de l'état des équipements",
+          "Analyse d'images aériennes"
+        ]
+      },
+      "predictiveAnalytics": {
+        "title": "Analyse Prédictive",
+        "description": "Prédit les émissions, coûts et performances de durabilité futurs avec précision",
+        "features": [
+          "Prévision des défaillances d'équipement",
+          "Prévision de la consommation d'énergie",
+          "Modélisation de l'impact météorologique",
+          "Algorithmes de projection des coûts",
+          "Automatisation de l'évaluation des risques",
+          "Système de détection d'anomalies",
+          "Reconnaissance des modèles saisonniers",
+          "Modèles d'optimisation du ROI"
+        ]
+      },
+      "orchestration": {
+        "title": "Orchestration en Temps Réel",
+        "description": "Coordonne de manière transparente entre plusieurs fournisseurs d'IA pour des performances optimisées",
+        "features": [
+          "Système de backup multi-fournisseur",
+          "Algorithmes d'équilibrage de charge",
+          "Optimisation du temps de réponse",
+          "Surveillance de l'assurance qualité",
+          "Moteur d'optimisation des coûts",
+          "Routage de compliance régionale",
+          "Analyse de performance",
+          "Mise à l'échelle automatique"
+        ]
+      },
+      "security": {
+        "title": "Confidentialité et Sécurité",
+        "description": "Sécurité de niveau entreprise avec conception axée sur la confidentialité et transparence totale",
+        "features": [
+          "Chiffrement de bout en bout (AES-256)",
+          "Architecture à connaissance zéro",
+          "Compliance SOC 2 Type II",
+          "Prêt pour RGPD et CCPA",
+          "Options de déploiement sur site",
+          "Journal d'audit pour toutes les opérations",
+          "Contrôle d'accès basé sur les rôles",
+          "Compliance de résidence des données"
+        ]
+      }
+    },
+    "providers": {
+      "title": "Fournisseurs d'IA de Premier Ordre",
+      "description": "Nous nous associons aux principaux fournisseurs d'IA du monde pour garantir performances optimales, fiabilité et rentabilité",
+      "deepseek": {
+        "name": "DeepSeek",
+        "role": "Moteur de raisonnement principal",
+        "features": [
+          "Traitement rentable",
+          "Raisonnement avancé",
+          "Réponse rapide"
+        ]
+      },
+      "openai": {
+        "name": "OpenAI",
+        "role": "Analyse complexe et créativité",
+        "features": [
+          "Intégration GPT-4",
+          "Raisonnement avancé",
+          "Solutions créatives"
+        ]
+      },
+      "anthropic": {
+        "name": "Anthropic",
+        "role": "Sécurité et précision",
+        "features": [
+          "IA Constitutionnelle",
+          "Alignement de sécurité",
+          "Sorties précises"
+        ]
+      }
+    }
+  },
+  "conversation": {
+    "newConversation": "Nouvelle conversation",
+    "defaultResponse": "Je vais vous aider avec cela.",
+    "generatedCode": "Code Généré",
+    "errorMessage": "J'ai rencontré une erreur. Veuillez réessayer ou reformuler votre question.",
+    "welcomeMessage": "Comment puis-je vous aider aujourd'hui ?",
+    "welcomeSubtitle": "Commencez une conversation sur la durabilité, la gestion de l'énergie ou les opérations de bâtiments",
+    "defaultUser": "Utilisateur",
+    "input": {
+      "placeholder": "Message pour blipee...",
+      "attachFiles": "Joindre des fichiers",
+      "sendMessage": "Envoyer le message",
+      "helperText": "Appuyez sur Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne"
+    },
+    "navigation": {
+      "home": "Accueil",
+      "chats": "Conversations",
+      "new": "Nouveau",
+      "profile": "Profil",
+      "settings": "Paramètres"
+    },
+    "sidebar": {
+      "buttons": {
+        "newChat": "Nouvelle conversation",
+        "chats": "Conversations",
+        "library": "Bibliothèque de prompts",
+        "settings": "Paramètres",
+        "signOut": "Se déconnecter",
+        "expandSidebar": "Développer la barre latérale",
+        "collapseSidebar": "Réduire la barre latérale",
+        "searchChats": "Rechercher des conversations",
+        "maximizeWindow": "Maximiser la fenêtre de chat",
+        "minimizeWindow": "Minimiser la fenêtre de chat",
+        "close": "Fermer le chat"
+      },
+      "sections": {
+        "recents": "Récents",
+        "notifications": "Notifications",
+        "chats": "Conversations"
+      },
+      "empty": {
+        "noConversations": "Aucune conversation pour le moment",
+        "startConversation": "Commencez votre première conversation",
+        "noConversationsFound": "Aucune conversation trouvée"
+      },
+      "actions": {
+        "pin": "Épingler",
+        "rename": "Renommer",
+        "delete": "Supprimer",
+        "share": "Partager",
+        "archive": "Archiver"
+      },
+      "search": {
+        "placeholder": "Rechercher des conversations..."
+      },
+      "groups": {
+        "today": "Aujourd'hui",
+        "yesterday": "Hier",
+        "thisWeek": "Cette Semaine",
+        "thisMonth": "Ce Mois",
+        "sevenDays": "Il y a 7 jours",
+        "thirtyDays": "Il y a 30 jours",
+        "older": "Plus ancien"
+      },
+      "loading": {
+        "default": "Chargement...",
+        "conversations": "Chargement des conversations...",
+        "messages": "Chargement des messages..."
+      },
+      "labels": {
+        "untitled": "Conversation sans titre",
+        "askBlipee": "Demander à blipee",
+        "openChat": "Ouvrir le chat",
+        "openChatWithUnread": "Ouvrir le chat. {{count}} notifications non lues",
+        "openConversation": "Ouvrir la conversation : {{title}}",
+        "renameConversation": "Renommer la conversation",
+        "searchConversations": "Rechercher des conversations"
+      },
+      "delete": {
+        "title": "Supprimer la conversation ?",
+        "message": "Cette action ne peut pas être annulée. La conversation sera définitivement supprimée.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
+      }
+    },
+    "promptLibrary": {
+      "title": "Bibliothèque de Prompts",
+      "subtitle": "Plus de {{count}} exemples de prompts pour commencer",
+      "search": {
+        "placeholder": "Rechercher des prompts..."
+      },
+      "empty": {
+        "noResults": "Aucun prompt trouvé pour \"{{query}}\""
+      },
+      "navigation": {
+        "backToCategories": "← Retour aux catégories"
+      },
+      "category": {
+        "promptsCount": "{{count}} prompts →"
+      },
+      "footer": {
+        "instruction": "Cliquez sur n'importe quel prompt pour remplir automatiquement l'entrée du chat"
+      }
+    },
+    "welcome": {
+      "title": "Bienvenue sur blipee",
+      "description": "Votre assistante intelligente en durabilité. Posez-moi n'importe quelle question sur les émissions, la compliance ou les reports ESG."
+    },
+    "contextualSuggestions": {
+      "settings": {
+        "addUsers": "Comment ajouter des utilisateurs à mon organisation ?",
+        "apiKeys": "Où puis-je trouver mes clés API ?",
+        "integrations": "Comment configurer les intégrations ?",
+        "billing": "Où sont mes paramètres de facturation ?"
+      },
+      "profile": {
+        "changePassword": "Comment changer mon mot de passe ?",
+        "notifications": "Où puis-je mettre à jour mes préférences de notification ?",
+        "theme": "Comment changer le thème de l'application ?",
+        "security": "Où sont mes paramètres de sécurité du compte ?"
+      },
+      "sustainability": {
+        "emissionsYear": "Quelles sont mes émissions cette année ?",
+        "emissionsBreakdown": "Montrez-moi la ventilation de mes émissions par scope",
+        "businessTravel": "Comment suivre les voyages d'affaires ?",
+        "addData": "Je veux ajouter des données de durabilité"
+      },
+      "default": {
+        "emissionsYear": "Quelles sont mes émissions cette année ?",
+        "getStarted": "Comment commencer avec blipee ?",
+        "dashboard": "Montrez-moi mon dashboard de durabilité",
+        "addData": "Je veux ajouter des données de durabilité"
+      }
+    },
+    "message": {
+      "downloadFile": "Télécharger le fichier"
+    },
+    "suggestions": {
+      "energyTrends": "Afficher les tendances d'utilisation énergétique",
+      "generateCode": "Générer du code Python pour l'analyse de données",
+      "performanceReport": "Rapport de performance du bâtiment",
+      "sustainabilityDashboard": "Créer un dashboard de durabilité"
+    },
+    "artifacts": {
+      "sustainabilityReport": "Rapport de Durabilité",
+      "monthlyReportContent": "<h2>Rapport Mensuel de Durabilité</h2><p>Les émissions de carbone ont été réduites de 15% ce mois-ci.</p>",
+      "energyTrends": "Tendances d'Utilisation Énergétique",
+      "energyTrendsContent": "Graphique montrant les modèles de consommation énergétique du dernier trimestre"
+    }
+  },
+  "education": {
+    "topics": {
+      "carbonBasics": {
+        "title": "Comprendre les Émissions de Carbone",
+        "sections": {
+          "whatIsCO2e": {
+            "heading": "Qu'est-ce que le CO2e ?",
+            "content": "CO2e (Équivalent Dioxyde de Carbone) est une unité standard pour mesurer les empreintes carbone. Il exprime l'impact de différents gaz à effet de serre en termes de quantité équivalente de CO2."
+          },
+          "oneTonne": {
+            "heading": "À quoi ressemble 1 tonne de CO2e ?",
+            "content": "Les chiffres abstraits sont difficiles à visualiser. Voici quelques comparaisons réelles :"
+          },
+          "whyMeasure": {
+            "heading": "Pourquoi mesurer en CO2e ?",
+            "content": "Utiliser le CO2e nous permet d'additionner toutes les émissions de gaz à effet de serre en un seul nombre, facilitant le suivi des progrès et la définition d'objectifs."
+          }
+        },
+        "gases": {
+          "co2": "Dioxyde de Carbone (CO2)",
+          "co2Comparison": "Base = 1x d'impact",
+          "methane": "Méthane (CH4)",
+          "methaneComparison": "25x plus puissant que le CO2",
+          "nitrousOxide": "Protoxyde d'Azote (N2O)",
+          "nitrousOxideComparison": "298x plus puissant que le CO2"
+        },
+        "comparisons": {
+          "driving": "Conduire 2 500 km dans une voiture à essence",
+          "flight": "1 vol aller-retour en Europe",
+          "trees": "Ce que 1,15 arbres absorbent en un an",
+          "treesValue": "Par photosynthèse",
+          "home": "Alimenter une maison pendant 2 mois",
+          "homeValue": "Famille UE moyenne",
+          "smartphones": "Charger 121 000 smartphones",
+          "smartphonesValue": "De vide à plein"
+        }
+      },
+      "scopesExplained": {
+        "title": "Scopes du Protocole GES",
+        "sections": {
+          "whatAreScopes": {
+            "heading": "Que sont les Scopes ?",
+            "content": "Le Protocole GES divise les émissions en 3 'scopes' pour aider les organisations à comprendre d'où viennent leurs émissions."
+          },
+          "scope1": {
+            "heading": "Scope 1 : Émissions Directes",
+            "content": "Émissions provenant de sources que votre organisation possède ou contrôle directement."
+          },
+          "scope2": {
+            "heading": "Scope 2 : Émissions Indirectes d'Énergie",
+            "content": "Émissions de la génération d'énergie achetée (électricité, chauffage, refroidissement)."
+          },
+          "scope3": {
+            "heading": "Scope 3 : Émissions de la Chaîne de Valeur",
+            "content": "Toutes les autres émissions indirectes dans votre chaîne de valeur. Souvent 70-80% de l'empreinte totale d'une entreprise."
+          }
+        },
+        "examples": {
+          "scope1": {
+            "vehicles": "Véhicules de l'entreprise",
+            "vehiclesDesc": "Voitures, camions, flotte",
+            "combustion": "Combustion sur site",
+            "combustionDesc": "Chaudières, générateurs",
+            "refrigerants": "Fuites de réfrigérants",
+            "refrigerantsDesc": "Systèmes de climatisation"
+          },
+          "scope2": {
+            "electricity": "Électricité achetée",
+            "electricityDesc": "Du réseau",
+            "heating": "Chauffage urbain",
+            "heatingDesc": "Chauffage centralisé",
+            "cooling": "Refroidissement urbain",
+            "coolingDesc": "Refroidissement centralisé"
+          },
+          "scope3": {
+            "travel": "Voyages d'affaires",
+            "travelDesc": "Vols, hôtels, voitures de location",
+            "commuting": "Trajets des employés",
+            "commutingDesc": "Trajets quotidiens vers/depuis le bureau",
+            "goods": "Biens et services achetés",
+            "goodsDesc": "Fournisseurs, matériaux",
+            "waste": "Élimination des déchets",
+            "wasteDesc": "Décharge, recyclage"
+          }
+        }
+      },
+      "whyItMatters": {
+        "title": "Pourquoi l'Action Climatique Compte",
+        "sections": {
+          "parisAgreement": {
+            "heading": "L'Objectif 1,5°C",
+            "content": "L'Accord de Paris vise à limiter le réchauffement climatique à 1,5°C au-dessus des niveaux préindustriels pour éviter des impacts climatiques catastrophiques."
+          },
+          "warmingLevels": {
+            "heading": "Que se passe-t-il à différents niveaux de réchauffement ?",
+            "content": "Chaque fraction de degré compte :"
+          },
+          "localImpact": {
+            "heading": "Impact sur {location}",
+            "content": "Sans action, {location} fait face à des conséquences graves :"
+          },
+          "goodNews": {
+            "heading": "Les Bonnes Nouvelles",
+            "content": "Nous avons la technologie et les connaissances pour résoudre cela. L'énergie renouvelable est maintenant moins chère que les combustibles fossiles."
+          }
+        },
+        "warming": {
+          "oneFive": "Réchauffement de 1,5°C",
+          "oneFiveDesc": "Impacts graves, mais gérables avec l'adaptation",
+          "two": "Réchauffement de 2°C",
+          "twoDesc": "Significativement pire : plus de chaleur extrême, sécheresses, inondations",
+          "three": "Réchauffement de 3°C",
+          "threeDesc": "Catastrophique : extinction de masse, régions inhabitables"
+        }
+      },
+      "reductionStrategies": {
+        "title": "Comment Réduire les Émissions",
+        "sections": {
+          "highImpact": {
+            "heading": "Se Concentrer sur les Actions à Fort Impact",
+            "content": "Toutes les actions de réduction d'émissions ne sont pas égales. Concentrez-vous sur celles-ci :"
+          },
+          "hierarchy": {
+            "heading": "La Hiérarchie de Réduction",
+            "content": "Suivez toujours cet ordre : 1) Éviter/Réduire d'abord, 2) Passer à des alternatives bas carbone, 3) Compenser uniquement en dernier recours."
+          }
+        }
+      },
+      "sbtiTargets": {
+        "title": "Targets Basés sur la Science",
+        "sections": {
+          "whatIsSBTi": {
+            "heading": "Que sont les Targets Basés sur la Science ?",
+            "content": "Objectifs de réduction des émissions alignés sur la science climatique - spécifiquement, ce qui est nécessaire pour limiter le réchauffement à 1,5°C."
+          },
+          "whyImportant": {
+            "heading": "Pourquoi sont-ils importants ?",
+            "content": "Les targets SBTi vous donnent de la crédibilité. Plus de 4 000 entreprises dans le monde se sont engagées à des targets SBTi."
+          },
+          "types": {
+            "heading": "Types de Targets SBTi",
+            "content": "Il existe différents types de targets basés sur le délai et l'ambition :"
+          },
+          "howToStart": {
+            "heading": "Comment commencer",
+            "content": "Commencez par mesurer vos émissions de base (vous le faites déjà !). Ensuite, soumettez vos targets au SBTi pour validation."
+          }
+        },
+        "types": {
+          "nearTerm": "Targets à court terme",
+          "nearTermDesc": "5-10 ans : Typiquement 42% de réduction d'ici 2030",
+          "longTerm": "Targets à long terme",
+          "longTermDesc": "Jusqu'à 2050 : Émissions nettes zéro dans tous les scopes",
+          "ambition": "Niveaux d'ambition",
+          "ambitionDesc": "1,5°C (plus ambitieux) ou bien en dessous de 2°C"
+        }
+      }
+    },
+    "modal": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "gotIt": "J'ai compris !",
+      "sectionOf": "Section {current} sur {total}",
+      "learnMore": "📚 En savoir plus"
+    }
+  },
+  "carbonEquivalents": {
+    "verySmall": {
+      "smartphone": {
+        "format": "{n} recharges de smartphone",
+        "context": "Recharger complètement son téléphone utilise environ 0,008 kg CO2e par recharge",
+        "didYouKnow": "Une recharge complète = regarder 2 heures de Netflix sur téléphone !"
+      },
+      "coffee": {
+        "format": "{n} tasses de café",
+        "context": "Faire du café (grains, chauffage de l'eau, lait) ≈ 1,25 kg CO2e par tasse",
+        "didYouKnow": "Le lait dans votre latte crée plus d'émissions que les grains de café !"
+      },
+      "burger": {
+        "format": "{n} burgers de bœuf",
+        "format_one": "{n} burger de bœuf",
+        "context": "Un burger de bœuf crée ~10 kg CO2e (de la ferme à l'assiette)",
+        "didYouKnow": "Un burger à base de plantes crée 90% moins d'émissions !"
+      },
+      "shower": {
+        "format": "{n} douches chaudes (10 minutes)",
+        "format_one": "{n} douche chaude (10 minutes)",
+        "context": "Chauffer l'eau pour une douche utilise ~20 kg CO2e",
+        "didYouKnow": "Réduire le temps de douche de 2 minutes économise 10 kg CO2e par mois !"
+      }
+    },
+    "small": {
+      "matureTree": {
+        "format": "{n} arbres matures absorbant du CO2 pendant 1 an",
+        "format_one": "{n} arbre mature absorbant du CO2 pendant 1 an",
+        "context": "Un arbre mature absorbe ~21 kg CO2e par an grâce à la photosynthèse",
+        "didYouKnow": "Un arbre prend plus de 20 ans pour devenir un absorbeur de carbone \"mature\" !"
+      },
+      "seedling": {
+        "format": "{n} jeunes arbres poussant pendant 10 ans",
+        "format_one": "{n} jeune arbre poussant pendant 10 ans",
+        "context": "Les jeunes arbres absorbent moins de CO2 initialement, mais plus à mesure qu'ils grandissent",
+        "didYouKnow": "Une forêt en croissance absorbe 2-3× plus de CO2 qu'une forêt mature !"
+      },
+      "grassland": {
+        "format": "{n} hectares de prairie pendant 1 an",
+        "format_one": "{n} hectare de prairie pendant 1 an",
+        "context": "Les prairies absorbent ~2,5 tonnes CO2e par hectare annuellement",
+        "didYouKnow": "Les prairies stockent plus de carbone dans leurs racines que les arbres !"
+      },
+      "oceanAlgae": {
+        "format": "{n} hectares d'algues océaniques pendant 1 an",
+        "format_one": "{n} hectare d'algues océaniques pendant 1 an",
+        "context": "Le phytoplancton océanique absorbe ~2 tonnes CO2e par hectare",
+        "didYouKnow": "Les océans absorbent 25% de toutes les émissions humaines de CO2 chaque année !"
+      }
+    },
+    "mediumSmall": {
+      "portugal": {
+        "driving": {
+          "format": "{n} km de conduite ({trips} trajets Lisbonne ↔ Porto)",
+          "format_one": "{n} km de conduite ({trips} trajet Lisbonne ↔ Porto)",
+          "context": "Voiture moyenne émet ~0,4 kg CO2e par km",
+          "didYouKnow": "Prendre le train réduit les émissions de 80% !"
+        },
+        "lisbonAlgarve": {
+          "format": "{n} trajets Lisbonne ↔ Algarve en voiture",
+          "format_one": "{n} trajet Lisbonne ↔ Algarve en voiture",
+          "context": "~300 km par trajet, voiture familiale",
+          "didYouKnow": "Partager la voiture avec 3 amis rend cela 75% plus efficace !"
+        },
+        "scooter": {
+          "format": "{n} km de scooter",
+          "context": "Les scooters émettent moitié moins de CO2 que les voitures par km",
+          "didYouKnow": "Les scooters électriques émettent 90% de moins que les scooters à essence !"
+        }
+      },
+      "spain": {
+        "driving": {
+          "format": "{n} km de conduite ({trips} trajets Madrid ↔ Barcelone)",
+          "format_one": "{n} km de conduite ({trips} trajet Madrid ↔ Barcelone)",
+          "context": "Voiture moyenne émet ~0,4 kg CO2e par km",
+          "didYouKnow": "Le train AVE à grande vitesse utilise 85% moins d'émissions !"
+        },
+        "madridValencia": {
+          "format": "{n} trajets Madrid ↔ Valence en voiture",
+          "format_one": "{n} trajet Madrid ↔ Valence en voiture",
+          "context": "~400 km par trajet, voiture familiale",
+          "didYouKnow": "Les trains espagnols fonctionnent avec 60% d'énergie renouvelable !"
+        }
+      },
+      "global": {
+        "driving": {
+          "format": "{n} km de trajet en voiture",
+          "context": "Voiture moyenne : 0,4 kg CO2e par km",
+          "didYouKnow": "Les voitures électriques réduisent cela de 70% (selon la source d'électricité) !"
+        }
+      }
+    },
+    "medium": {
+      "portugal": {
+        "lisbonParis": {
+          "format": "{n} vols aller-retour Lisbonne → Paris",
+          "format_one": "1 vol aller-retour Lisbonne → Paris (économique, 2 900 km)",
+          "context": "Vol court-courrier : ~1,5 tonnes CO2e aller-retour",
+          "didYouKnow": "8 heures de train créent 95% moins d'émissions que ce vol !"
+        },
+        "lisbonLondon": {
+          "format": "{n} vols aller-retour Lisbonne → Londres",
+          "format_one": "1 vol aller-retour Lisbonne → Londres (économique, 3 200 km)",
+          "context": "Vol court-courrier : ~2 tonnes CO2e aller-retour",
+          "didYouKnow": "Les sièges en classe affaires créent 3× plus d'émissions (ils prennent plus d'espace) !"
+        },
+        "lisbonRome": {
+          "format": "{n} vols aller-retour en Europe",
+          "format_one": "1 vol aller-retour Lisbonne → Rome (économique, 3 000 km)",
+          "context": "Vols européens : ~2,5 tonnes CO2e aller-retour",
+          "didYouKnow": "Les avions sont 5-10× plus polluants par km que les trains !"
+        }
+      },
+      "spain": {
+        "madridLondon": {
+          "format": "{n} vols aller-retour Madrid → Londres",
+          "format_one": "1 vol aller-retour Madrid → Londres (économique, 2 600 km)",
+          "context": "Vol court-courrier : ~1,5 tonnes CO2e aller-retour",
+          "didYouKnow": "Une visioconférence élimine complètement cette émission !"
+        }
+      },
+      "global": {
+        "regionalFlight": {
+          "format": "{n} vols régionaux aller-retour",
+          "format_one": "1 vol régional aller-retour (économique, ~3 000 km)",
+          "context": "Court-courrier moyen : ~2 tonnes CO2e",
+          "didYouKnow": "L'aviation crée 2,5% des émissions mondiales de CO2 !"
+        }
+      }
+    },
+    "large": {
+      "electricity": {
+        "format": "{n} mois d'électricité domestique",
+        "format_one": "{n} mois d'électricité domestique",
+        "context": "Maison moyenne : ~10 tonnes CO2e par an d'électricité",
+        "didYouKnow": "Passer aux ampoules LED économise 80 kg CO2e par ampoule par an !"
+      },
+      "hvac": {
+        "format": "{n} mois de chauffage/climatisation d'une maison moyenne",
+        "format_one": "{n} mois de chauffage/climatisation d'une maison moyenne",
+        "context": "Le CVC représente typiquement 40% de la consommation énergétique domestique",
+        "didYouKnow": "Un thermostat intelligent peut réduire cela de 15-20% !"
+      },
+      "gasHeating": {
+        "format": "{n} mois de chauffage au gaz naturel",
+        "format_one": "{n} mois de chauffage au gaz naturel",
+        "context": "Chauffage au gaz : ~3,5 tonnes CO2e par an",
+        "didYouKnow": "Les pompes à chaleur utilisent 3× moins d'énergie que le chauffage au gaz !"
+      },
+      "airConditioning": {
+        "format": "{n} heures de climatisation (grande maison)",
+        "context": "La climatisation peut utiliser 20-50 kg CO2e par mois en été",
+        "didYouKnow": "Augmenter la température de la climatisation de 1°C économise 7% d'énergie !"
+      }
+    },
+    "veryLarge": {
+      "treesYear": {
+        "format": "{n} arbres matures absorbant du CO2 pendant 1 an",
+        "format_one": "{n} arbre mature absorbant du CO2 pendant 1 an",
+        "context": "Un arbre mature absorbe ~0,87 tonnes CO2e par an grâce à la photosynthèse",
+        "didYouKnow": "Un arbre prend plus de 20 ans pour devenir un absorbeur de carbone \"mature\" !"
+      },
+      "factoryMonths": {
+        "format": "{n} mois d'émissions d'une petite usine",
+        "format_one": "{n} mois d'émissions d'une petite usine",
+        "context": "Petite industrie : ~1000 tonnes CO2e par an (83 tonnes/mois)",
+        "didYouKnow": "C'est pourquoi l'efficacité industrielle est si critique !"
+      },
+      "peopleYearly": {
+        "format": "{n} empreintes carbone annuelles moyennes de personnes",
+        "format_one": "{n} empreinte carbone annuelle moyenne d'une personne",
+        "context": "Moyenne mondiale : ~4 tonnes CO2e par personne par an",
+        "didYouKnow": "Moyenne des États-Unis est de 16 tonnes, l'Inde de 1,9 tonnes par personne !"
+      },
+      "transatlanticFlights": {
+        "format": "{n} vols transatlantiques aller-retour (économique)",
+        "format_one": "{n} vol transatlantique aller-retour (économique)",
+        "context": "Vol long-courrier : ~4 tonnes CO2e par passager aller-retour",
+        "didYouKnow": "Un vol long-courrier = une année de conduite pour beaucoup de gens !"
+      },
+      "arcticIce": {
+        "format": "{n} m² de glace de mer arctique fondue",
+        "context": "Chaque tonne de CO2 fait fondre ~3 m² de glace de mer arctique estivale",
+        "didYouKnow": "La glace de mer arctique a diminué de 13% par décennie depuis 1979 !"
+      },
+      "seaLevel": {
+        "format": "{n} mm de montée du niveau de la mer mondiale",
+        "format_less_than_one": "< 1 mm de montée du niveau de la mer mondiale",
+        "context": "Chaque 1000 tonnes CO2e contribue à 0,32 mm de montée du niveau de la mer",
+        "didYouKnow": "Le niveau de la mer monte de 3,4 mm par an - 2× plus vite qu'il y a 50 ans !"
+      },
+      "globalWarming": {
+        "format": "{n} millionièmes de degré de réchauffement climatique",
+        "context": "Chaque tonne de CO2e contribue ~0,00015 millionièmes °C de réchauffement",
+        "didYouKnow": "Nous avons déjà réchauffé de 1,1°C depuis l'ère préindustrielle - chaque fraction compte !"
+      },
+      "polarBearHabitat": {
+        "format": "{n} jours de perte d'habitat des ours polaires",
+        "format_one": "{n} jour de perte d'habitat des ours polaires",
+        "context": "Perte de glace arctique = ~1 jour par 15 tonnes CO2e",
+        "didYouKnow": "Les ours polaires ont besoin de glace de mer pour chasser - ils perdent 3-4 semaines de temps de chasse par décennie !"
+      }
+    }
+  },
+  "industries": {
+    "skipToContent": "Aller au contenu principal",
+    "hero": {
+      "badge": "Toutes les Industries. Toutes les Organisations. Tous les Objectifs.",
+      "title1": "Durabilité Universelle",
+      "title2": "Pour Toutes les Industries",
+      "description": "blipee fonctionne avec toute organisation, dans toute industrie, de toute taille. Des startups aux Fortune 500, de la fabrication aux services, nous rendons la durabilité simple et réalisable pour tous."
+    },
+    "coverage": {
+      "title": "Votre Industrie Est Couverte",
+      "description": "Les défis de durabilité sont universels. Que vous suiviez les émissions, gériez l'énergie, réduisiez les déchets ou rapportiez des métriques ESG, blipee s'adapte à vos exigences et réglementations spécifiques à l'industrie.",
+      "anySector": {
+        "title": "N'importe quel Secteur",
+        "description": "De l'industrie lourde aux services numériques, notre IA comprend vos défis uniques en matière de durabilité."
+      },
+      "anyStandard": {
+        "title": "N'importe quel Standard",
+        "description": "GRI, SASB, TCFD, CSRD, Taxonomie de l'UE - nous prenons en charge tous les principaux cadres et réglementations de durabilité."
+      },
+      "anySize": {
+        "title": "N'importe quelle Taille",
+        "description": "Des petites entreprises aux multinationales, notre plateforme évolue avec vos besoins."
+      }
+    },
+    "intelligence": {
+      "title": "Intelligence Industrielle",
+      "subtitle": "Comment Nous Organisons les Industries",
+      "description": "Ce ne sont que des exemples. Si votre industrie n'est pas listée, nous travaillons quand même avec vous. Notre IA s'adapte à tout défi de durabilité.",
+      "categories": {
+        "manufacturing": {
+          "title": "Fabrication et Production",
+          "description": "Toute entreprise qui produit des biens ou produits",
+          "items": [
+            "Automobile et aérospatiale",
+            "Électronique et technologie",
+            "Production alimentaire et boissons",
+            "Chimie et pharmaceutique",
+            "Textiles et biens de consommation",
+            "Machines lourdes et équipements"
+          ]
+        },
+        "builtEnvironment": {
+          "title": "Environnement Bâti",
+          "description": "Organisations qui gèrent des bâtiments et des infrastructures",
+          "items": [
+            "Immobilier commercial",
+            "Propriétés résidentielles",
+            "Établissements d'enseignement",
+            "Établissements de santé",
+            "Hôtellerie et tourisme",
+            "Aéroports et centres de transport"
+          ]
+        },
+        "energyUtilities": {
+          "title": "Énergie et Services Publics",
+          "description": "Production, distribution d'énergie et services publics",
+          "items": [
+            "Compagnies d'électricité",
+            "Compagnies pétrolières et gazières",
+            "Développeurs d'énergies renouvelables",
+            "Traitement de l'eau et des eaux usées",
+            "Systèmes d'énergie de quartier",
+            "Stockage et distribution d'énergie"
+          ]
+        },
+        "servicesDigital": {
+          "title": "Services et Numérique",
+          "description": "Organisations basées sur les services dans tous les secteurs",
+          "items": [
+            "Services financiers et bancaires",
+            "Services professionnels",
+            "Technologie et logiciels",
+            "Télécommunications",
+            "Médias et divertissement",
+            "Conseil et services consultatifs"
+          ]
+        },
+        "naturalResources": {
+          "title": "Ressources Naturelles",
+          "description": "Organisations travaillant avec les ressources naturelles",
+          "items": [
+            "Agriculture et élevage",
+            "Foresterie et papier",
+            "Mines et industries extractives",
+            "Pêche et aquaculture",
+            "Gestion des déchets et recyclage",
+            "Services environnementaux"
+          ]
+        },
+        "publicSocial": {
+          "title": "Secteur Public et Social",
+          "description": "Organisations gouvernementales et de service public",
+          "items": [
+            "Agences gouvernementales",
+            "Organisations à but non lucratif",
+            "Systèmes de santé",
+            "Établissements d'enseignement",
+            "Entreprises sociales",
+            "Organisations internationales"
+          ]
+        }
+      }
+    },
+    "standards": {
+      "title": "Standards et Compliance",
+      "description": "Nous prenons en charge tous les principaux frameworks et réglementations de durabilité",
+      "frameworks": {
+        "gri": {
+          "name": "GRI Standards",
+          "description": "Rapports de durabilité les plus utilisés au monde",
+          "coverage": "GRI 302 (Énergie), GRI 303 (Eau), GRI 305 (Émissions), GRI 306 (Déchets)"
+        },
+        "sasb": {
+          "name": "SASB",
+          "description": "Standards spécifiques à l'industrie pour la performance ESG",
+          "coverage": "77 standards spécifiques à l'industrie couvrant les questions financièrement matérielles"
+        },
+        "tcfd": {
+          "name": "TCFD",
+          "description": "Divulgations liées au climat",
+          "coverage": "Gouvernance, Stratégie, Gestion des risques, Métriques et targets"
+        },
+        "csrd": {
+          "name": "CSRD/ESRS",
+          "description": "Rapports de durabilité de l'UE",
+          "coverage": "Directive européenne sur les rapports de durabilité des entreprises"
+        },
+        "ghg": {
+          "name": "GHG Protocol",
+          "description": "Standard de comptabilisation du carbone",
+          "coverage": "Scopes 1, 2 et 3 de l'inventaire et du reporting des GES"
+        },
+        "sbti": {
+          "name": "SBTi",
+          "description": "Targets basés sur la science",
+          "coverage": "Objectifs de réduction alignés sur 1,5°C"
+        }
+      }
+    },
+    "useCases": {
+      "title": "Cas d'Utilisation par Industrie",
+      "subtitle": "Comment les organisations utilisent blipee",
+      "manufacturing": {
+        "title": "Exemple de Fabrication",
+        "challenge": "Une entreprise automobile devait suivre les émissions de Scope 3 dans une chaîne d'approvisionnement complexe",
+        "solution": "blipee a automatisé la collecte de données des fournisseurs et calculé les émissions sur l'ensemble de la chaîne de valeur",
+        "result": "Réduction de 40% du temps de reporting, identification de 2,3 millions d'euros d'économies de coûts"
+      },
+      "realestate": {
+        "title": "Exemple Immobilier",
+        "challenge": "Un gestionnaire de portefeuille devait optimiser l'énergie dans 120 bâtiments",
+        "solution": "blipee a identifié les modèles de gaspillage d'énergie et prédit les besoins de maintenance",
+        "result": "Réduction de 18% des coûts énergétiques, amélioration de 15% de l'efficacité opérationnelle"
+      },
+      "tech": {
+        "title": "Exemple Technologique",
+        "challenge": "Une entreprise SaaS devait mesurer et compenser son empreinte carbone numérique",
+        "solution": "blipee a suivi l'utilisation du data center, les émissions cloud et les déplacements des employés",
+        "result": "Atteinte de la neutralité carbone en 8 mois, satisfaisant aux exigences ESG des investisseurs"
+      }
+    },
+    "cta": {
+      "title": "Prêt à Transformer la Durabilité de Votre Industrie ?",
+      "description": "Quelle que soit votre industrie, blipee s'adapte à vos défis uniques de durabilité",
+      "primaryButton": "Planifier une Démo",
+      "secondaryButton": "En Savoir Plus"
+    }
+  },
+  "sustainability": {
+    "overview": {
+      "title": "Vue d'Ensemble",
+      "subtitle": "Aperçu de la compliance et des métriques",
+      "loadingOverview": "Chargement de la vue d'ensemble...",
+      "errorLoading": "Erreur de Chargement de la Vue d'Ensemble",
+      "retry": "Réessayer",
+      "clearFilters": "Effacer les Filtres",
+      "failedToLoadOrganization": "Échec du chargement de l'organisation",
+      "failedToConnectToServer": "Échec de connexion au serveur"
+    },
+    "dashboard": {
+      "title": "Dashboard de Durabilité",
+      "subtitle": "Suivez et gérez vos métriques de durabilité",
+      "loading": "Chargement du dashboard...",
+      "errorLoading": "Erreur de Chargement du Dashboard",
+      "noData": "Aucune donnée disponible",
+      "selectMetric": "Sélectionner une métrique",
+      "selectTimeRange": "Sélectionner une période",
+      "filters": {
+        "allSites": "Tous les Sites",
+        "selectSite": "Sélectionner le site",
+        "timeRange": "Période",
+        "thisMonth": "Ce Mois",
+        "lastMonth": "Mois Dernier",
+        "thisQuarter": "Ce Trimestre",
+        "thisYear": "Cette Année",
+        "last12Months": "12 Derniers Mois",
+        "custom": "Personnalisé"
+      },
+      "kpis": {
+        "totalEmissions": "Émissions Totales",
+        "energyConsumption": "Consommation d'Énergie",
+        "waterUsage": "Utilisation d'Eau",
+        "wasteGenerated": "Déchets Générés",
+        "renewableEnergy": "Énergie Renouvelable",
+        "carbonIntensity": "Intensité Carbone",
+        "complianceScore": "Score de Compliance",
+        "targetProgress": "Progrès des Objectifs"
+      },
+      "charts": {
+        "emissionsTrend": "Tendance des Émissions",
+        "energyBreakdown": "Répartition Énergétique",
+        "waterConsumption": "Consommation d'Eau",
+        "wasteManagement": "Gestion des Déchets",
+        "scopeDistribution": "Distribution par Scope",
+        "monthlySummary": "Résumé Mensuel",
+        "yearOverYear": "Année sur Année"
+      },
+      "units": {
+        "tco2e": "tCO₂e",
+        "kwh": "kWh",
+        "mwh": "MWh",
+        "m3": "m³",
+        "kg": "kg",
+        "tonnes": "tonnes",
+        "percent": "%"
+      },
+      "status": {
+        "onTrack": "Sur la Bonne Voie",
+        "atRisk": "À Risque",
+        "offTrack": "Hors Trajectoire",
+        "completed": "Terminé",
+        "pending": "En Attente"
+      }
+    },
+    "water": {
+      "title": "Gestion de l'Eau",
+      "subtitle": "Suivre la consommation et les économies d'eau",
+      "consumption": {
+        "title": "Consommation d'Eau",
+        "total": "Total",
+        "municipal": "Municipal",
+        "groundwater": "Eau Souterraine",
+        "surfaceWater": "Eau de Surface",
+        "recycled": "Recyclé",
+        "rainwater": "Eau de Pluie"
+      },
+      "discharge": {
+        "title": "Décharge d'Eau",
+        "wastewater": "Eaux Usées",
+        "treated": "Traité",
+        "untreated": "Non Traité",
+        "reused": "Réutilisé"
+      },
+      "intensity": {
+        "title": "Intensité de l'Eau",
+        "perEmployee": "Par Employé",
+        "perArea": "Par Superficie",
+        "perRevenue": "Par Chiffre d'Affaires",
+        "perProduct": "Par Produit"
+      },
+      "quality": {
+        "title": "Qualité de l'Eau",
+        "pH": "pH",
+        "temperature": "Température",
+        "turbidity": "Turbidité",
+        "tds": "TDS",
+        "bod": "DBO",
+        "cod": "DCO"
+      },
+      "targets": {
+        "title": "Targets de Réduction",
+        "current": "Actuel",
+        "target": "Target",
+        "reduction": "Réduction",
+        "progress": "Progrès",
+        "deadline": "Échéance",
+        "status": "Statut"
+      },
+      "initiatives": {
+        "title": "Initiatives d'Économie d'Eau",
+        "description": "Projets actifs",
+        "rainwaterHarvesting": "Collecte d'Eau de Pluie",
+        "recyclingSystem": "Système de Recyclage",
+        "efficientFixtures": "Équipements Efficaces",
+        "leakDetection": "Détection de Fuites",
+        "waterAudit": "Audit de l'Eau"
+      },
+      "alerts": {
+        "highConsumption": "Consommation Élevée Détectée",
+        "leakDetected": "Fuite Potentielle Détectée",
+        "targetMissed": "Target Manqué",
+        "maintenanceRequired": "Maintenance Requise"
+      }
+    },
+    "compliance": {
+      "title": "Compliance ESG",
+      "frameworks": "Frameworks",
+      "reporting": "Reporting",
+      "audit": "Audit",
+      "documentation": "Documentation"
+    },
+    "waste": {
+      "title": "Gestion des Déchets",
+      "subtitle": "Suivre la génération et l'élimination des déchets",
+      "generation": {
+        "title": "Génération de Déchets",
+        "total": "Total",
+        "hazardous": "Dangereux",
+        "nonHazardous": "Non Dangereux",
+        "recyclable": "Recyclable",
+        "organic": "Organique",
+        "electronic": "Électronique"
+      },
+      "disposal": {
+        "title": "Méthode d'Élimination",
+        "recycling": "Recyclage",
+        "composting": "Compostage",
+        "incineration": "Incinération",
+        "landfill": "Décharge",
+        "energyRecovery": "Récupération d'Énergie",
+        "reuse": "Réutilisation"
+      },
+      "diversion": {
+        "title": "Taux de Détournement",
+        "rate": "Taux",
+        "target": "Target",
+        "diverted": "Détourné",
+        "disposed": "Éliminé"
+      },
+      "categories": {
+        "title": "Catégories de Déchets",
+        "paper": "Papier",
+        "plastic": "Plastique",
+        "metal": "Métal",
+        "glass": "Verre",
+        "organic": "Organique",
+        "electronic": "Électronique",
+        "hazardous": "Dangereux",
+        "construction": "Construction",
+        "other": "Autre"
+      },
+      "initiatives": {
+        "title": "Initiatives de Réduction des Déchets",
+        "zeroWaste": "Objectif Zéro Déchet",
+        "recyclingProgram": "Programme de Recyclage",
+        "compostingInitiative": "Initiative de Compostage",
+        "reductionCampaign": "Campagne de Réduction",
+        "circularEconomy": "Économie Circulaire"
+      },
+      "metrics": {
+        "totalWaste": "Déchets Totaux",
+        "recycled": "Recyclé",
+        "composted": "Composté",
+        "diversionRate": "Taux de Détournement",
+        "wasteIntensity": "Intensité des Déchets",
+        "costSavings": "Économies de Coûts"
+      }
+    },
+    "dataInvestigation": {
+      "title": "Investigation de Données",
+      "subtitle": "Analyser et explorer vos données de durabilité",
+      "search": {
+        "placeholder": "Rechercher des données...",
+        "filters": "Filtres",
+        "results": "Résultats",
+        "noResults": "Aucun résultat trouvé"
+      },
+      "filters": {
+        "dataType": "Type de Données",
+        "dateRange": "Période",
+        "source": "Source",
+        "category": "Catégorie",
+        "status": "Statut",
+        "tags": "Tags"
+      },
+      "analysis": {
+        "trends": "Tendances",
+        "anomalies": "Anomalies",
+        "patterns": "Modèles",
+        "correlations": "Corrélations",
+        "insights": "Insights",
+        "recommendations": "Recommandations"
+      },
+      "export": {
+        "title": "Exporter les Données",
+        "format": "Format",
+        "csv": "CSV",
+        "excel": "Excel",
+        "pdf": "PDF",
+        "json": "JSON"
+      },
+      "quality": {
+        "title": "Qualité des Données",
+        "completeness": "Complétude",
+        "accuracy": "Précision",
+        "timeliness": "Actualité",
+        "consistency": "Cohérence",
+        "validity": "Validité"
+      },
+      "sources": {
+        "manual": "Manuel",
+        "automated": "Automatisé",
+        "imported": "Importé",
+        "calculated": "Calculé",
+        "estimated": "Estimé"
+      },
+      "validation": {
+        "validated": "Validé",
+        "pending": "En Attente",
+        "flagged": "Signalé",
+        "rejected": "Rejeté"
+      },
+      "actions": {
+        "view": "Voir",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "export": "Exporter",
+        "validate": "Valider",
+        "flag": "Signaler"
+      }
+    },
+    "ghgEmissions": {
+      "title": "Émissions de GES",
+      "subtitle": "Inventaire des émissions de gaz à effet de serre",
+      "scopes": {
+        "scope1": "Scope 1",
+        "scope2": "Scope 2",
+        "scope3": "Scope 3",
+        "total": "Total",
+        "biogenic": "Biogénique"
+      },
+      "categories": {
+        "stationaryCombustion": "Combustion Stationnaire",
+        "mobileCombustion": "Combustion Mobile",
+        "fugitiveEmissions": "Émissions Fugitives",
+        "processEmissions": "Émissions de Processus",
+        "electricity": "Électricité",
+        "heating": "Chauffage",
+        "cooling": "Refroidissement",
+        "steam": "Vapeur"
+      },
+      "scope3Categories": {
+        "purchasedGoods": "Biens et Services Achetés",
+        "capitalGoods": "Biens d'Équipement",
+        "fuelEnergy": "Énergie et Carburant",
+        "upstreamTransport": "Transport Amont",
+        "wasteGenerated": "Déchets Générés",
+        "businessTravel": "Voyages d'Affaires",
+        "employeeCommuting": "Trajets des Employés",
+        "downstreamTransport": "Transport Aval",
+        "useOfSoldProducts": "Utilisation des Produits Vendus",
+        "endOfLife": "Fin de Vie",
+        "franchises": "Franchises",
+        "investments": "Investissements"
+      },
+      "methodology": {
+        "title": "Méthodologie",
+        "ghgProtocol": "GHG Protocol",
+        "iso14064": "ISO 14064",
+        "emissionFactors": "Facteurs d'Émission",
+        "calculationMethod": "Méthode de Calcul",
+        "uncertaintyAnalysis": "Analyse d'Incertitude"
+      },
+      "inventory": {
+        "baseYear": "Année de Base",
+        "reportingPeriod": "Période de Reporting",
+        "organizationalBoundary": "Limite Organisationnelle",
+        "operationalBoundary": "Limite Opérationnelle",
+        "consolidationApproach": "Approche de Consolidation"
+      },
+      "targets": {
+        "reductionTarget": "Target de Réduction",
+        "baselineYear": "Année de Référence",
+        "targetYear": "Année Cible",
+        "progress": "Progrès",
+        "scienceBasedTarget": "Target Basé sur la Science",
+        "netZero": "Net Zéro"
+      }
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fév",
+      "mar": "Mar",
+      "apr": "Avr",
+      "may": "Mai",
+      "jun": "Juin",
+      "jul": "Juil",
+      "aug": "Août",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Déc"
+    },
+    "performanceIndex": {
+      "title": "Indice de Performance",
+      "subtitle": "Score de performance global de durabilité",
+      "overallScore": "Score Global",
+      "environmental": "Environnemental",
+      "social": "Social",
+      "governance": "Gouvernance",
+      "trending": "Tendance",
+      "improving": "En Amélioration",
+      "declining": "En Déclin",
+      "stable": "Stable",
+      "benchmarking": "Benchmarking",
+      "industryAverage": "Moyenne du Secteur",
+      "topPerformer": "Meilleur Performeur",
+      "yourScore": "Votre Score"
+    },
+    "energy": {
+      "title": "Gestion de l'Énergie",
+      "subtitle": "Suivre la consommation et les économies d'énergie",
+      "consumption": {
+        "title": "Consommation d'Énergie",
+        "total": "Total",
+        "electricity": "Électricité",
+        "naturalGas": "Gaz Naturel",
+        "diesel": "Diesel",
+        "gasoline": "Essence",
+        "coal": "Charbon",
+        "biomass": "Biomasse",
+        "renewable": "Renouvelable"
+      },
+      "sources": {
+        "title": "Sources d'Énergie",
+        "grid": "Réseau",
+        "onsite": "Sur Site",
+        "renewable": "Renouvelable",
+        "nonRenewable": "Non Renouvelable",
+        "solar": "Solaire",
+        "wind": "Éolien",
+        "hydro": "Hydroélectrique",
+        "geothermal": "Géothermique"
+      },
+      "intensity": {
+        "title": "Intensité Énergétique",
+        "perEmployee": "Par Employé",
+        "perArea": "Par Superficie",
+        "perRevenue": "Par Chiffre d'Affaires",
+        "perProduct": "Par Produit",
+        "trend": "Tendance"
+      },
+      "renewable": {
+        "title": "Énergie Renouvelable",
+        "percentage": "Pourcentage",
+        "target": "Target",
+        "onsite": "Sur Site",
+        "offsite": "Hors Site",
+        "recs": "RECs",
+        "ppa": "PPA"
+      },
+      "efficiency": {
+        "title": "Efficacité Énergétique",
+        "improvements": "Améliorations",
+        "projects": "Projets",
+        "savings": "Économies",
+        "roi": "ROI",
+        "payback": "Retour sur Investissement"
+      },
+      "demand": {
+        "title": "Gestion de la Demande",
+        "peakDemand": "Demande de Pointe",
+        "loadProfile": "Profil de Charge",
+        "shiftableLoad": "Charge Déplaçable",
+        "demandResponse": "Réponse à la Demande"
+      },
+      "costs": {
+        "title": "Coûts Énergétiques",
+        "total": "Total",
+        "electricity": "Électricité",
+        "gas": "Gaz",
+        "fuel": "Carburant",
+        "perUnit": "Par Unité",
+        "trend": "Tendance"
+      },
+      "alerts": {
+        "highConsumption": "Consommation Élevée",
+        "unusualPattern": "Modèle Inhabituel",
+        "targetExceeded": "Target Dépassé",
+        "equipmentFault": "Défaut d'Équipement"
+      }
+    }
   }
 }

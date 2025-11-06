@@ -1231,5 +1231,1625 @@
         "dialogRemoveConfirmText": "remove_user"
       }
     }
+  },
+  "defaults": {
+    "organization": {
+      "name": "Standardorganisation",
+      "country": "Deutschland",
+      "timezone": "Europe/Berlin"
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "message": "Die Seite, die Sie suchen, existiert nicht. Möglicherweise haben Sie die Adresse falsch eingegeben oder die Seite wurde verschoben.",
+    "goHome": "Zurück zur Startseite",
+    "blipee": "blipee"
+  },
+  "cta": {
+    "title": "Bereit, Ihre Nachhaltigkeit zu Transformieren?",
+    "description": "Greifen Sie auf Ihre KI-gestützte Nachhaltigkeitsplattform zu und beginnen Sie noch heute, datengestützte Entscheidungen zu treffen.",
+    "signInToDashboard": "Zum Dashboard anmelden",
+    "requestAccess": "Zugang Anfragen",
+    "waitingMessage": "Ihr KI-Nachhaltigkeitsteam wartet auf Sie"
+  },
+  "footer": {
+    "features": "Funktionen",
+    "industries": "Branchen",
+    "aiTechnology": "KI-Technologie",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "support": "Support",
+    "terms": "Bedingungen",
+    "privacy": "Datenschutz",
+    "cookies": "Cookies",
+    "security": "Sicherheit",
+    "dpa": "DPA",
+    "copyright": "© 2025 blipee. Alle Rechte vorbehalten."
+  },
+  "navigation": {
+    "features": "Funktionen",
+    "industries": "Branchen",
+    "aiTechnology": "KI-Technologie",
+    "about": "Über uns",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "dashboard": "Dashboard",
+    "menu": "Menü",
+    "toggleTheme": "Thema wechseln",
+    "toggleLanguage": "Sprache ändern"
+  },
+  "blipee-ai": {
+    "defaultOrganization": "Ihre Organisation",
+    "dashboard": {
+      "monthlyReduction": "Monatliche Reduzierung",
+      "targetProgress": "Zielfortschritt",
+      "reportsReady": "Reports Bereit",
+      "newReports": "{{count}} neue{{count, plural, one {r} other {}}}",
+      "platformBadge": "Nachhaltigkeit-First-Plattform"
+    }
+  },
+  "carbonEquivalentTooltip": {
+    "intro": "Diese Emission entspricht:",
+    "howThisWorks": "So funktioniert es:",
+    "didYouKnow": "Wussten Sie?",
+    "badges": {
+      "ghgProtocol": "THG-Protokoll",
+      "gri305": "GRI 305",
+      "tcfd": "TCFD",
+      "esrsE1": "ESRS E1"
+    },
+    "compliantWith": "Konform mit:"
+  },
+  "hero": {
+    "title": "Die KI Hinter",
+    "subtitle": "blipee",
+    "tagline": "Die Weltweit Erste Konversationelle Nachhaltigkeits-KI",
+    "headline1": "Nachhaltigkeitsintelligenz",
+    "headline2": "Durch Konversation",
+    "description": "Nicht nur eine weitere ESG-Plattform. blipee ist Ihr autonomes KI-Team, das 24/7 arbeitet, um Ihre Nachhaltigkeitsleistung zu verwalten, zu optimieren und zu verbessern.",
+    "mainDescription": "Wo KI auf Nachhaltigkeit trifft mit einem Hauch von Magie ✨ Die Revolution kommt nicht—sie ist hier und spricht Ihre Sprache. Willkommen in der Zukunft, wo den Planeten zu retten ist wie mit Ihrem klügsten Freund zu sprechen.",
+    "cta": {
+      "getStarted": "Loslegen",
+      "startSetup": "7-Minuten-Einrichtung Starten",
+      "seeInAction": "KI in Aktion Sehen",
+      "learnMore": "Mehr Erfahren",
+      "requestDemo": "Demo Anfragen",
+      "watchDemo": "Demo Ansehen",
+      "signInToDashboard": "Zum Dashboard Anmelden",
+      "requestAccess": "Zugang Anfragen"
+    },
+    "badges": {
+      "aiPowered": "KI-Gestützt",
+      "realTime": "Echtzeit-Analyse",
+      "enterprise": "Enterprise-Ready",
+      "secure": "Banksicherheit"
+    }
+  },
+  "modals": {
+    "contact": {
+      "title": "Eine Demo Vereinbaren",
+      "description": "Kontaktieren Sie unser Team, um blipee in Aktion zu sehen",
+      "form": {
+        "name": "Ihr Name",
+        "email": "E-Mail-Adresse",
+        "company": "Unternehmen",
+        "message": "Erzählen Sie uns von Ihren Nachhaltigkeitszielen",
+        "submit": "Anfrage Senden"
+      }
+    },
+    "support": {
+      "title": "Support Erhalten",
+      "description": "Unser Team ist hier, um Ihnen bei Ihrem Erfolg mit blipee zu helfen",
+      "form": {
+        "name": "Ihr Name",
+        "email": "E-Mail-Adresse",
+        "issueType": "Problemtyp Auswählen",
+        "issueTypes": {
+          "technical": "Technisches Problem",
+          "billing": "Abrechnungsfrage",
+          "feature": "Funktionsanfrage",
+          "other": "Anderes"
+        },
+        "message": "Beschreiben Sie Ihr Problem oder Ihre Frage",
+        "submit": "Anfrage Einreichen"
+      }
+    }
+  },
+  "errors": {
+    "general": {
+      "title": "Etwas ist schiefgelaufen!",
+      "subtitle": "Ein unerwarteter Fehler ist aufgetreten",
+      "description": "Wir sind auf einen Fehler bei der Verarbeitung Ihrer Anfrage gestoßen. Bitte versuchen Sie es erneut, und wenn das Problem weiterhin besteht, kontaktieren Sie den Support.",
+      "tryAgain": "Erneut versuchen",
+      "goHome": "Zur Startseite",
+      "contactSupport": "Support kontaktieren"
+    },
+    "global": {
+      "title": "Etwas ist schiefgelaufen!",
+      "subtitle": "Ein kritischer Fehler ist aufgetreten",
+      "description": "Wir erleben einen kritischen Systemfehler. Unser Team wurde benachrichtigt und arbeitet an der Lösung dieses Problems.",
+      "tryAgain": "Erneut versuchen",
+      "goHome": "Zur Startseite"
+    },
+    "sso": {
+      "title": "SSO-Authentifizierungsfehler",
+      "subtitle": "Wir konnten den Anmeldevorgang nicht abschließen",
+      "authenticationError": "Authentifizierungsfehler",
+      "backToSignIn": "Zurück zur Anmeldung",
+      "tryDifferentMethod": "Eine andere Anmeldemethode versuchen",
+      "contactAdmin": "Wenn Sie weiterhin Probleme haben, kontaktieren Sie Ihren Administrator oder",
+      "supportTeam": "unser Support-Team",
+      "errorCodes": {
+        "invalid_request": "Die SSO-Anfrage war ungültig. Bitte versuchen Sie es erneut.",
+        "access_denied": "Der Zugriff wurde vom Identitätsanbieter verweigert.",
+        "unsupported_response_type": "Der Identitätsanbieter hat einen nicht unterstützten Antworttyp zurückgegeben.",
+        "invalid_scope": "Der angeforderte Bereich ist ungültig oder wird nicht unterstützt.",
+        "server_error": "Der Identitätsanbieter ist auf einen Fehler gestoßen.",
+        "temporarily_unavailable": "Der Identitätsanbieter ist vorübergehend nicht verfügbar.",
+        "configuration_error": "Es gibt ein Problem mit der SSO-Konfiguration.",
+        "user_not_found": "Ihr Konto wurde nicht gefunden oder ist nicht autorisiert."
+      }
+    }
+  },
+  "about": {
+    "title": "Über blipee",
+    "hero": {
+      "title": "Über",
+      "brand": "blipee",
+      "description": "Wir bauen die weltweit erste Autonome Nachhaltigkeitsintelligenz-Plattform auf, die traditionelles dashboard-basiertes ESG-Management in eine konversationelle KI verwandelt, die 24/7 als Ihr digitales Nachhaltigkeitsteam arbeitet. Unsere Mission ist es, nicht nur Software zu erstellen, sondern KI-Mitarbeiter, die Nachhaltigkeitsleistung in jeder Branche autonom verwalten, optimieren und verbessern."
+    },
+    "vision": {
+      "title": "Unsere Vision",
+      "description": "Eine Welt, in der jede Organisation Zugang zu intelligentem und autonomem Nachhaltigkeitsmanagement hat—wo Umweltverantwortung keine Last ist, sondern ein datengestützter Vorteil. Wir stellen uns eine Zukunft vor, in der KI-Mitarbeiter neben menschlichen Teams arbeiten, um in Echtzeit Nachhaltigkeitsentscheidungen zu treffen, Compliance in einen Wettbewerbsvorteil und Umweltverantwortung in Geschäftswachstum zu verwandeln."
+    },
+    "mission": {
+      "title": "Unsere Mission",
+      "description": "Demokratisierung der Nachhaltigkeitsintelligenz durch den Aufbau von KI-Systemen, die Komplexität, Kosten und Wissensbarrieren beseitigen, die Organisationen daran hindern, ihre Umweltziele zu erreichen. Wir existieren, um Nachhaltigkeitsmanagement für jede Organisation zugänglich zu machen—von Startups bis zu Unternehmen—indem wir autonome KI-Mitarbeiter bereitstellen, die Umweltleistung verstehen, vorhersagen und optimieren, ohne spezialisiertes Wissen oder massive Ressourcen zu benötigen."
+    },
+    "values": {
+      "title": "Unsere Werte",
+      "subtitle": "Die Prinzipien, die leiten, wie wir arbeiten, Entscheidungen treffen und unsere Kultur aufbauen",
+      "items": {
+        "relentlessInnovation": {
+          "title": "Unermüdliche Innovation",
+          "description": "Wir glauben daran, Grenzen zu überschreiten und den Status quo herauszufordern. Jeden Tag fragen wir: Wie können wir das Nachhaltigkeitsmanagement 10x besser machen, nicht nur schrittweise verbessern?"
+        },
+        "customerObsession": {
+          "title": "Kundenobsession",
+          "description": "Der Erfolg unserer Kunden ist unser Erfolg. Wir hören tief zu, iterieren schnell und werden nicht ruhen, bis sich Nachhaltigkeitsteams durch ihre Tools befähigt statt überfordert fühlen."
+        },
+        "transparencyTrust": {
+          "title": "Transparenz und Vertrauen",
+          "description": "Wir bauen mit Offenheit—transparent über unsere KI-Entscheidungen, unsere Datennutzung und unseren Geschäftsfortschritt. Vertrauen wird durch konsistente Handlungen verdient, nicht durch Versprechen."
+        },
+        "globalImpactMindset": {
+          "title": "Globale Wirkungsdenkweise",
+          "description": "Jede Funktion, die wir entwickeln, jede Entscheidung, die wir treffen, wird durch die Linse der globalen Umweltauswirkungen bewertet. Wir bauen nicht nur Software; wir bekämpfen den Klimawandel."
+        },
+        "qualityOverSpeed": {
+          "title": "Qualität vor Geschwindigkeit",
+          "description": "Wir bewegen uns schnell, kompromittieren aber nie die Qualität. Unsere KI muss zuverlässig sein, unsere Daten präzise und unsere Erkenntnisse umsetzbar—weil Nachhaltigkeitsentscheidungen zu wichtig sind, um zu scheitern."
+        },
+        "diversePerspectives": {
+          "title": "Vielfältige Perspektiven",
+          "description": "Die Klimakrise betrifft jeden anders. Wir bauen ein inklusives Team mit vielfältigen Hintergründen auf, weil vielfältige Perspektiven zu besseren Lösungen für eine globale Herausforderung führen."
+        }
+      }
+    },
+    "contact": {
+      "scheduleDemo": {
+        "title": "Eine Demo Vereinbaren",
+        "description": "Kontaktieren Sie unser Team, um blipee in Aktion zu sehen",
+        "form": {
+          "name": "Ihr Name",
+          "email": "E-Mail-Adresse",
+          "company": "Unternehmen",
+          "message": "Erzählen Sie uns von Ihren Nachhaltigkeitszielen",
+          "submit": "Anfrage Senden"
+        }
+      },
+      "support": {
+        "title": "Support Erhalten",
+        "description": "Unser Team ist hier, um Ihnen bei Ihrem Erfolg mit blipee zu helfen",
+        "form": {
+          "name": "Ihr Name",
+          "email": "E-Mail-Adresse",
+          "issueType": "Problemtyp Auswählen",
+          "issueTypes": {
+            "technical": "Technisches Problem",
+            "billing": "Abrechnungsfrage",
+            "feature": "Funktionsanfrage",
+            "other": "Anderes"
+          },
+          "message": "Beschreiben Sie Ihr Problem oder Ihre Frage",
+          "submit": "Anfrage Einreichen"
+        }
+      }
+    },
+    "navigation": {
+      "skipToContent": "Zum Hauptinhalt springen",
+      "toggleTheme": "Zu hellem Modus wechseln",
+      "toggleThemeDark": "Zu dunklem Modus wechseln",
+      "openMenu": "Menü öffnen",
+      "closeMenu": "Menü schließen",
+      "signIn": "Anmelden",
+      "menu": {
+        "features": "Funktionen",
+        "industries": "Branchen",
+        "aiTechnology": "KI-Technologie",
+        "about": "Über uns"
+      }
+    }
+  },
+  "features": {
+    "skipToContent": "Zum Hauptinhalt springen",
+    "hero": {
+      "badge": "Jede Funktion für Wirkung entwickelt",
+      "title1": "Funktionen, die das",
+      "title2": "Nachhaltigkeitsmanagement Transformieren",
+      "description": "Von konversationeller KI bis zu prädiktiver Analyse ist jede Funktion entwickelt, um Nachhaltigkeit einfach, umsetzbar und wirkungsvoll zu machen."
+    },
+    "categories": {
+      "conversationalAI": {
+        "title": "Konversationelle KI",
+        "description": "Natürlichsprachige Interaktion, die menschlich wirkt",
+        "features": [
+          "Stellen Sie beliebige Fragen in einfachem Deutsch",
+          "Kontextbewusste Antworten",
+          "Multi-Turn-Gespräche",
+          "Spracheingabe-Support",
+          "Sofortige KI-Insights",
+          "Personalisierte Empfehlungen",
+          "24/7-Verfügbarkeit",
+          "Mehrsprachiger Support",
+          "Emotionsbewusste Antworten"
+        ]
+      },
+      "dynamicVisualization": {
+        "title": "Dynamische Visualisierung",
+        "description": "KI generiert das perfekte Diagramm für jede Konversation",
+        "features": [
+          "Automatisch generierte Dashboards",
+          "Echtzeit-Datenaktualisierungen",
+          "Interaktive 3D-Modelle",
+          "Benutzerdefinierter Report-Builder",
+          "Trendanalyse",
+          "Prädiktive Visualisierungen",
+          "Export in jedes Format",
+          "Mobil-responsives Design",
+          "Markenvorlagen"
+        ]
+      },
+      "sustainabilityTracking": {
+        "title": "Nachhaltigkeits-Tracking",
+        "description": "Umfassendes Emissionsmanagement vereinfacht",
+        "features": [
+          "Emissionen Scope 1, 2, 3",
+          "Wissenschaftsbasierte Targets",
+          "Kohlenstoff-Kredit-Management",
+          "Supply-Chain-Tracking",
+          "Regulatorische Compliance",
+          "ESG-Reports",
+          "Benchmark-Analyse",
+          "Target-Fortschrittsverfolgung",
+          "Kompensationsempfehlungen"
+        ]
+      },
+      "documentIntelligence": {
+        "title": "Dokumentenintelligenz",
+        "description": "Verwandeln Sie jedes Dokument in umsetzbare Nachhaltigkeitsdaten",
+        "features": [
+          "Rechnungsdigitalisierung",
+          "Analyse von Nebenkostenabrechnungen",
+          "Analyse von Reisebelegen",
+          "PDF-Datenextraktion",
+          "Bilderkennung",
+          "Automatische Kategorisierung",
+          "Multi-Format-Support",
+          "Batch-Verarbeitung",
+          "Fehlervalidierung"
+        ]
+      },
+      "predictiveAnalytics": {
+        "title": "Prädiktive Analyse",
+        "description": "Sehen Sie die Zukunft mit KI-gestützten Forecasts",
+        "features": [
+          "Emissions-Forecast",
+          "Vorhersage von Geräteausfällen",
+          "Energieoptimierung",
+          "Kostenprognosen",
+          "Klimawirkungsanalyse",
+          "Anomalieerkennung",
+          "Risikobewertung",
+          "Investitions-ROI",
+          "Szenariomodellierung"
+        ]
+      },
+      "enterpriseSecurity": {
+        "title": "Enterprise-Sicherheit",
+        "description": "Banksicherheit mit vollständiger Transparenz",
+        "features": [
+          "Ende-zu-Ende-Verschlüsselung",
+          "SOC-2-Compliance",
+          "DSGVO-Ready",
+          "Rollenbasierter Zugriff",
+          "Audit-Protokoll",
+          "Datenresidenz-Optionen",
+          "API-Sicherheit",
+          "SSO",
+          "Multi-Faktor-Authentifizierung"
+        ]
+      }
+    },
+    "cta": {
+      "title": "Bereit, Ihre Nachhaltigkeit zu Transformieren?",
+      "description": "Greifen Sie auf Ihre KI-gestützte Nachhaltigkeitsplattform zu und beginnen Sie noch heute, datengestützte Entscheidungen zu treffen.",
+      "signInButton": "Zum Dashboard Anmelden",
+      "requestButton": "Zugang Anfragen",
+      "footer": "Ihr KI-Nachhaltigkeitsteam wartet auf Sie"
+    },
+    "contactModal": {
+      "title": "Eine Demo Vereinbaren",
+      "subtitle": "Kontaktieren Sie unser Team, um blipee in Aktion zu sehen",
+      "namePlaceholder": "Ihr Name",
+      "emailPlaceholder": "E-Mail-Adresse",
+      "companyPlaceholder": "Unternehmen",
+      "messagePlaceholder": "Erzählen Sie uns von Ihren Nachhaltigkeitszielen",
+      "submitButton": "Anfrage Senden"
+    },
+    "supportModal": {
+      "title": "Support Erhalten",
+      "subtitle": "Unser Team ist hier, um Ihnen bei Ihrem Erfolg mit blipee zu helfen",
+      "namePlaceholder": "Ihr Name",
+      "emailPlaceholder": "E-Mail-Adresse",
+      "issueTypePlaceholder": "Problemtyp Auswählen",
+      "issueTypes": {
+        "technical": "Technisches Problem",
+        "billing": "Abrechnungsfrage",
+        "feature": "Funktionsanfrage",
+        "other": "Anderes"
+      },
+      "descriptionPlaceholder": "Beschreiben Sie Ihr Problem oder Ihre Frage",
+      "submitButton": "Anfrage Einreichen"
+    }
+  },
+  "aiTechnology": {
+    "skipToContent": "Zum Hauptinhalt springen",
+    "hero": {
+      "badge": "KI-Technologie der Nächsten Generation",
+      "title1": "Die KI Hinter der",
+      "title2": "Nachhaltigkeitsmagie",
+      "description": "Entdecken Sie die revolutionäre Multi-Gehirn-KI-Architektur, die Nachhaltigkeitsmanagement wie Magie wirken lässt. 12 spezialisierte KI-Modelle arbeiten zusammen, um zu transformieren, wie Sie Ihre Umweltziele erreichen."
+    },
+    "architectureSection": {
+      "badge": "Fortgeschrittene KI-Architektur",
+      "title": "Multi-Gehirn-Architektur",
+      "subtitle": "Jedes Gehirn spezialisiert sich auf unterschiedliche Aspekte der Nachhaltigkeit und arbeitet zusammen, um umfassende Intelligenz zu liefern",
+      "sectionTitle": "Spezialisierte Intelligenzsysteme",
+      "sectionDescription": "Unsere KI-Architektur kombiniert mehrere spezialisierte Systeme, um umfassende Nachhaltigkeitsintelligenz bereitzustellen"
+    },
+    "technologies": {
+      "multiBrain": {
+        "title": "Multi-Gehirn-Architektur",
+        "description": "12 spezialisierte KI-Modelle arbeiten in Harmonie für umfassende Nachhaltigkeitsintelligenz",
+        "features": [
+          "Kontextbewusste Konversations-Engine",
+          "Prädiktives Analyse-Gehirn",
+          "Dokumentenintelligenz-Prozessor",
+          "Visuelles Analysesystem",
+          "Empfehlungs-Engine",
+          "Aktionsplanungsmodul",
+          "Compliance-Überwachungs-KI",
+          "Echtzeit-Datenorchestrator"
+        ],
+        "showMore": "{count} weitere Funktionen anzeigen",
+        "showLess": "Weniger anzeigen"
+      },
+      "nlp": {
+        "title": "Natürlichsprachverarbeitung",
+        "description": "Fortgeschrittenes NLP, das Nachhaltigkeitskontext und Branchenterminologie versteht",
+        "features": [
+          "Mehrsprachiger Support (50+ Sprachen)",
+          "Branchenspezifisches Vokabular",
+          "Absichtserkennung und Kontexterhaltung",
+          "Emotionale Intelligenz in Antworten",
+          "Verständnis technischer Dokumente",
+          "Sprache-zu-Text-Integration",
+          "Echtzeit-Übersetzung",
+          "Sentiment-Analyse"
+        ]
+      },
+      "computerVision": {
+        "title": "Computer Vision",
+        "description": "Extrahiert automatisch Nachhaltigkeitsdaten aus jedem visuellen Dokument oder Bild",
+        "features": [
+          "Rechnungs- und Belegdigitalisierung",
+          "Datenextraktion aus Nebenkostenabrechnungen",
+          "Bildberechnung zu Emissionen",
+          "OCR mit 99,8% Genauigkeit",
+          "Handschrifterkennung",
+          "Analyse von Diagrammen und Tabellen",
+          "Bewertung des Gerätezustands",
+          "Luftbildanalyse"
+        ]
+      },
+      "predictiveAnalytics": {
+        "title": "Prädiktive Analyse",
+        "description": "Sagt zukünftige Emissionen, Kosten und Nachhaltigkeitsleistung präzise voraus",
+        "features": [
+          "Vorhersage von Geräteausfällen",
+          "Forecast des Energieverbrauchs",
+          "Modellierung von Wettereinflüssen",
+          "Kostenprognose-Algorithmen",
+          "Automatisierte Risikobewertung",
+          "Anomalie-Erkennungssystem",
+          "Saisonale Mustererkennung",
+          "ROI-Optimierungsmodelle"
+        ]
+      },
+      "orchestration": {
+        "title": "Echtzeit-Orchestrierung",
+        "description": "Koordiniert nahtlos zwischen mehreren KI-Anbietern für optimierte Leistung",
+        "features": [
+          "Multi-Anbieter-Backup-System",
+          "Load-Balancing-Algorithmen",
+          "Antwortzeit-Optimierung",
+          "Qualitätssicherungs-Überwachung",
+          "Kostenoptimierungs-Engine",
+          "Regionale Compliance-Weiterleitung",
+          "Performance-Analyse",
+          "Automatische Skalierung"
+        ]
+      },
+      "security": {
+        "title": "Datenschutz und Sicherheit",
+        "description": "Enterprise-Level-Sicherheit mit datenschutzorientiertem Design und vollständiger Transparenz",
+        "features": [
+          "Ende-zu-Ende-Verschlüsselung (AES-256)",
+          "Zero-Knowledge-Architektur",
+          "SOC-2-Typ-II-Compliance",
+          "DSGVO- und CCPA-Ready",
+          "On-Premises-Bereitstellungsoptionen",
+          "Audit-Protokoll für alle Vorgänge",
+          "Rollenbasierte Zugriffskontrolle",
+          "Datenresidenz-Compliance"
+        ]
+      }
+    },
+    "providers": {
+      "title": "Erstklassige KI-Anbieter",
+      "description": "Wir arbeiten mit den weltweit führenden KI-Anbietern zusammen, um optimale Leistung, Zuverlässigkeit und Kosteneffizienz zu gewährleisten",
+      "deepseek": {
+        "name": "DeepSeek",
+        "role": "Haupt-Reasoning-Engine",
+        "features": [
+          "Kosteneffiziente Verarbeitung",
+          "Fortgeschrittenes Reasoning",
+          "Schnelle Antwort"
+        ]
+      },
+      "openai": {
+        "name": "OpenAI",
+        "role": "Komplexe Analyse und Kreativität",
+        "features": [
+          "GPT-4-Integration",
+          "Fortgeschrittenes Reasoning",
+          "Kreative Lösungen"
+        ]
+      },
+      "anthropic": {
+        "name": "Anthropic",
+        "role": "Sicherheit und Präzision",
+        "features": [
+          "Constitutional AI",
+          "Sicherheitsausrichtung",
+          "Präzise Ausgaben"
+        ]
+      }
+    }
+  },
+  "conversation": {
+    "newConversation": "Neue Konversation",
+    "defaultResponse": "Ich werde Ihnen dabei helfen.",
+    "generatedCode": "Generierter Code",
+    "errorMessage": "Ich bin auf einen Fehler gestoßen. Bitte versuchen Sie es erneut oder formulieren Sie Ihre Frage um.",
+    "welcomeMessage": "Wie kann ich Ihnen heute helfen?",
+    "welcomeSubtitle": "Beginnen Sie eine Konversation über Nachhaltigkeit, Energiemanagement oder Gebäudebetrieb",
+    "defaultUser": "Benutzer",
+    "input": {
+      "placeholder": "Nachricht an blipee...",
+      "attachFiles": "Dateien anhängen",
+      "sendMessage": "Nachricht senden",
+      "helperText": "Drücken Sie Enter zum Senden, Umschalt + Enter für eine neue Zeile"
+    },
+    "navigation": {
+      "home": "Startseite",
+      "chats": "Konversationen",
+      "new": "Neu",
+      "profile": "Profil",
+      "settings": "Einstellungen"
+    },
+    "sidebar": {
+      "buttons": {
+        "newChat": "Neue Konversation",
+        "chats": "Konversationen",
+        "library": "Prompt-Bibliothek",
+        "settings": "Einstellungen",
+        "signOut": "Abmelden",
+        "expandSidebar": "Seitenleiste erweitern",
+        "collapseSidebar": "Seitenleiste reduzieren",
+        "searchChats": "Konversationen durchsuchen",
+        "maximizeWindow": "Chat-Fenster maximieren",
+        "minimizeWindow": "Chat-Fenster minimieren",
+        "close": "Chat schließen"
+      },
+      "sections": {
+        "recents": "Letzte",
+        "notifications": "Benachrichtigungen",
+        "chats": "Konversationen"
+      },
+      "empty": {
+        "noConversations": "Noch keine Konversationen",
+        "startConversation": "Starten Sie Ihre erste Konversation",
+        "noConversationsFound": "Keine Konversationen gefunden"
+      },
+      "actions": {
+        "pin": "Anheften",
+        "rename": "Umbenennen",
+        "delete": "Löschen",
+        "share": "Teilen",
+        "archive": "Archivieren"
+      },
+      "search": {
+        "placeholder": "Konversationen durchsuchen..."
+      },
+      "groups": {
+        "today": "Heute",
+        "yesterday": "Gestern",
+        "thisWeek": "Diese Woche",
+        "thisMonth": "Diesen Monat",
+        "sevenDays": "Vor 7 Tagen",
+        "thirtyDays": "Vor 30 Tagen",
+        "older": "Älter"
+      },
+      "loading": {
+        "default": "Wird geladen...",
+        "conversations": "Konversationen werden geladen...",
+        "messages": "Nachrichten werden geladen..."
+      },
+      "labels": {
+        "untitled": "Unbenannte Konversation",
+        "askBlipee": "Fragen Sie blipee",
+        "openChat": "Chat öffnen",
+        "openChatWithUnread": "Chat öffnen. {{count}} ungelesene Benachrichtigungen",
+        "openConversation": "Konversation öffnen: {{title}}",
+        "renameConversation": "Konversation umbenennen",
+        "searchConversations": "Konversationen durchsuchen"
+      },
+      "delete": {
+        "title": "Konversation löschen?",
+        "message": "Diese Aktion kann nicht rückgängig gemacht werden. Die Konversation wird dauerhaft gelöscht.",
+        "cancel": "Abbrechen",
+        "confirm": "Löschen"
+      }
+    },
+    "promptLibrary": {
+      "title": "Prompt-Bibliothek",
+      "subtitle": "Über {{count}} Prompt-Beispiele zum Einstieg",
+      "search": {
+        "placeholder": "Prompts durchsuchen..."
+      },
+      "empty": {
+        "noResults": "Kein Prompt gefunden für \"{{query}}\""
+      },
+      "navigation": {
+        "backToCategories": "← Zurück zu Kategorien"
+      },
+      "category": {
+        "promptsCount": "{{count}} Prompts →"
+      },
+      "footer": {
+        "instruction": "Klicken Sie auf einen beliebigen Prompt, um die Chat-Eingabe automatisch auszufüllen"
+      }
+    },
+    "welcome": {
+      "title": "Willkommen bei blipee",
+      "description": "Ihre intelligente Nachhaltigkeitsassistentin. Fragen Sie mich alles über Emissionen, Compliance oder ESG-Reports."
+    },
+    "contextualSuggestions": {
+      "settings": {
+        "addUsers": "Wie füge ich Benutzer zu meiner Organisation hinzu?",
+        "apiKeys": "Wo finde ich meine API-Schlüssel?",
+        "integrations": "Wie konfiguriere ich Integrationen?",
+        "billing": "Wo sind meine Abrechnungseinstellungen?"
+      },
+      "profile": {
+        "changePassword": "Wie ändere ich mein Passwort?",
+        "notifications": "Wo kann ich meine Benachrichtigungseinstellungen aktualisieren?",
+        "theme": "Wie ändere ich das Anwendungsthema?",
+        "security": "Wo sind meine Kontosicherheitseinstellungen?"
+      },
+      "sustainability": {
+        "emissionsYear": "Was sind meine Emissionen in diesem Jahr?",
+        "emissionsBreakdown": "Zeigen Sie mir die Aufschlüsselung meiner Emissionen nach Scope",
+        "businessTravel": "Wie verfolge ich Geschäftsreisen?",
+        "addData": "Ich möchte Nachhaltigkeitsdaten hinzufügen"
+      },
+      "default": {
+        "emissionsYear": "Was sind meine Emissionen in diesem Jahr?",
+        "getStarted": "Wie fange ich mit blipee an?",
+        "dashboard": "Zeigen Sie mir mein Nachhaltigkeits-Dashboard",
+        "addData": "Ich möchte Nachhaltigkeitsdaten hinzufügen"
+      }
+    },
+    "message": {
+      "downloadFile": "Datei herunterladen"
+    },
+    "suggestions": {
+      "energyTrends": "Energieverbrauchstrends anzeigen",
+      "generateCode": "Python-Code für Datenanalyse generieren",
+      "performanceReport": "Gebäudeleistungsbericht",
+      "sustainabilityDashboard": "Ein Nachhaltigkeits-Dashboard erstellen"
+    },
+    "artifacts": {
+      "sustainabilityReport": "Nachhaltigkeitsbericht",
+      "monthlyReportContent": "<h2>Monatlicher Nachhaltigkeitsbericht</h2><p>Die Kohlenstoffemissionen wurden diesen Monat um 15% reduziert.</p>",
+      "energyTrends": "Energieverbrauchstrends",
+      "energyTrendsContent": "Diagramm mit Energieverbrauchsmustern des letzten Quartals"
+    }
+  },
+  "education": {
+    "topics": {
+      "carbonBasics": {
+        "title": "Kohlenstoffemissionen Verstehen",
+        "sections": {
+          "whatIsCO2e": {
+            "heading": "Was ist CO2e?",
+            "content": "CO2e (Kohlenstoffdioxid-Äquivalent) ist eine Standardeinheit zur Messung von CO2-Fußabdrücken. Es drückt die Auswirkung verschiedener Treibhausgase in Bezug auf die äquivalente Menge an CO2 aus."
+          },
+          "oneTonne": {
+            "heading": "Wie sieht 1 Tonne CO2e aus?",
+            "content": "Abstrakte Zahlen sind schwer zu visualisieren. Hier sind einige reale Vergleiche:"
+          },
+          "whyMeasure": {
+            "heading": "Warum in CO2e messen?",
+            "content": "Die Verwendung von CO2e ermöglicht es uns, alle Treibhausgasemissionen in einer einzigen Zahl zu summieren, was das Tracking von Fortschritten und das Setzen von Zielen erleichtert."
+          }
+        },
+        "gases": {
+          "co2": "Kohlenstoffdioxid (CO2)",
+          "co2Comparison": "Basis = 1x Auswirkung",
+          "methane": "Methan (CH4)",
+          "methaneComparison": "25x stärker als CO2",
+          "nitrousOxide": "Lachgas (N2O)",
+          "nitrousOxideComparison": "298x stärker als CO2"
+        },
+        "comparisons": {
+          "driving": "2.500 km mit einem Benzinauto fahren",
+          "flight": "1 Hin- und Rückflug innerhalb Europas",
+          "trees": "Was 1,15 Bäume in einem Jahr absorbieren",
+          "treesValue": "Durch Photosynthese",
+          "home": "Ein Haus 2 Monate lang versorgen",
+          "homeValue": "Durchschnittliche EU-Familie",
+          "smartphones": "121.000 Smartphones aufladen",
+          "smartphonesValue": "Von leer bis voll"
+        }
+      },
+      "scopesExplained": {
+        "title": "GHG-Protokoll-Scopes",
+        "sections": {
+          "whatAreScopes": {
+            "heading": "Was sind Scopes?",
+            "content": "Das GHG-Protokoll unterteilt Emissionen in 3 'Scopes', um Organisationen zu helfen zu verstehen, woher ihre Emissionen kommen."
+          },
+          "scope1": {
+            "heading": "Scope 1: Direkte Emissionen",
+            "content": "Emissionen aus Quellen, die Ihre Organisation direkt besitzt oder kontrolliert."
+          },
+          "scope2": {
+            "heading": "Scope 2: Indirekte Energieemissionen",
+            "content": "Emissionen aus der Erzeugung gekaufter Energie (Strom, Heizung, Kühlung)."
+          },
+          "scope3": {
+            "heading": "Scope 3: Wertkettenemissionen",
+            "content": "Alle anderen indirekten Emissionen in Ihrer Wertkette. Oft 70-80% des gesamten Fußabdrucks eines Unternehmens."
+          }
+        },
+        "examples": {
+          "scope1": {
+            "vehicles": "Firmenwagen",
+            "vehiclesDesc": "Autos, LKWs, Fuhrpark",
+            "combustion": "Verbrennung vor Ort",
+            "combustionDesc": "Kessel, Generatoren",
+            "refrigerants": "Kältemittellecks",
+            "refrigerantsDesc": "Klimaanlagen"
+          },
+          "scope2": {
+            "electricity": "Gekaufter Strom",
+            "electricityDesc": "Aus dem Netz",
+            "heating": "Fernwärme",
+            "heatingDesc": "Zentralisierte Heizung",
+            "cooling": "Fernkühlung",
+            "coolingDesc": "Zentralisierte Kühlung"
+          },
+          "scope3": {
+            "travel": "Geschäftsreisen",
+            "travelDesc": "Flüge, Hotels, Mietwagen",
+            "commuting": "Mitarbeiterpendeln",
+            "commutingDesc": "Tägliche Fahrten zum/vom Büro",
+            "goods": "Gekaufte Waren und Dienstleistungen",
+            "goodsDesc": "Lieferanten, Materialien",
+            "waste": "Abfallentsorgung",
+            "wasteDesc": "Deponie, Recycling"
+          }
+        }
+      },
+      "whyItMatters": {
+        "title": "Warum Klimamaßnahmen Wichtig Sind",
+        "sections": {
+          "parisAgreement": {
+            "heading": "Das 1,5°C-Ziel",
+            "content": "Das Pariser Abkommen zielt darauf ab, die globale Erwärmung auf 1,5°C über dem vorindustriellen Niveau zu begrenzen, um katastrophale Klimaauswirkungen zu vermeiden."
+          },
+          "warmingLevels": {
+            "heading": "Was passiert bei verschiedenen Erwärmungsniveaus?",
+            "content": "Jeder Bruchteil eines Grades zählt:"
+          },
+          "localImpact": {
+            "heading": "Auswirkungen auf {location}",
+            "content": "Ohne Maßnahmen steht {location} vor schwerwiegenden Konsequenzen:"
+          },
+          "goodNews": {
+            "heading": "Die Guten Nachrichten",
+            "content": "Wir haben die Technologie und das Wissen, um dies zu lösen. Erneuerbare Energie ist jetzt billiger als fossile Brennstoffe."
+          }
+        },
+        "warming": {
+          "oneFive": "1,5°C Erwärmung",
+          "oneFiveDesc": "Schwerwiegende, aber mit Anpassung bewältigbare Auswirkungen",
+          "two": "2°C Erwärmung",
+          "twoDesc": "Deutlich schlimmer: mehr extreme Hitze, Dürren, Überschwemmungen",
+          "three": "3°C Erwärmung",
+          "threeDesc": "Katastrophal: Massensterben, unbewohnbare Regionen"
+        }
+      },
+      "reductionStrategies": {
+        "title": "Wie Emissionen Reduzieren",
+        "sections": {
+          "highImpact": {
+            "heading": "Fokus auf Maßnahmen mit Hoher Wirkung",
+            "content": "Nicht alle Emissionsreduktionsmaßnahmen sind gleich. Konzentrieren Sie sich auf diese:"
+          },
+          "hierarchy": {
+            "heading": "Die Reduktionshierarchie",
+            "content": "Befolgen Sie immer diese Reihenfolge: 1) Zuerst Vermeiden/Reduzieren, 2) Zu kohlenstoffarmen Alternativen wechseln, 3) Nur als letztes Mittel kompensieren."
+          }
+        }
+      },
+      "sbtiTargets": {
+        "title": "Wissenschaftsbasierte Targets",
+        "sections": {
+          "whatIsSBTi": {
+            "heading": "Was sind wissenschaftsbasierte Targets?",
+            "content": "Emissionsreduktionsziele, die mit der Klimawissenschaft übereinstimmen - speziell das, was erforderlich ist, um die Erwärmung auf 1,5°C zu begrenzen."
+          },
+          "whyImportant": {
+            "heading": "Warum sind sie wichtig?",
+            "content": "SBTi-Targets geben Ihnen Glaubwürdigkeit. Über 4.000 Unternehmen weltweit haben sich zu SBTi-Targets verpflichtet."
+          },
+          "types": {
+            "heading": "Arten von SBTi-Targets",
+            "content": "Es gibt verschiedene Arten von Targets basierend auf Zeitrahmen und Ambition:"
+          },
+          "howToStart": {
+            "heading": "Wie anfangen",
+            "content": "Beginnen Sie damit, Ihre Basis-Emissionen zu messen (das tun Sie bereits!). Dann reichen Sie Ihre Targets beim SBTi zur Validierung ein."
+          }
+        },
+        "types": {
+          "nearTerm": "Kurzfristige Targets",
+          "nearTermDesc": "5-10 Jahre: Typischerweise 42% Reduktion bis 2030",
+          "longTerm": "Langfristige Targets",
+          "longTermDesc": "Bis 2050: Netto-Null-Emissionen in allen Scopes",
+          "ambition": "Ambitionsniveaus",
+          "ambitionDesc": "1,5°C (ehrgeiziger) oder deutlich unter 2°C"
+        }
+      }
+    },
+    "modal": {
+      "previous": "Zurück",
+      "next": "Weiter",
+      "gotIt": "Verstanden!",
+      "sectionOf": "Abschnitt {current} von {total}",
+      "learnMore": "📚 Mehr erfahren"
+    }
+  },
+  "carbonEquivalents": {
+    "verySmall": {
+      "smartphone": {
+        "format": "{n} Smartphone-Ladungen",
+        "context": "Ein vollständiges Aufladen des Telefons verbraucht etwa 0,008 kg CO2e pro Ladung",
+        "didYouKnow": "Eine volle Ladung = 2 Stunden Netflix auf dem Handy schauen!"
+      },
+      "coffee": {
+        "format": "{n} Tassen Kaffee",
+        "context": "Kaffee zubereiten (Bohnen, Wasser erhitzen, Milch) ≈ 1,25 kg CO2e pro Tasse",
+        "didYouKnow": "Die Milch in Ihrem Latte erzeugt mehr Emissionen als die Kaffeebohnen!"
+      },
+      "burger": {
+        "format": "{n} Rindfleisch-Burger",
+        "format_one": "{n} Rindfleisch-Burger",
+        "context": "Ein Rindfleisch-Burger erzeugt ~10 kg CO2e (vom Hof bis zum Teller)",
+        "didYouKnow": "Ein pflanzenbasierter Burger erzeugt 90% weniger Emissionen!"
+      },
+      "shower": {
+        "format": "{n} heiße Duschen (10 Minuten)",
+        "format_one": "{n} heiße Dusche (10 Minuten)",
+        "context": "Wasser für eine Dusche erhitzen verbraucht ~20 kg CO2e",
+        "didYouKnow": "Die Duschzeit um 2 Minuten zu verkürzen spart 10 kg CO2e pro Monat!"
+      }
+    },
+    "small": {
+      "matureTree": {
+        "format": "{n} ausgewachsene Bäume, die 1 Jahr lang CO2 absorbieren",
+        "format_one": "{n} ausgewachsener Baum, der 1 Jahr lang CO2 absorbiert",
+        "context": "Ein ausgewachsener Baum absorbiert ~21 kg CO2e pro Jahr durch Photosynthese",
+        "didYouKnow": "Ein Baum braucht über 20 Jahre, um ein \"ausgewachsener\" Kohlenstoffabsorber zu werden!"
+      },
+      "seedling": {
+        "format": "{n} junge Bäume, die 10 Jahre lang wachsen",
+        "format_one": "{n} junger Baum, der 10 Jahre lang wächst",
+        "context": "Junge Bäume absorbieren anfangs weniger CO2, aber mehr, wenn sie wachsen",
+        "didYouKnow": "Ein wachsender Wald absorbiert 2-3× mehr CO2 als ein ausgewachsener Wald!"
+      },
+      "grassland": {
+        "format": "{n} Hektar Grünland für 1 Jahr",
+        "format_one": "{n} Hektar Grünland für 1 Jahr",
+        "context": "Grünland absorbiert ~2,5 Tonnen CO2e pro Hektar jährlich",
+        "didYouKnow": "Grünland speichert mehr Kohlenstoff in seinen Wurzeln als Bäume!"
+      },
+      "oceanAlgae": {
+        "format": "{n} Hektar Meeresalgen für 1 Jahr",
+        "format_one": "{n} Hektar Meeresalgen für 1 Jahr",
+        "context": "Ozeanisches Phytoplankton absorbiert ~2 Tonnen CO2e pro Hektar",
+        "didYouKnow": "Die Ozeane absorbieren 25% aller menschlichen CO2-Emissionen jedes Jahr!"
+      }
+    },
+    "mediumSmall": {
+      "portugal": {
+        "driving": {
+          "format": "{n} km Fahrt ({trips} Fahrten Lissabon ↔ Porto)",
+          "format_one": "{n} km Fahrt ({trips} Fahrt Lissabon ↔ Porto)",
+          "context": "Durchschnittliches Auto emittiert ~0,4 kg CO2e pro km",
+          "didYouKnow": "Mit dem Zug fahren reduziert die Emissionen um 80%!"
+        },
+        "lisbonAlgarve": {
+          "format": "{n} Fahrten Lissabon ↔ Algarve mit dem Auto",
+          "format_one": "{n} Fahrt Lissabon ↔ Algarve mit dem Auto",
+          "context": "~300 km pro Fahrt, Familienauto",
+          "didYouKnow": "Das Auto mit 3 Freunden zu teilen macht dies 75% effizienter!"
+        },
+        "scooter": {
+          "format": "{n} km Roller",
+          "context": "Roller emittieren halb so viel CO2 wie Autos pro km",
+          "didYouKnow": "Elektroroller emittieren 90% weniger als Benzinroller!"
+        }
+      },
+      "spain": {
+        "driving": {
+          "format": "{n} km Fahrt ({trips} Fahrten Madrid ↔ Barcelona)",
+          "format_one": "{n} km Fahrt ({trips} Fahrt Madrid ↔ Barcelona)",
+          "context": "Durchschnittliches Auto emittiert ~0,4 kg CO2e pro km",
+          "didYouKnow": "Der Hochgeschwindigkeitszug AVE verbraucht 85% weniger Emissionen!"
+        },
+        "madridValencia": {
+          "format": "{n} Fahrten Madrid ↔ Valencia mit dem Auto",
+          "format_one": "{n} Fahrt Madrid ↔ Valencia mit dem Auto",
+          "context": "~400 km pro Fahrt, Familienauto",
+          "didYouKnow": "Spanische Züge fahren mit 60% erneuerbarer Energie!"
+        }
+      },
+      "global": {
+        "driving": {
+          "format": "{n} km Autofahrt",
+          "context": "Durchschnittliches Auto: 0,4 kg CO2e pro km",
+          "didYouKnow": "Elektroautos reduzieren dies um 70% (abhängig von der Stromquelle)!"
+        }
+      }
+    },
+    "medium": {
+      "portugal": {
+        "lisbonParis": {
+          "format": "{n} Hin- und Rückflüge Lissabon → Paris",
+          "format_one": "1 Hin- und Rückflug Lissabon → Paris (Economy, 2.900 km)",
+          "context": "Kurzstreckenflug: ~1,5 Tonnen CO2e Hin- und Rückflug",
+          "didYouKnow": "8 Stunden Zugfahrt erzeugen 95% weniger Emissionen als dieser Flug!"
+        },
+        "lisbonLondon": {
+          "format": "{n} Hin- und Rückflüge Lissabon → London",
+          "format_one": "1 Hin- und Rückflug Lissabon → London (Economy, 3.200 km)",
+          "context": "Kurzstreckenflug: ~2 Tonnen CO2e Hin- und Rückflug",
+          "didYouKnow": "Business-Class-Sitze erzeugen 3× mehr Emissionen (sie nehmen mehr Platz ein)!"
+        },
+        "lisbonRome": {
+          "format": "{n} Hin- und Rückflüge innerhalb Europas",
+          "format_one": "1 Hin- und Rückflug Lissabon → Rom (Economy, 3.000 km)",
+          "context": "Europäische Flüge: ~2,5 Tonnen CO2e Hin- und Rückflug",
+          "didYouKnow": "Flugzeuge sind 5-10× umweltschädlicher pro km als Züge!"
+        }
+      },
+      "spain": {
+        "madridLondon": {
+          "format": "{n} Hin- und Rückflüge Madrid → London",
+          "format_one": "1 Hin- und Rückflug Madrid → London (Economy, 2.600 km)",
+          "context": "Kurzstreckenflug: ~1,5 Tonnen CO2e Hin- und Rückflug",
+          "didYouKnow": "Eine Videokonferenz eliminiert diese Emission vollständig!"
+        }
+      },
+      "global": {
+        "regionalFlight": {
+          "format": "{n} regionale Hin- und Rückflüge",
+          "format_one": "1 regionaler Hin- und Rückflug (Economy, ~3.000 km)",
+          "context": "Durchschnittliche Kurzstrecke: ~2 Tonnen CO2e",
+          "didYouKnow": "Die Luftfahrt erzeugt 2,5% der weltweiten CO2-Emissionen!"
+        }
+      }
+    },
+    "large": {
+      "electricity": {
+        "format": "{n} Monate Hausstrom",
+        "format_one": "{n} Monat Hausstrom",
+        "context": "Durchschnittshaus: ~10 Tonnen CO2e pro Jahr für Strom",
+        "didYouKnow": "Der Wechsel zu LED-Lampen spart 80 kg CO2e pro Lampe pro Jahr!"
+      },
+      "hvac": {
+        "format": "{n} Monate Heizung/Kühlung eines Durchschnittshauses",
+        "format_one": "{n} Monat Heizung/Kühlung eines Durchschnittshauses",
+        "context": "HLK macht typischerweise 40% des häuslichen Energieverbrauchs aus",
+        "didYouKnow": "Ein intelligenter Thermostat kann dies um 15-20% reduzieren!"
+      },
+      "gasHeating": {
+        "format": "{n} Monate Erdgasheizung",
+        "format_one": "{n} Monat Erdgasheizung",
+        "context": "Gasheizung: ~3,5 Tonnen CO2e pro Jahr",
+        "didYouKnow": "Wärmepumpen verbrauchen 3× weniger Energie als Gasheizung!"
+      },
+      "airConditioning": {
+        "format": "{n} Stunden Klimaanlage (großes Haus)",
+        "context": "Klimaanlagen können im Sommer 20-50 kg CO2e pro Monat verbrauchen",
+        "didYouKnow": "Die Klimaanlagen-Temperatur um 1°C zu erhöhen spart 7% Energie!"
+      }
+    },
+    "veryLarge": {
+      "treesYear": {
+        "format": "{n} ausgewachsene Bäume, die 1 Jahr lang CO2 absorbieren",
+        "format_one": "{n} ausgewachsener Baum, der 1 Jahr lang CO2 absorbiert",
+        "context": "Ein ausgewachsener Baum absorbiert ~0,87 Tonnen CO2e pro Jahr durch Photosynthese",
+        "didYouKnow": "Ein Baum braucht über 20 Jahre, um ein \"ausgewachsener\" Kohlenstoffabsorber zu werden!"
+      },
+      "factoryMonths": {
+        "format": "{n} Monate Emissionen einer kleinen Fabrik",
+        "format_one": "{n} Monat Emissionen einer kleinen Fabrik",
+        "context": "Kleine Industrie: ~1000 Tonnen CO2e pro Jahr (83 Tonnen/Monat)",
+        "didYouKnow": "Deshalb ist industrielle Effizienz so kritisch!"
+      },
+      "peopleYearly": {
+        "format": "{n} durchschnittliche jährliche CO2-Fußabdrücke von Personen",
+        "format_one": "{n} durchschnittlicher jährlicher CO2-Fußabdruck einer Person",
+        "context": "Weltweiter Durchschnitt: ~4 Tonnen CO2e pro Person pro Jahr",
+        "didYouKnow": "USA-Durchschnitt ist 16 Tonnen, Indien ist 1,9 Tonnen pro Person!"
+      },
+      "transatlanticFlights": {
+        "format": "{n} transatlantische Hin- und Rückflüge (Economy)",
+        "format_one": "{n} transatlantischer Hin- und Rückflug (Economy)",
+        "context": "Langstreckenflug: ~4 Tonnen CO2e pro Passagier Hin- und Rückflug",
+        "didYouKnow": "Ein Langstreckenflug = ein Jahr Autofahren für viele Menschen!"
+      },
+      "arcticIce": {
+        "format": "{n} m² geschmolzenes arktisches Meereis",
+        "context": "Jede Tonne CO2 lässt ~3 m² sommerliches arktisches Meereis schmelzen",
+        "didYouKnow": "Das arktische Meereis ist seit 1979 um 13% pro Jahrzehnt zurückgegangen!"
+      },
+      "seaLevel": {
+        "format": "{n} mm globaler Meeresspiegelanstieg",
+        "format_less_than_one": "< 1 mm globaler Meeresspiegelanstieg",
+        "context": "Jede 1000 Tonnen CO2e tragen zu 0,32 mm Meeresspiegelanstieg bei",
+        "didYouKnow": "Der Meeresspiegel steigt um 3,4 mm pro Jahr - 2× schneller als vor 50 Jahren!"
+      },
+      "globalWarming": {
+        "format": "{n} Millionstel Grad globaler Erwärmung",
+        "context": "Jede Tonne CO2e trägt ~0,00015 Millionstel °C Erwärmung bei",
+        "didYouKnow": "Wir haben uns seit der vorindustriellen Zeit bereits um 1,1°C erwärmt - jeder Bruchteil zählt!"
+      },
+      "polarBearHabitat": {
+        "format": "{n} Tage Verlust des Eisbären-Lebensraums",
+        "format_one": "{n} Tag Verlust des Eisbären-Lebensraums",
+        "context": "Verlust von arktischem Eis = ~1 Tag pro 15 Tonnen CO2e",
+        "didYouKnow": "Eisbären brauchen Meereis zum Jagen - sie verlieren 3-4 Wochen Jagdzeit pro Jahrzehnt!"
+      }
+    }
+  },
+  "industries": {
+    "skipToContent": "Zum Hauptinhalt springen",
+    "hero": {
+      "badge": "Alle Branchen. Alle Organisationen. Alle Ziele.",
+      "title1": "Universelle Nachhaltigkeit",
+      "title2": "Für Alle Branchen",
+      "description": "blipee funktioniert mit jeder Organisation, in jeder Branche, jeder Größe. Von Startups bis zu Fortune 500, von Fertigung bis zu Dienstleistungen machen wir Nachhaltigkeit für alle einfach und erreichbar."
+    },
+    "coverage": {
+      "title": "Ihre Branche Ist Abgedeckt",
+      "description": "Nachhaltigkeitsherausforderungen sind universal. Ob Sie Emissionen verfolgen, Energie verwalten, Abfall reduzieren oder ESG-Kennzahlen berichten, blipee passt sich Ihren branchenspezifischen Anforderungen und Vorschriften an.",
+      "anySector": {
+        "title": "Jeder Sektor",
+        "description": "Von der Schwerindustrie bis zu digitalen Diensten versteht unsere KI Ihre einzigartigen Nachhaltigkeitsherausforderungen."
+      },
+      "anyStandard": {
+        "title": "Jeder Standard",
+        "description": "GRI, SASB, TCFD, CSRD, EU-Taxonomie - wir unterstützen alle wichtigen Nachhaltigkeitsrahmen und -vorschriften."
+      },
+      "anySize": {
+        "title": "Jede Größe",
+        "description": "Von kleinen Unternehmen bis zu multinationalen Konzernen skaliert unsere Plattform mit Ihren Bedürfnissen."
+      }
+    },
+    "intelligence": {
+      "title": "Branchenintelligenz",
+      "subtitle": "Wie Wir Branchen Organisieren",
+      "description": "Dies sind nur Beispiele. Wenn Ihre Branche nicht aufgeführt ist, arbeiten wir trotzdem mit Ihnen. Unsere KI passt sich jeder Nachhaltigkeitsherausforderung an.",
+      "categories": {
+        "manufacturing": {
+          "title": "Fertigung und Produktion",
+          "description": "Jedes Unternehmen, das Waren oder Produkte herstellt",
+          "items": [
+            "Automobil und Luft- und Raumfahrt",
+            "Elektronik und Technologie",
+            "Lebensmittel- und Getränkeproduktion",
+            "Chemie und Pharmazie",
+            "Textilien und Konsumgüter",
+            "Schwermaschinenbau und Ausrüstung"
+          ]
+        },
+        "builtEnvironment": {
+          "title": "Gebaute Umwelt",
+          "description": "Organisationen, die Gebäude und Infrastruktur verwalten",
+          "items": [
+            "Gewerbeimmobilien",
+            "Wohnimmobilien",
+            "Bildungseinrichtungen",
+            "Gesundheitseinrichtungen",
+            "Gastgewerbe und Tourismus",
+            "Flughäfen und Verkehrszentren"
+          ]
+        },
+        "energyUtilities": {
+          "title": "Energie und Versorgungsunternehmen",
+          "description": "Energieerzeugung, -verteilung und Versorgungsunternehmen",
+          "items": [
+            "Elektrizitätsunternehmen",
+            "Öl- und Gasunternehmen",
+            "Entwickler erneuerbarer Energien",
+            "Wasser- und Abwasserbehandlung",
+            "Fernwärmesysteme",
+            "Energiespeicherung und -verteilung"
+          ]
+        },
+        "servicesDigital": {
+          "title": "Dienstleistungen und Digital",
+          "description": "Dienstleistungsbasierte Organisationen in allen Sektoren",
+          "items": [
+            "Finanzdienstleistungen und Bankwesen",
+            "Professionelle Dienstleistungen",
+            "Technologie und Software",
+            "Telekommunikation",
+            "Medien und Unterhaltung",
+            "Beratung und Advisory"
+          ]
+        },
+        "naturalResources": {
+          "title": "Natürliche Ressourcen",
+          "description": "Organisationen, die mit natürlichen Ressourcen arbeiten",
+          "items": [
+            "Landwirtschaft und Viehzucht",
+            "Forstwirtschaft und Papier",
+            "Bergbau und Rohstoffgewinnung",
+            "Fischerei und Aquakultur",
+            "Abfallmanagement und Recycling",
+            "Umweltdienstleistungen"
+          ]
+        },
+        "publicSocial": {
+          "title": "Öffentlicher und Sozialer Sektor",
+          "description": "Regierungs- und öffentliche Dienstleistungsorganisationen",
+          "items": [
+            "Regierungsbehörden",
+            "Gemeinnützige Organisationen",
+            "Gesundheitssysteme",
+            "Bildungseinrichtungen",
+            "Sozialunternehmen",
+            "Internationale Organisationen"
+          ]
+        }
+      }
+    },
+    "standards": {
+      "title": "Standards und Compliance",
+      "description": "Wir unterstützen alle wichtigen Nachhaltigkeitsrahmen und -vorschriften",
+      "frameworks": {
+        "gri": {
+          "name": "GRI-Standards",
+          "description": "Am weitesten verbreitetes Nachhaltigkeitsreporting weltweit",
+          "coverage": "GRI 302 (Energie), GRI 303 (Wasser), GRI 305 (Emissionen), GRI 306 (Abfall)"
+        },
+        "sasb": {
+          "name": "SASB",
+          "description": "Branchenspezifische Standards für ESG-Performance",
+          "coverage": "77 branchenspezifische Standards, die finanziell wesentliche Themen abdecken"
+        },
+        "tcfd": {
+          "name": "TCFD",
+          "description": "Klimabezogene Offenlegungen",
+          "coverage": "Governance, Strategie, Risikomanagement, Metriken und Targets"
+        },
+        "csrd": {
+          "name": "CSRD/ESRS",
+          "description": "EU-Nachhaltigkeitsberichterstattung",
+          "coverage": "Europäische Corporate Sustainability Reporting Directive"
+        },
+        "ghg": {
+          "name": "GHG-Protokoll",
+          "description": "Standard für Kohlenstoffbuchhaltung",
+          "coverage": "Scope 1, 2 und 3 THG-Inventarisierung und Berichterstattung"
+        },
+        "sbti": {
+          "name": "SBTi",
+          "description": "Wissenschaftsbasierte Targets",
+          "coverage": "1,5°C-aligned Reduktionsziele"
+        }
+      }
+    },
+    "useCases": {
+      "title": "Anwendungsfälle nach Branche",
+      "subtitle": "Wie Organisationen blipee nutzen",
+      "manufacturing": {
+        "title": "Fertigungsbeispiel",
+        "challenge": "Ein Automobilunternehmen musste Scope-3-Emissionen in einer komplexen Lieferkette verfolgen",
+        "solution": "blipee automatisierte die Datenerfassung von Lieferanten und berechnete Emissionen über die gesamte Wertkette",
+        "result": "40% Reduzierung der Reporting-Zeit, Identifizierung von 2,3 Millionen Euro Kosteneinsparungen"
+      },
+      "realestate": {
+        "title": "Immobilienbeispiel",
+        "challenge": "Ein Portfolio-Manager musste Energie in 120 Gebäuden optimieren",
+        "solution": "blipee identifizierte Energieverschwendungsmuster und sagte Wartungsbedarf voraus",
+        "result": "18% Reduzierung der Energiekosten, 15% Verbesserung der Betriebseffizienz"
+      },
+      "tech": {
+        "title": "Technologiebeispiel",
+        "challenge": "Ein SaaS-Unternehmen musste seinen digitalen CO2-Fußabdruck messen und kompensieren",
+        "solution": "blipee verfolgte Rechenzentrumsnutzung, Cloud-Emissionen und Mitarbeiterpendeln",
+        "result": "Klimaneutralität in 8 Monaten erreicht, ESG-Anforderungen der Investoren erfüllt"
+      }
+    },
+    "cta": {
+      "title": "Bereit, die Nachhaltigkeit Ihrer Branche zu Transformieren?",
+      "description": "Unabhängig von Ihrer Branche passt sich blipee Ihren einzigartigen Nachhaltigkeitsherausforderungen an",
+      "primaryButton": "Demo Vereinbaren",
+      "secondaryButton": "Mehr Erfahren"
+    }
+  },
+  "sustainability": {
+    "overview": {
+      "title": "Übersicht",
+      "subtitle": "Übersicht über Compliance und Kennzahlen",
+      "loadingOverview": "Übersicht wird geladen...",
+      "errorLoading": "Fehler beim Laden der Übersicht",
+      "retry": "Erneut Versuchen",
+      "clearFilters": "Filter Löschen",
+      "failedToLoadOrganization": "Organisation konnte nicht geladen werden",
+      "failedToConnectToServer": "Verbindung zum Server fehlgeschlagen"
+    },
+    "dashboard": {
+      "title": "Nachhaltigkeits-Dashboard",
+      "subtitle": "Verfolgen und verwalten Sie Ihre Nachhaltigkeitskennzahlen",
+      "loading": "Dashboard wird geladen...",
+      "errorLoading": "Fehler beim Laden des Dashboards",
+      "noData": "Keine Daten verfügbar",
+      "selectMetric": "Kennzahl auswählen",
+      "selectTimeRange": "Zeitraum auswählen",
+      "filters": {
+        "allSites": "Alle Standorte",
+        "selectSite": "Standort auswählen",
+        "timeRange": "Zeitraum",
+        "thisMonth": "Dieser Monat",
+        "lastMonth": "Letzter Monat",
+        "thisQuarter": "Dieses Quartal",
+        "thisYear": "Dieses Jahr",
+        "last12Months": "Letzte 12 Monate",
+        "custom": "Benutzerdefiniert"
+      },
+      "kpis": {
+        "totalEmissions": "Gesamtemissionen",
+        "energyConsumption": "Energieverbrauch",
+        "waterUsage": "Wasserverbrauch",
+        "wasteGenerated": "Erzeugte Abfälle",
+        "renewableEnergy": "Erneuerbare Energie",
+        "carbonIntensity": "Kohlenstoffintensität",
+        "complianceScore": "Compliance-Score",
+        "targetProgress": "Zielfortschritt"
+      },
+      "charts": {
+        "emissionsTrend": "Emissionstrend",
+        "energyBreakdown": "Energieaufschlüsselung",
+        "waterConsumption": "Wasserverbrauch",
+        "wasteManagement": "Abfallmanagement",
+        "scopeDistribution": "Scope-Verteilung",
+        "monthlySummary": "Monatliche Zusammenfassung",
+        "yearOverYear": "Jahr für Jahr"
+      },
+      "units": {
+        "tco2e": "tCO₂e",
+        "kwh": "kWh",
+        "mwh": "MWh",
+        "m3": "m³",
+        "kg": "kg",
+        "tonnes": "Tonnen",
+        "percent": "%"
+      },
+      "status": {
+        "onTrack": "Im Plan",
+        "atRisk": "Gefährdet",
+        "offTrack": "Außerhalb des Plans",
+        "completed": "Abgeschlossen",
+        "pending": "Ausstehend"
+      }
+    },
+    "water": {
+      "title": "Wassermanagement",
+      "subtitle": "Wasserverbrauch und -einsparungen verfolgen",
+      "consumption": {
+        "title": "Wasserverbrauch",
+        "total": "Gesamt",
+        "municipal": "Kommunal",
+        "groundwater": "Grundwasser",
+        "surfaceWater": "Oberflächenwasser",
+        "recycled": "Recycelt",
+        "rainwater": "Regenwasser"
+      },
+      "discharge": {
+        "title": "Wasserableitung",
+        "wastewater": "Abwasser",
+        "treated": "Behandelt",
+        "untreated": "Unbehandelt",
+        "reused": "Wiederverwendet"
+      },
+      "intensity": {
+        "title": "Wasserintensität",
+        "perEmployee": "Pro Mitarbeiter",
+        "perArea": "Pro Fläche",
+        "perRevenue": "Pro Umsatz",
+        "perProduct": "Pro Produkt"
+      },
+      "quality": {
+        "title": "Wasserqualität",
+        "pH": "pH",
+        "temperature": "Temperatur",
+        "turbidity": "Trübung",
+        "tds": "TDS",
+        "bod": "BSB",
+        "cod": "CSB"
+      },
+      "targets": {
+        "title": "Reduktionsziele",
+        "current": "Aktuell",
+        "target": "Ziel",
+        "reduction": "Reduktion",
+        "progress": "Fortschritt",
+        "deadline": "Frist",
+        "status": "Status"
+      },
+      "initiatives": {
+        "title": "Wassersparinitiativen",
+        "description": "Aktive Projekte",
+        "rainwaterHarvesting": "Regenwassersammlung",
+        "recyclingSystem": "Recyclingsystem",
+        "efficientFixtures": "Effiziente Armaturen",
+        "leakDetection": "Leckerkennung",
+        "waterAudit": "Wasseraudit"
+      },
+      "alerts": {
+        "highConsumption": "Hoher Verbrauch Erkannt",
+        "leakDetected": "Potenzielle Leckage Erkannt",
+        "targetMissed": "Ziel Verfehlt",
+        "maintenanceRequired": "Wartung Erforderlich"
+      }
+    },
+    "compliance": {
+      "title": "ESG-Compliance",
+      "frameworks": "Frameworks",
+      "reporting": "Berichterstattung",
+      "audit": "Audit",
+      "documentation": "Dokumentation"
+    },
+    "waste": {
+      "title": "Abfallmanagement",
+      "subtitle": "Abfallerzeugung und -entsorgung verfolgen",
+      "generation": {
+        "title": "Abfallerzeugung",
+        "total": "Gesamt",
+        "hazardous": "Gefährlich",
+        "nonHazardous": "Nicht Gefährlich",
+        "recyclable": "Recyclebar",
+        "organic": "Organisch",
+        "electronic": "Elektronisch"
+      },
+      "disposal": {
+        "title": "Entsorgungsmethode",
+        "recycling": "Recycling",
+        "composting": "Kompostierung",
+        "incineration": "Verbrennung",
+        "landfill": "Deponie",
+        "energyRecovery": "Energierückgewinnung",
+        "reuse": "Wiederverwendung"
+      },
+      "diversion": {
+        "title": "Umleitungsrate",
+        "rate": "Rate",
+        "target": "Ziel",
+        "diverted": "Umgeleitet",
+        "disposed": "Entsorgt"
+      },
+      "categories": {
+        "title": "Abfallkategorien",
+        "paper": "Papier",
+        "plastic": "Kunststoff",
+        "metal": "Metall",
+        "glass": "Glas",
+        "organic": "Organisch",
+        "electronic": "Elektronisch",
+        "hazardous": "Gefährlich",
+        "construction": "Bau",
+        "other": "Andere"
+      },
+      "initiatives": {
+        "title": "Abfallreduktionsinitiativen",
+        "zeroWaste": "Null-Abfall-Ziel",
+        "recyclingProgram": "Recyclingprogramm",
+        "compostingInitiative": "Kompostierungsinitiative",
+        "reductionCampaign": "Reduktionskampagne",
+        "circularEconomy": "Kreislaufwirtschaft"
+      },
+      "metrics": {
+        "totalWaste": "Gesamtabfall",
+        "recycled": "Recycelt",
+        "composted": "Kompostiert",
+        "diversionRate": "Umleitungsrate",
+        "wasteIntensity": "Abfallintensität",
+        "costSavings": "Kosteneinsparungen"
+      }
+    },
+    "dataInvestigation": {
+      "title": "Datenuntersuchung",
+      "subtitle": "Ihre Nachhaltigkeitsdaten analysieren und erkunden",
+      "search": {
+        "placeholder": "Daten durchsuchen...",
+        "filters": "Filter",
+        "results": "Ergebnisse",
+        "noResults": "Keine Ergebnisse gefunden"
+      },
+      "filters": {
+        "dataType": "Datentyp",
+        "dateRange": "Zeitraum",
+        "source": "Quelle",
+        "category": "Kategorie",
+        "status": "Status",
+        "tags": "Tags"
+      },
+      "analysis": {
+        "trends": "Trends",
+        "anomalies": "Anomalien",
+        "patterns": "Muster",
+        "correlations": "Korrelationen",
+        "insights": "Insights",
+        "recommendations": "Empfehlungen"
+      },
+      "export": {
+        "title": "Daten Exportieren",
+        "format": "Format",
+        "csv": "CSV",
+        "excel": "Excel",
+        "pdf": "PDF",
+        "json": "JSON"
+      },
+      "quality": {
+        "title": "Datenqualität",
+        "completeness": "Vollständigkeit",
+        "accuracy": "Genauigkeit",
+        "timeliness": "Aktualität",
+        "consistency": "Konsistenz",
+        "validity": "Gültigkeit"
+      },
+      "sources": {
+        "manual": "Manuell",
+        "automated": "Automatisiert",
+        "imported": "Importiert",
+        "calculated": "Berechnet",
+        "estimated": "Geschätzt"
+      },
+      "validation": {
+        "validated": "Validiert",
+        "pending": "Ausstehend",
+        "flagged": "Gekennzeichnet",
+        "rejected": "Abgelehnt"
+      },
+      "actions": {
+        "view": "Ansehen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "export": "Exportieren",
+        "validate": "Validieren",
+        "flag": "Kennzeichnen"
+      }
+    },
+    "ghgEmissions": {
+      "title": "THG-Emissionen",
+      "subtitle": "Treibhausgasemissionsinventar",
+      "scopes": {
+        "scope1": "Scope 1",
+        "scope2": "Scope 2",
+        "scope3": "Scope 3",
+        "total": "Gesamt",
+        "biogenic": "Biogen"
+      },
+      "categories": {
+        "stationaryCombustion": "Stationäre Verbrennung",
+        "mobileCombustion": "Mobile Verbrennung",
+        "fugitiveEmissions": "Flüchtige Emissionen",
+        "processEmissions": "Prozessemissionen",
+        "electricity": "Elektrizität",
+        "heating": "Heizung",
+        "cooling": "Kühlung",
+        "steam": "Dampf"
+      },
+      "scope3Categories": {
+        "purchasedGoods": "Gekaufte Waren und Dienstleistungen",
+        "capitalGoods": "Investitionsgüter",
+        "fuelEnergy": "Energie und Kraftstoff",
+        "upstreamTransport": "Vorgelagerter Transport",
+        "wasteGenerated": "Erzeugter Abfall",
+        "businessTravel": "Geschäftsreisen",
+        "employeeCommuting": "Mitarbeiterpendeln",
+        "downstreamTransport": "Nachgelagerter Transport",
+        "useOfSoldProducts": "Nutzung verkaufter Produkte",
+        "endOfLife": "Ende der Lebensdauer",
+        "franchises": "Franchises",
+        "investments": "Investitionen"
+      },
+      "methodology": {
+        "title": "Methodik",
+        "ghgProtocol": "GHG-Protokoll",
+        "iso14064": "ISO 14064",
+        "emissionFactors": "Emissionsfaktoren",
+        "calculationMethod": "Berechnungsmethode",
+        "uncertaintyAnalysis": "Unsicherheitsanalyse"
+      },
+      "inventory": {
+        "baseYear": "Basisjahr",
+        "reportingPeriod": "Berichtszeitraum",
+        "organizationalBoundary": "Organisatorische Grenze",
+        "operationalBoundary": "Betriebliche Grenze",
+        "consolidationApproach": "Konsolidierungsansatz"
+      },
+      "targets": {
+        "reductionTarget": "Reduktionsziel",
+        "baselineYear": "Referenzjahr",
+        "targetYear": "Zieljahr",
+        "progress": "Fortschritt",
+        "scienceBasedTarget": "Wissenschaftsbasiertes Ziel",
+        "netZero": "Netto-Null"
+      }
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mär",
+      "apr": "Apr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Okt",
+      "nov": "Nov",
+      "dec": "Dez"
+    },
+    "performanceIndex": {
+      "title": "Leistungsindex",
+      "subtitle": "Gesamte Nachhaltigkeitsleistungsbewertung",
+      "overallScore": "Gesamtbewertung",
+      "environmental": "Umwelt",
+      "social": "Sozial",
+      "governance": "Governance",
+      "trending": "Trend",
+      "improving": "Verbessernd",
+      "declining": "Abnehmend",
+      "stable": "Stabil",
+      "benchmarking": "Benchmarking",
+      "industryAverage": "Branchendurchschnitt",
+      "topPerformer": "Spitzenreiter",
+      "yourScore": "Ihre Bewertung"
+    },
+    "energy": {
+      "title": "Energiemanagement",
+      "subtitle": "Energieverbrauch und -einsparungen verfolgen",
+      "consumption": {
+        "title": "Energieverbrauch",
+        "total": "Gesamt",
+        "electricity": "Elektrizität",
+        "naturalGas": "Erdgas",
+        "diesel": "Diesel",
+        "gasoline": "Benzin",
+        "coal": "Kohle",
+        "biomass": "Biomasse",
+        "renewable": "Erneuerbar"
+      },
+      "sources": {
+        "title": "Energiequellen",
+        "grid": "Netz",
+        "onsite": "Vor Ort",
+        "renewable": "Erneuerbar",
+        "nonRenewable": "Nicht Erneuerbar",
+        "solar": "Solar",
+        "wind": "Wind",
+        "hydro": "Wasserkraft",
+        "geothermal": "Geothermie"
+      },
+      "intensity": {
+        "title": "Energieintensität",
+        "perEmployee": "Pro Mitarbeiter",
+        "perArea": "Pro Fläche",
+        "perRevenue": "Pro Umsatz",
+        "perProduct": "Pro Produkt",
+        "trend": "Trend"
+      },
+      "renewable": {
+        "title": "Erneuerbare Energie",
+        "percentage": "Prozentsatz",
+        "target": "Ziel",
+        "onsite": "Vor Ort",
+        "offsite": "Außerhalb",
+        "recs": "RECs",
+        "ppa": "PPA"
+      },
+      "efficiency": {
+        "title": "Energieeffizienz",
+        "improvements": "Verbesserungen",
+        "projects": "Projekte",
+        "savings": "Einsparungen",
+        "roi": "ROI",
+        "payback": "Amortisation"
+      },
+      "demand": {
+        "title": "Nachfragemanagement",
+        "peakDemand": "Spitzenlast",
+        "loadProfile": "Lastprofil",
+        "shiftableLoad": "Verschiebbare Last",
+        "demandResponse": "Nachfragereaktion"
+      },
+      "costs": {
+        "title": "Energiekosten",
+        "total": "Gesamt",
+        "electricity": "Elektrizität",
+        "gas": "Gas",
+        "fuel": "Kraftstoff",
+        "perUnit": "Pro Einheit",
+        "trend": "Trend"
+      },
+      "alerts": {
+        "highConsumption": "Hoher Verbrauch",
+        "unusualPattern": "Ungewöhnliches Muster",
+        "targetExceeded": "Ziel Überschritten",
+        "equipmentFault": "Gerätefehler"
+      }
+    }
   }
 }
