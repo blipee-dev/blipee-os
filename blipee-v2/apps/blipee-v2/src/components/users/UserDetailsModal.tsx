@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/v2/client'
 import { useUserOrganization } from '@/hooks/useUserOrganization'
 import styles from '@/styles/settings-layout.module.css'
@@ -70,6 +71,8 @@ export function UserDetailsModal({
   isAdmin,
   onUpdate,
 }: UserDetailsModalProps) {
+  const t = useTranslations('settings.modals.userDetails')
+
   // Get user organization for creating new users
   const { organization } = useUserOrganization()
 
@@ -91,8 +94,8 @@ export function UserDetailsModal({
   const [currentStep, setCurrentStep] = useState(1)
 
   const steps = [
-    { number: 1, title: 'Basic Info', icon: '👤' },
-    { number: 2, title: 'Role & Access', icon: '🔐' },
+    { number: 1, title: t('step1Title'), icon: t('step1Icon') },
+    { number: 2, title: t('step2Title'), icon: t('step2Icon') },
   ]
 
   const totalSteps = steps.length
@@ -149,15 +152,15 @@ export function UserDetailsModal({
     // Validation
     if (isCreating) {
       if (!formData.email) {
-        toast.error('Please enter an email address')
+        toast.error(t('toastErrorEmail'))
         return
       }
       if (!formData.full_name) {
-        toast.error('Please enter a full name')
+        toast.error(t('toastErrorName'))
         return
       }
       if (!organization) {
-        toast.error('No organization found')
+        toast.error(t('toastErrorOrg'))
         return
       }
     }
@@ -167,8 +170,8 @@ export function UserDetailsModal({
       if (isCreating) {
         // CREATE new user - send invitation via server action
         const result = await inviteUser({
-          email: formData.email,
-          full_name: formData.full_name,
+          email: formData.email!,
+          full_name: formData.full_name!,
           job_title: formData.job_title,
           department: formData.department,
           phone: formData.phone,
@@ -183,7 +186,7 @@ export function UserDetailsModal({
           throw new Error(result.error)
         }
 
-        toast.success('User invited successfully! They will receive an email to set up their account.')
+        toast.success(t('toastInviteSuccess'))
       } else {
         // UPDATE existing user via server action
         const result = await updateUser({
@@ -204,7 +207,7 @@ export function UserDetailsModal({
           throw new Error(result.error)
         }
 
-        toast.success('User updated successfully!')
+        toast.success(t('toastUpdateSuccess'))
       }
 
       setIsEditing(false)
@@ -212,7 +215,7 @@ export function UserDetailsModal({
     } catch (error) {
       console.error(`Error ${isCreating ? 'creating' : 'updating'} user:`, error)
       toast.error(
-        error instanceof Error ? error.message : `Failed to ${isCreating ? 'invite' : 'update'} user`
+        error instanceof Error ? error.message : t(isCreating ? 'toastInviteError' : 'toastUpdateError')
       )
     } finally {
       setSaving(false)
@@ -248,11 +251,11 @@ export function UserDetailsModal({
         throw new Error(result.error)
       }
 
-      toast.success('User removed from organization!')
+      toast.success(t('toastRemoveSuccess'))
       onUpdate() // This will trigger refetch and close modal
     } catch (error) {
       console.error('Error removing user:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to remove user')
+      toast.error(error instanceof Error ? error.message : t('toastRemoveError'))
     } finally {
       setDeleting(false)
     }
@@ -280,14 +283,14 @@ export function UserDetailsModal({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem 1rem' }}>
               <div className={styles.formGroup}>
-                <label className={styles.label}>Full Name *</label>
+                <label className={styles.label}>{t('labelFullName')}</label>
                 {isEditing ? (
                   <input
                     type="text"
                     className={styles.input}
                     value={formData.full_name || ''}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    placeholder="Enter full name"
+                    placeholder={t('placeholderFullName')}
                   />
                 ) : (
                   <div style={readOnlyStyle}>{user?.full_name}</div>
@@ -295,14 +298,14 @@ export function UserDetailsModal({
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Email *</label>
+                <label className={styles.label}>{t('labelEmail')}</label>
                 {isEditing ? (
                   <input
                     type="email"
                     className={styles.input}
                     value={formData.email || ''}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="email@example.com"
+                    placeholder={t('placeholderEmail')}
                     disabled={!isCreating}
                   />
                 ) : (
@@ -313,64 +316,64 @@ export function UserDetailsModal({
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem 1rem' }}>
               <div className={styles.formGroup}>
-                <label className={styles.label}>Job Title</label>
+                <label className={styles.label}>{t('labelJobTitle')}</label>
                 {isEditing ? (
                   <input
                     type="text"
                     className={styles.input}
                     value={formData.job_title || ''}
                     onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
-                    placeholder="e.g., Energy Manager"
+                    placeholder={t('placeholderJobTitle')}
                   />
                 ) : (
-                  <div style={readOnlyStyle}>{user?.job_title || 'Not specified'}</div>
+                  <div style={readOnlyStyle}>{user?.job_title || t('notSpecified')}</div>
                 )}
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Department</label>
+                <label className={styles.label}>{t('labelDepartment')}</label>
                 {isEditing ? (
                   <input
                     type="text"
                     className={styles.input}
                     value={formData.department || ''}
                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    placeholder="e.g., Operations"
+                    placeholder={t('placeholderDepartment')}
                   />
                 ) : (
-                  <div style={readOnlyStyle}>{user?.department || 'Not specified'}</div>
+                  <div style={readOnlyStyle}>{user?.department || t('notSpecified')}</div>
                 )}
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem 1rem' }}>
               <div className={styles.formGroup}>
-                <label className={styles.label}>Phone</label>
+                <label className={styles.label}>{t('labelPhone')}</label>
                 {isEditing ? (
                   <input
                     type="tel"
                     className={styles.input}
                     value={formData.phone || ''}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+351 123 456 789"
+                    placeholder={t('placeholderPhone')}
                   />
                 ) : (
-                  <div style={readOnlyStyle}>{user?.phone || 'Not specified'}</div>
+                  <div style={readOnlyStyle}>{user?.phone || t('notSpecified')}</div>
                 )}
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Mobile Phone</label>
+                <label className={styles.label}>{t('labelMobilePhone')}</label>
                 {isEditing ? (
                   <input
                     type="tel"
                     className={styles.input}
                     value={formData.mobile_phone || ''}
                     onChange={(e) => setFormData({ ...formData, mobile_phone: e.target.value })}
-                    placeholder="+351 987 654 321"
+                    placeholder={t('placeholderMobilePhone')}
                   />
                 ) : (
-                  <div style={readOnlyStyle}>{user?.mobile_phone || 'Not specified'}</div>
+                  <div style={readOnlyStyle}>{user?.mobile_phone || t('notSpecified')}</div>
                 )}
               </div>
             </div>
@@ -378,30 +381,30 @@ export function UserDetailsModal({
         )
 
       case 2:
-        // Organization
+        // Role & Access
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Role</label>
+              <label className={styles.label}>{t('labelRole')}</label>
               {isEditing && canEdit ? (
                 <CustomSelect
                   value={formData.role || 'member'}
                   onChange={(value) => setFormData({ ...formData, role: value })}
                   options={[
-                    { value: 'member', label: 'Member' },
-                    { value: 'admin', label: 'Admin' },
+                    { value: 'member', label: t('roleMember') },
+                    { value: 'admin', label: t('roleAdmin') },
                   ]}
                 />
               ) : (
                 <div style={readOnlyStyle}>
                   {user?.role || 'member'}
-                  {user?.is_owner && ' (Owner)'}
+                  {user?.is_owner && t('roleOwnerIndicator')}
                 </div>
               )}
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Facility Access</label>
+              <label className={styles.label}>{t('labelFacilityAccess')}</label>
               {isEditing && canEdit ? (
                 <CustomSelect
                   value={formData.access_all_facilities ? 'all' : 'specific'}
@@ -410,13 +413,13 @@ export function UserDetailsModal({
                     access_all_facilities: value === 'all'
                   })}
                   options={[
-                    { value: 'all', label: 'Access to All Facilities' },
-                    { value: 'specific', label: 'Specific Facilities Only' },
+                    { value: 'all', label: t('accessAll') },
+                    { value: 'specific', label: t('accessSpecific') },
                   ]}
                 />
               ) : (
                 <div style={readOnlyStyle}>
-                  {user?.access_all_facilities ? 'All Facilities' : 'Specific Facilities'}
+                  {user?.access_all_facilities ? t('accessAllDisplay') : t('accessSpecificDisplay')}
                 </div>
               )}
             </div>
@@ -424,7 +427,7 @@ export function UserDetailsModal({
             {!isCreating && (
               <>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Status</label>
+                  <label className={styles.label}>{t('labelStatus')}</label>
                   <div style={readOnlyStyle}>
                     <span style={{
                       padding: '0.25rem 0.75rem',
@@ -434,22 +437,22 @@ export function UserDetailsModal({
                       backgroundColor: user?.invitation_status === 'accepted' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(234, 179, 8, 0.15)',
                       color: user?.invitation_status === 'accepted' ? '#22c55e' : '#eab308',
                     }}>
-                      {user?.invitation_status || 'pending'}
+                      {user?.invitation_status || t('statusPending')}
                     </span>
                   </div>
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Joined</label>
+                  <label className={styles.label}>{t('labelJoined')}</label>
                   <div style={readOnlyStyle}>
-                    {user?.joined_at ? new Date(user.joined_at).toLocaleDateString() : 'Not yet'}
+                    {user?.joined_at ? new Date(user.joined_at).toLocaleDateString() : t('dateNotYet')}
                   </div>
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Last Active</label>
+                  <label className={styles.label}>{t('labelLastActive')}</label>
                   <div style={readOnlyStyle}>
-                    {user?.last_active_at ? new Date(user.last_active_at).toLocaleDateString() : 'Never'}
+                    {user?.last_active_at ? new Date(user.last_active_at).toLocaleDateString() : t('dateNever')}
                   </div>
                 </div>
               </>
@@ -480,7 +483,7 @@ export function UserDetailsModal({
           border: '1px solid rgba(147, 51, 234, 0.3)',
         }}
       >
-        👑 Owner
+        {t('badgeOwner')}
       </span>
     )
   }
@@ -498,7 +501,7 @@ export function UserDetailsModal({
           color: 'white',
         }}
       >
-        Super Admin Access
+        {t('superAdminAccess')}
       </span>
     )
   }
@@ -509,7 +512,7 @@ export function UserDetailsModal({
       <BlipeeMultiStepModal
         isOpen={isOpen}
         onClose={onClose}
-        title={isCreating ? 'Invite New User' : isEditing ? 'Edit User' : 'User Details'}
+        title={isCreating ? t('titleInvite') : isEditing ? t('titleEdit') : t('titleView')}
         badges={badges}
         steps={steps}
         currentStep={currentStep}
@@ -522,8 +525,8 @@ export function UserDetailsModal({
         onDelete={canDelete ? handleDeleteClick : undefined}
         isSaving={isSaving}
         isDeleting={isDeleting}
-        saveLabel={isCreating ? 'Send Invitation' : '✓ Save Changes'}
-        deleteLabel="Delete"
+        saveLabel={isCreating ? t('buttonSendInvitation') : t('buttonSaveChanges')}
+        deleteLabel={t('buttonDelete')}
       >
         {renderStepContent()}
       </BlipeeMultiStepModal>
@@ -531,15 +534,15 @@ export function UserDetailsModal({
       {/* Delete confirmation dialog */}
       <ConfirmDialog
         isOpen={showDeleteDialog}
-        title="Remove User"
-        message={`Are you sure you want to remove "${user?.full_name}" from the organization? This action cannot be undone.`}
-        confirmText="Yes, Remove"
-        cancelText="Cancel"
+        title={t('dialogRemoveTitle')}
+        message={t('dialogRemoveMessage').replace('{name}', user?.full_name || '')}
+        confirmText={t('dialogRemoveConfirm')}
+        cancelText={t('dialogRemoveCancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setShowDeleteDialog(false)}
         variant="danger"
         requireTextConfirmation={true}
-        confirmationText="remove_user"
+        confirmationText={t('dialogRemoveConfirmText')}
       />
     </>
   )
