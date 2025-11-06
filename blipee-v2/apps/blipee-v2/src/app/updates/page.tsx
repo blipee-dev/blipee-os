@@ -6,12 +6,14 @@ import { Background } from '../landing/components/Background'
 import { CTASection } from '../landing/components/CTASection'
 import { BlipeeAssistant } from '@/components/agents'
 import { useThemeToggle } from '../landing/hooks/useThemeToggle'
+import { useTranslations } from 'next-intl'
 import { Sparkles } from 'lucide-react'
 import styles from './updates.module.css'
 import landingStyles from '../landing/landing.module.css'
 
 export default function UpdatesPage() {
   const { mode: themeMode, setTheme } = useThemeToggle()
+  const t = useTranslations('marketing.updates')
 
   return (
     <div className={landingStyles.landing}>
@@ -23,16 +25,15 @@ export default function UpdatesPage() {
             <div className={styles.heroContent}>
               <div className={styles.badge}>
                 <Sparkles size={16} />
-                <span>Coming Soon</span>
+                <span>{t('badge')}</span>
               </div>
-              
+
               <h1 className={styles.title}>
-                Something <span className={landingStyles.gradientText}>Amazing</span> is Coming
+                {t('title')} <span className={landingStyles.gradientText}>{t('titleHighlight')}</span> {t('titleSuffix')}
               </h1>
-              
+
               <p className={styles.subtitle}>
-                We're cooking up something special. Stay tuned for exciting updates, new features, 
-                and innovations that will transform how you manage sustainability.
+                {t('subtitle')}
               </p>
 
               <div className={styles.visualContainer}>

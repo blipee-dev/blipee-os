@@ -5,12 +5,14 @@ import { Footer } from '../landing/components/Footer'
 import { Background } from '../landing/components/Background'
 import { Check, ArrowRight, Mail, Phone, MessageSquare, Lightbulb, TrendingUp, Target, Bot, Activity, Shield, Plug, Headphones, Sparkles } from 'lucide-react'
 import { useThemeToggle } from '../landing/hooks/useThemeToggle'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import styles from './pricing.module.css'
 import landingStyles from '../landing/landing.module.css'
 
 export default function PricingPage() {
   const { mode: themeMode, setTheme } = useThemeToggle()
+  const t = useTranslations('marketing.pricing')
 
   return (
     <div className={landingStyles.landing}>
@@ -22,11 +24,10 @@ export default function PricingPage() {
           <section className={styles.hero} id="pricing">
             <div className={styles.heroContent}>
               <h1 className={styles.heroTitle}>
-                Pricing Built Around Your <span className={landingStyles.gradientText}>Needs</span>
+                {t('hero.title')} <span className={landingStyles.gradientText}>{t('hero.titleHighlight')}</span>
               </h1>
               <p className={styles.heroSubtitle}>
-                Every business is unique. We create custom solutions and pricing tailored to your
-                specific sustainability goals, team size, and industry requirements.
+                {t('hero.subtitle')}
               </p>
             </div>
           </section>
@@ -38,30 +39,27 @@ export default function PricingPage() {
                 <div className={landingStyles.aiIcon}>
                   <Lightbulb size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>Tailored Solutions</h3>
+                <h3 className={landingStyles.aiTitle}>{t('value.tailored.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Custom AI agent configurations based on your industry, compliance requirements, and
-                  sustainability targets.
+                  {t('value.tailored.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <TrendingUp size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>Flexible Scaling</h3>
+                <h3 className={landingStyles.aiTitle}>{t('value.flexible.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Pay only for what you need. Scale up or down as your business grows and your
-                  requirements evolve.
+                  {t('value.flexible.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Target size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>Enterprise Support</h3>
+                <h3 className={landingStyles.aiTitle}>{t('value.enterprise.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Dedicated account management, priority support, and custom integrations with your
-                  existing systems.
+                  {t('value.enterprise.description')}
                 </p>
               </article>
             </div>
@@ -69,69 +67,69 @@ export default function PricingPage() {
 
           {/* What's Included */}
           <section className={styles.includedSection} id="features">
-            <h2 className={styles.sectionTitle}>What You Get</h2>
+            <h2 className={styles.sectionTitle}>{t('included.title')}</h2>
             <div className={landingStyles.aiGrid}>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Bot size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>8 Autonomous AI Agents</h3>
+                <h3 className={landingStyles.aiTitle}>{t('included.aiAgents.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Full workforce working 24/7 on your sustainability operations
+                  {t('included.aiAgents.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Sparkles size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>blipee Assistant</h3>
+                <h3 className={landingStyles.aiTitle}>{t('included.assistant.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  AI-powered companion providing instant answers and guidance throughout the platform
+                  {t('included.assistant.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Activity size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>Real-Time Monitoring</h3>
+                <h3 className={landingStyles.aiTitle}>{t('included.monitoring.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Live dashboards for carbon, energy, water, and waste metrics
+                  {t('included.monitoring.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Shield size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>Compliance Automation</h3>
+                <h3 className={landingStyles.aiTitle}>{t('included.compliance.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Automated reporting for CSRD, SFDR, EU Taxonomy, GHG Protocol, and GRI Standards
+                  {t('included.compliance.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Plug size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>API Access</h3>
+                <h3 className={landingStyles.aiTitle}>{t('included.api.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Full API access for custom integrations and data workflows
+                  {t('included.api.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Plug size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>Custom Integrations</h3>
+                <h3 className={landingStyles.aiTitle}>{t('included.integrations.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Connect with your ERP, CRM, and existing sustainability tools
+                  {t('included.integrations.description')}
                 </p>
               </article>
               <article className={landingStyles.aiCard}>
                 <div className={landingStyles.aiIcon}>
                   <Headphones size={24} />
                 </div>
-                <h3 className={landingStyles.aiTitle}>Dedicated Support</h3>
+                <h3 className={landingStyles.aiTitle}>{t('included.support.title')}</h3>
                 <p className={landingStyles.aiDescription}>
-                  Priority support with dedicated account manager
+                  {t('included.support.description')}
                 </p>
               </article>
             </div>
@@ -141,14 +139,14 @@ export default function PricingPage() {
           <section className={landingStyles.ctaSection} id="contact" style={{ background: 'rgba(15, 23, 42, 0.6)' }}>
             <div className={landingStyles.ctaContent}>
               <h2 className={landingStyles.ctaTitle}>
-                Ready to Get <span className={landingStyles.gradientText}>Started?</span>
+                {t('cta.title')} <span className={landingStyles.gradientText}>{t('cta.titleHighlight')}</span>
               </h2>
               <p className={landingStyles.ctaDescription}>
-                Contact our team to discuss your requirements and receive a personalized quote within 24 hours.
+                {t('cta.description')}
               </p>
               <div className={landingStyles.heroActions}>
                 <Link href="/contact" className={`${landingStyles.navButton} ${landingStyles.primaryButton}`}>
-                  Contact Sales
+                  {t('cta.button')}
                 </Link>
               </div>
             </div>

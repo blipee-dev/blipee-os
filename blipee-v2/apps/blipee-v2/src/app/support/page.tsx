@@ -7,6 +7,7 @@ import { FormMessage } from '@/components/FormMessage'
 import { MessageSquare, Book, HelpCircle, Mail } from 'lucide-react'
 import { FormEvent, useState } from 'react'
 import { useThemeToggle } from '../landing/hooks/useThemeToggle'
+import { useTranslations } from 'next-intl'
 import { submitSupportTicket } from '@/app/actions/v2/support'
 import Link from 'next/link'
 import styles from '../contact/contact.module.css'
@@ -14,6 +15,7 @@ import landingStyles from '../landing/landing.module.css'
 
 export default function SupportPage() {
   const { mode: themeMode, setTheme } = useThemeToggle()
+  const t = useTranslations('marketing.support')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
@@ -51,19 +53,19 @@ export default function SupportPage() {
           <section className={styles.hero}>
             <div className={styles.heroContent}>
               <h1 className={styles.heroTitle}>
-                How Can We <span className={landingStyles.gradientText}>Help?</span>
+                {t('hero.title')} <span className={landingStyles.gradientText}>{t('hero.titleHighlight')}</span>
               </h1>
               <p className={styles.heroSubtitle}>
-                Get the support you need. Our team is here to ensure you get the most out of blipee's AI agents.
+                {t('hero.subtitle')}
               </p>
             </div>
 
             <div className={styles.container}>
               <div className={styles.contactGrid}>
                 <div className={styles.contactInfo}>
-                  <h2>Support Resources</h2>
+                  <h2>{t('resources.title')}</h2>
                   <p>
-                    Need help? Browse our resources or submit a support ticket and our team will assist you.
+                    {t('resources.description')}
                   </p>
 
                   <div className={styles.contactDetails}>
@@ -72,8 +74,8 @@ export default function SupportPage() {
                         <Book size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>Documentation</h3>
-                        <p>Comprehensive guides and tutorials</p>
+                        <h3>{t('resources.documentation.title')}</h3>
+                        <p>{t('resources.documentation.description')}</p>
                       </div>
                     </Link>
 
@@ -82,8 +84,8 @@ export default function SupportPage() {
                         <HelpCircle size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>FAQ</h3>
-                        <p>Common questions answered</p>
+                        <h3>{t('resources.faq.title')}</h3>
+                        <p>{t('resources.faq.description')}</p>
                       </div>
                     </Link>
 
@@ -92,8 +94,8 @@ export default function SupportPage() {
                         <MessageSquare size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>Live Chat <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>(Coming Soon)</span></h3>
-                        <p>Available Mon-Fri, 9am-6pm PST</p>
+                        <h3>{t('resources.liveChat.title')} <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>{t('resources.liveChat.comingSoon')}</span></h3>
+                        <p>{t('resources.liveChat.description')}</p>
                       </div>
                     </div>
 
@@ -102,8 +104,8 @@ export default function SupportPage() {
                         <Mail size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>Email Support</h3>
-                        <p>support@blipee.com</p>
+                        <h3>{t('resources.email.title')}</h3>
+                        <p>{t('resources.email.description')}</p>
                       </div>
                     </a>
                   </div>
@@ -115,53 +117,53 @@ export default function SupportPage() {
                   )}
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="name">Full Name</label>
-                    <input type="text" id="name" name="name" required placeholder="John Doe" disabled={isSubmitting} />
+                    <label htmlFor="name">{t('form.labelName')}</label>
+                    <input type="text" id="name" name="name" required placeholder={t('form.placeholderName')} disabled={isSubmitting} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="john@company.com" disabled={isSubmitting} />
+                    <label htmlFor="email">{t('form.labelEmail')}</label>
+                    <input type="email" id="email" name="email" required placeholder={t('form.placeholderEmail')} disabled={isSubmitting} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="priority">Priority</label>
+                    <label htmlFor="priority">{t('form.labelPriority')}</label>
                     <select id="priority" name="priority" required disabled={isSubmitting}>
-                      <option value="">Select priority</option>
-                      <option value="low">Low - General Question</option>
-                      <option value="medium">Medium - Need Assistance</option>
-                      <option value="high">High - Service Issue</option>
-                      <option value="urgent">Urgent - System Down</option>
+                      <option value="">{t('form.placeholderPriority')}</option>
+                      <option value="low">{t('form.priorityLow')}</option>
+                      <option value="medium">{t('form.priorityMedium')}</option>
+                      <option value="high">{t('form.priorityHigh')}</option>
+                      <option value="urgent">{t('form.priorityUrgent')}</option>
                     </select>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="category">Category</label>
+                    <label htmlFor="category">{t('form.labelCategory')}</label>
                     <select id="category" name="category" required disabled={isSubmitting}>
-                      <option value="">Select a category</option>
-                      <option value="technical">Technical Issue</option>
-                      <option value="billing">Billing & Payments</option>
-                      <option value="agents">AI Agent Configuration</option>
-                      <option value="data">Data & Analytics</option>
-                      <option value="account">Account Management</option>
-                      <option value="other">Other</option>
+                      <option value="">{t('form.placeholderCategory')}</option>
+                      <option value="technical">{t('form.categoryTechnical')}</option>
+                      <option value="billing">{t('form.categoryBilling')}</option>
+                      <option value="agents">{t('form.categoryAgents')}</option>
+                      <option value="data">{t('form.categoryData')}</option>
+                      <option value="account">{t('form.categoryAccount')}</option>
+                      <option value="other">{t('form.categoryOther')}</option>
                     </select>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="message">Describe Your Issue</label>
-                    <textarea 
-                      id="message" 
-                      name="message" 
-                      required 
-                      placeholder="Please provide as much detail as possible..."
+                    <label htmlFor="message">{t('form.labelMessage')}</label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      required
+                      placeholder={t('form.placeholderMessage')}
                       rows={5}
                       disabled={isSubmitting}
                     />
                   </div>
 
                   <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Submit Support Ticket'}
+                    {isSubmitting ? t('form.buttonSubmitting') : t('form.buttonSubmit')}
                   </button>
                 </form>
               </div>

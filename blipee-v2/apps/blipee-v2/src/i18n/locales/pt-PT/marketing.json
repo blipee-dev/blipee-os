@@ -223,5 +223,219 @@
       "buttonSending": "A enviar...",
       "buttonSend": "Enviar Mensagem"
     }
+  },
+  "pricing": {
+    "hero": {
+      "title": "Preços Construídos em Torno das Suas",
+      "titleHighlight": "Necessidades",
+      "subtitle": "Cada negócio é único. Criamos soluções e preços personalizados adaptados aos seus objetivos específicos de sustentabilidade, tamanho de equipa e requisitos da indústria."
+    },
+    "value": {
+      "tailored": {
+        "title": "Soluções Personalizadas",
+        "description": "Configurações de agentes de IA personalizadas baseadas na sua indústria, requisitos de compliance e objetivos de sustentabilidade."
+      },
+      "flexible": {
+        "title": "Escalabilidade Flexível",
+        "description": "Pague apenas pelo que precisa. Escale para cima ou para baixo à medida que o seu negócio cresce e os seus requisitos evoluem."
+      },
+      "enterprise": {
+        "title": "Suporte Empresarial",
+        "description": "Gestão de conta dedicada, suporte prioritário e integrações personalizadas com os seus sistemas existentes."
+      }
+    },
+    "included": {
+      "title": "O Que Obtém",
+      "aiAgents": {
+        "title": "8 Agentes de IA Autónomos",
+        "description": "Força de trabalho completa a trabalhar 24/7 nas suas operações de sustentabilidade"
+      },
+      "assistant": {
+        "title": "blipee Assistant",
+        "description": "Companheiro alimentado por IA que fornece respostas instantâneas e orientação em toda a plataforma"
+      },
+      "monitoring": {
+        "title": "Monitorização em Tempo Real",
+        "description": "Dashboards em direto para métricas de carbono, energia, água e resíduos"
+      },
+      "compliance": {
+        "title": "Automatização de Compliance",
+        "description": "Reporting automático para CSRD, SFDR, EU Taxonomy, GHG Protocol e GRI Standards"
+      },
+      "api": {
+        "title": "Acesso a API",
+        "description": "Acesso completo a API para integrações personalizadas e workflows de dados"
+      },
+      "integrations": {
+        "title": "Integrações Personalizadas",
+        "description": "Conecte com o seu ERP, CRM e ferramentas de sustentabilidade existentes"
+      },
+      "support": {
+        "title": "Suporte Dedicado",
+        "description": "Suporte prioritário com gestor de conta dedicado"
+      }
+    },
+    "cta": {
+      "title": "Pronto para",
+      "titleHighlight": "Começar?",
+      "description": "Contacte a nossa equipa para discutir os seus requisitos e receba uma proposta personalizada em 24 horas.",
+      "button": "Contactar Vendas"
+    }
+  },
+  "faq": {
+    "hero": {
+      "title": "Perguntas",
+      "titleHighlight": "Frequentes",
+      "subtitle": "Tudo o que precisa de saber sobre a blipee e a nossa plataforma de sustentabilidade alimentada por IA."
+    },
+    "gettingStarted": {
+      "title": "Primeiros Passos",
+      "whatIsBlipee": {
+        "question": "O que é a blipee?",
+        "answer": "A blipee é uma plataforma de sustentabilidade alimentada por IA que conta com 8 agentes autónomos que trabalham 24/7 para otimizar as suas operações, reduzir emissões de carbono, gerir cadeias de fornecimento, garantir compliance regulatório e impulsionar poupanças de custos."
+      },
+      "howToStart": {
+        "question": "Como começo com a blipee?",
+        "answer": "Simplesmente registe-se para uma conta, conecte as suas fontes de dados e os nossos agentes de IA começarão a analisar as suas operações. O nosso processo de integração tipicamente demora menos de 24 horas, e começará a ver insights imediatamente."
+      },
+      "industries": {
+        "question": "Que indústrias a blipee serve?",
+        "answer": "A blipee serve uma ampla gama de indústrias incluindo manufatura, logística, energia, retalho e qualquer organização focada em sustentabilidade e eficiência operacional."
+      }
+    },
+    "aiAgents": {
+      "title": "Agentes de IA",
+      "whatAreAgents": {
+        "question": "Quais são os 8 agentes de IA?",
+        "answer": "A nossa plataforma inclui: Carbon Footprint Agent (rastreamento de emissões), ESG Compliance Agent (aderência regulatória), Energy Optimization Agent (redução de consumo), Supply Chain Agent (rastreamento de carbono), Regulatory Agent (monitorização de compliance), Predictive Maintenance Agent (otimização de equipamentos), Cost Savings Agent (análise financeira) e Data Insights Agent (inteligência acionável)."
+      },
+      "howWorkTogether": {
+        "question": "Como trabalham os agentes em conjunto?",
+        "answer": "Todos os agentes partilham dados e insights em tempo real, criando uma vista abrangente das suas operações. Colaboram para identificar oportunidades, prever problemas e recomendar ações que otimizam simultaneamente múltiplas dimensões."
+      },
+      "doLearn": {
+        "question": "Os agentes aprendem com o meu negócio?",
+        "answer": "Sim! Os nossos agentes de IA aprendem continuamente com os seus dados, operações e padrões. Quanto mais usar a blipee, mais precisos e personalizados se tornam os insights, adaptando-se ao seu contexto de negócio específico e requisitos da indústria."
+      }
+    },
+    "assistant": {
+      "title": "blipee Assistant",
+      "whatIsAssistant": {
+        "question": "O que é o blipee Assistant?",
+        "answer": "O blipee Assistant é o seu companheiro de sustentabilidade alimentado por IA que aparece em cada página. Fornece respostas instantâneas, orientação e ajuda para navegar na plataforma, facilitando obter a informação que precisa sem sair do seu workflow atual."
+      },
+      "howCanHelp": {
+        "question": "Como pode o Assistant ajudar-me?",
+        "answer": "O Assistant pode responder a questões sobre os seus dados, explicar métricas de sustentabilidade, fornecer orientação sobre o uso de funcionalidades, ajudar a interpretar insights dos agentes e direcioná-lo para os recursos certos. Pense nele como o seu especialista em sustentabilidade 24/7."
+      },
+      "availableWhere": {
+        "question": "O Assistant está disponível em todas as páginas?",
+        "answer": "Sim! O blipee Assistant está disponível em toda a plataforma. Simplesmente clique no ícone da blipee no canto inferior direito de qualquer página para iniciar uma conversa."
+      }
+    },
+    "pricing": {
+      "title": "Preços e Planos",
+      "howPriced": {
+        "question": "Como é definido o preço da blipee?",
+        "answer": "A blipee oferece preços personalizados adaptados às necessidades específicas do seu negócio, tamanho de equipa e requisitos da indústria. Contacte a nossa equipa de vendas para discutir os seus requisitos e receber uma proposta personalizada em 24 horas."
+      },
+      "whatAffects": {
+        "question": "Que fatores afetam o preço?",
+        "answer": "O preço baseia-se em vários fatores incluindo o tamanho da sua organização, número de fontes de dados, integrações necessárias, nível de suporte necessário e quais agentes de IA quer ativar. Trabalhamos consigo para criar uma solução que se ajuste ao seu orçamento."
+      },
+      "whatsIncluded": {
+        "question": "O que está incluído em cada plano?",
+        "answer": "Todos os planos incluem: acesso aos nossos 8 agentes de IA autónomos, dashboards de monitorização em tempo real, automatização de compliance, acesso a API, integrações personalizadas e suporte dedicado com tempos de resposta prioritários."
+      }
+    },
+    "technical": {
+      "title": "Técnico",
+      "howIntegrate": {
+        "question": "Como se integra a blipee com os meus sistemas existentes?",
+        "answer": "A blipee oferece REST APIs, webhooks e integrações pré-construídas com plataformas populares. Suportamos formatos de dados padrão e podemos trabalhar com a sua equipa de IT para integrações personalizadas."
+      },
+      "isSecure": {
+        "question": "Os meus dados estão seguros?",
+        "answer": "Absolutamente. Utilizamos encriptação de nível empresarial, compliance SOC 2 e seguimos as melhores práticas da indústria para segurança de dados. Os seus dados estão encriptados em trânsito e em repouso."
+      },
+      "whatData": {
+        "question": "Que tipo de dados a blipee precisa?",
+        "answer": "Dependendo dos seus objetivos, podemos trabalhar com dados de consumo de energia, informação da cadeia de fornecimento, dados de emissões, métricas operacionais, registos de manutenção e dados financeiros. Orientá-lo-emos sobre que dados são mais valiosos para o seu caso de uso."
+      }
+    },
+    "support": {
+      "title": "Suporte",
+      "whatOptions": {
+        "question": "Que opções de suporte estão disponíveis?",
+        "answer": "Todos os clientes recebem suporte por email. Os planos premium incluem chat em direto e suporte telefónico. Os clientes empresariais obtêm um gestor de conta dedicado e suporte prioritário."
+      },
+      "provideTraining": {
+        "question": "Fornecem formação?",
+        "answer": "Sim! Oferecemos integração abrangente, tutoriais em vídeo, documentação e sessões de formação ao vivo para a sua equipa."
+      },
+      "responseTime": {
+        "question": "Quão rapidamente posso esperar uma resposta?",
+        "answer": "O nosso objetivo é responder a todos os pedidos de suporte em 24 horas. Os clientes Premium e Empresariais recebem suporte prioritário com tempos de resposta mais rápidos."
+      }
+    }
+  },
+  "support": {
+    "hero": {
+      "title": "Como Podemos",
+      "titleHighlight": "Ajudar?",
+      "subtitle": "Obtenha o suporte que precisa. A nossa equipa está aqui para garantir que obtém o máximo dos agentes de IA da blipee."
+    },
+    "resources": {
+      "title": "Recursos de Suporte",
+      "description": "Precisa de ajuda? Explore os nossos recursos ou envie um ticket de suporte e a nossa equipa irá assisti-lo.",
+      "documentation": {
+        "title": "Documentação",
+        "description": "Guias e tutoriais abrangentes"
+      },
+      "faq": {
+        "title": "FAQ",
+        "description": "Questões comuns respondidas"
+      },
+      "liveChat": {
+        "title": "Chat em Direto",
+        "comingSoon": "(Brevemente)",
+        "description": "Disponível Seg-Sex, 9h-18h PST"
+      },
+      "email": {
+        "title": "Suporte por Email",
+        "description": "support@blipee.com"
+      }
+    },
+    "form": {
+      "labelName": "Nome Completo",
+      "placeholderName": "João Silva",
+      "labelEmail": "Email",
+      "placeholderEmail": "joao@empresa.com",
+      "labelPriority": "Prioridade",
+      "placeholderPriority": "Selecione prioridade",
+      "priorityLow": "Baixa - Questão Geral",
+      "priorityMedium": "Média - Preciso de Assistência",
+      "priorityHigh": "Alta - Problema de Serviço",
+      "priorityUrgent": "Urgente - Sistema Inativo",
+      "labelCategory": "Categoria",
+      "placeholderCategory": "Selecione uma categoria",
+      "categoryTechnical": "Problema Técnico",
+      "categoryBilling": "Faturação e Pagamentos",
+      "categoryAgents": "Configuração de Agentes de IA",
+      "categoryData": "Dados e Analítica",
+      "categoryAccount": "Gestão de Conta",
+      "categoryOther": "Outro",
+      "labelMessage": "Descreva o Seu Problema",
+      "placeholderMessage": "Por favor forneça o máximo de detalhe possível...",
+      "buttonSubmitting": "A enviar...",
+      "buttonSubmit": "Enviar Ticket de Suporte"
+    }
+  },
+  "updates": {
+    "badge": "Brevemente",
+    "title": "Algo",
+    "titleHighlight": "Incrível",
+    "titleSuffix": "Está a Chegar",
+    "subtitle": "Estamos a preparar algo especial. Fique atento a atualizações emocionantes, novas funcionalidades e inovações que transformarão como gere a sustentabilidade."
   }
 }
