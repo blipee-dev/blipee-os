@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { signOut } from '@/app/actions/v2/auth'
 import { createClient } from '@/lib/supabase/v2/client'
 import styles from './Navbar.module.css'
 import {
   User, Briefcase, Rocket, Zap, Target, Heart, Star,
-  TrendingUp, Award, Shield, Leaf, Sparkles
+  TrendingUp, Award, Shield, Leaf, Sparkles, Languages
 } from 'lucide-react'
 
 interface NavbarProps {
@@ -53,8 +54,10 @@ const iconComponents: Record<AvatarIcon, React.ComponentType<any>> = {
 
 export function Navbar({ user }: NavbarProps) {
   const t = useTranslations('common.navbar')
+  const router = useRouter()
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [currentLanguage, setCurrentLanguage] = useState<string>('pt-PT')
   const [avatarSettings, setAvatarSettings] = useState<{
     type: AvatarType
     gradient: GradientColor
@@ -88,13 +91,20 @@ export function Navbar({ user }: NavbarProps) {
       const supabase = createClient()
       const { data: profileData } = await supabase
         .from('user_profiles')
-        .select('preferences, full_name')
+        .select('preferences, full_name, preferred_language')
         .eq('id', user.id)
         .single() as { data: any }
 
       if (profileData) {
         setFullName(profileData.full_name || '')
-        
+
+        // Load language preference
+        let language = profileData.preferred_language || 'pt-PT'
+        if (language === 'pt') language = 'pt-PT'
+        if (language === 'en') language = 'en-US'
+        if (language === 'es') language = 'es-ES'
+        setCurrentLanguage(language)
+
         if (profileData.preferences && typeof profileData.preferences === 'object') {
           const prefs = profileData.preferences as any
           if (prefs.avatarSettings) {
@@ -125,6 +135,25 @@ export function Navbar({ user }: NavbarProps) {
     setTheme(newTheme)
     document.body.setAttribute('data-theme', newTheme)
     localStorage.setItem('blipee-theme', newTheme)
+  }
+
+  const handleLanguageChange = async (newLanguage: string) => {
+    try {
+      const supabase = createClient()
+      await supabase
+        .from('user_profiles')
+        .update({ preferred_language: newLanguage })
+        .eq('id', user.id)
+
+      setCurrentLanguage(newLanguage)
+
+      // Reload the page to apply new locale
+      setTimeout(() => {
+        router.refresh()
+      }, 300)
+    } catch (error) {
+      console.error('Error updating language:', error)
+    }
   }
 
   const handleSignOut = async () => {
@@ -230,6 +259,64 @@ export function Navbar({ user }: NavbarProps) {
                   <div className={styles.themeSwitchSlider} style={{ transform: theme === 'light' ? 'translateX(20px)' : 'translateX(0)' }} />
                 </div>
               </button>
+
+              {/* Language Selector in Dropdown */}
+              <div className={styles.dropdownItem} style={{ flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <Languages size={18} strokeWidth={2} />
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{t('language')}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => handleLanguageChange('pt-PT')}
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem',
+                      border: currentLanguage === 'pt-PT' ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '0.5rem',
+                      background: currentLanguage === 'pt-PT' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      transition: 'all 0.2s',
+                    }}
+                    title="Português"
+                  >
+                    🇵🇹
+                  </button>
+                  <button
+                    onClick={() => handleLanguageChange('en-US')}
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem',
+                      border: currentLanguage === 'en-US' ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '0.5rem',
+                      background: currentLanguage === 'en-US' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      transition: 'all 0.2s',
+                    }}
+                    title="English"
+                  >
+                    🇺🇸
+                  </button>
+                  <button
+                    onClick={() => handleLanguageChange('es-ES')}
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem',
+                      border: currentLanguage === 'es-ES' ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '0.5rem',
+                      background: currentLanguage === 'es-ES' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      transition: 'all 0.2s',
+                    }}
+                    title="Español"
+                  >
+                    🇪🇸
+                  </button>
+                </div>
+              </div>
 
               <div className={styles.dropdownDivider} />
               <Link href="/dashboard/profile" className={styles.dropdownItem}>
