@@ -260,63 +260,41 @@ export function Navbar({ user }: NavbarProps) {
                 </div>
               </button>
 
-              {/* Language Selector in Dropdown */}
-              <div className={styles.dropdownItem} style={{ flexDirection: 'column', gap: '0.5rem', padding: '0.75rem 1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <Languages size={18} strokeWidth={2} />
-                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{t('language')}</span>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    onClick={() => handleLanguageChange('pt-PT')}
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      border: currentLanguage === 'pt-PT' ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '0.5rem',
-                      background: currentLanguage === 'pt-PT' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      transition: 'all 0.2s',
-                    }}
-                    title="Português"
-                  >
-                    🇵🇹
-                  </button>
-                  <button
-                    onClick={() => handleLanguageChange('en-US')}
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      border: currentLanguage === 'en-US' ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '0.5rem',
-                      background: currentLanguage === 'en-US' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      transition: 'all 0.2s',
-                    }}
-                    title="English"
-                  >
-                    🇺🇸
-                  </button>
-                  <button
-                    onClick={() => handleLanguageChange('es-ES')}
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      border: currentLanguage === 'es-ES' ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '0.5rem',
-                      background: currentLanguage === 'es-ES' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      transition: 'all 0.2s',
-                    }}
-                    title="Español"
-                  >
-                    🇪🇸
-                  </button>
-                </div>
-              </div>
+              {/* Language Selector Dropdown */}
+              <button
+                className={styles.dropdownItem}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const select = e.currentTarget.querySelector('select') as HTMLSelectElement
+                  if (select) select.click()
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <Languages size={18} strokeWidth={2} />
+                {t('language')}
+                <select
+                  value={currentLanguage}
+                  onChange={(e) => {
+                    e.stopPropagation()
+                    handleLanguageChange(e.target.value)
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    marginLeft: 'auto',
+                    padding: '0.25rem 0.5rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.375rem',
+                    color: 'inherit',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="pt-PT">🇵🇹 Português</option>
+                  <option value="en-US">🇺🇸 English</option>
+                  <option value="es-ES">🇪🇸 Español</option>
+                </select>
+              </button>
 
               <div className={styles.dropdownDivider} />
               <Link href="/dashboard/profile" className={styles.dropdownItem}>
