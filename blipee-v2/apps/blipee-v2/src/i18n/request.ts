@@ -60,6 +60,7 @@ export default getRequestConfig(async () => {
       dashboard: (await import(`./locales/${locale}/dashboard.json`)).default,
       profile: (await import(`./locales/${locale}/profile.json`)).default,
       settings: (await import(`./locales/${locale}/settings.json`)).default,
+      landing: (await import(`./locales/${locale}/landing.json`)).default,
     }
   }
 })
