@@ -49,6 +49,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
           <Link
             href="/dashboard"
             className={`${styles.sidebarItem} ${currentPath === '/dashboard' ? styles.active : ''}`}
+            title={t('dashboard')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="3" width="7" height="7" />
@@ -58,7 +59,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
             </svg>
             <span className={styles.sidebarItemText}>{t('dashboard')}</span>
           </Link>
-          <Link href="/dashboard/analytics" className={styles.sidebarItem}>
+          <Link href="/dashboard/analytics" className={styles.sidebarItem} title={t('analytics')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 3v18h18" />
               <path d="M18 17V9" />
@@ -67,7 +68,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
             </svg>
             <span className={styles.sidebarItemText}>{t('analytics')}</span>
           </Link>
-          <Link href="/dashboard/reports" className={styles.sidebarItem}>
+          <Link href="/dashboard/reports" className={styles.sidebarItem} title={t('reports')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 20V10" />
               <path d="M18 20V4" />
@@ -79,20 +80,20 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
 
         <div className={styles.sidebarSection}>
           <div className={styles.sidebarSectionTitle}>{t('energy')}</div>
-          <Link href="/dashboard/energy/consumption" className={styles.sidebarItem}>
+          <Link href="/dashboard/energy/consumption" className={styles.sidebarItem} title={t('consumption')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
             <span className={styles.sidebarItemText}>{t('consumption')}</span>
           </Link>
-          <Link href="/dashboard/energy/cost" className={styles.sidebarItem}>
+          <Link href="/dashboard/energy/cost" className={styles.sidebarItem} title={t('costAnalysis')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="1" x2="12" y2="23" />
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
             <span className={styles.sidebarItemText}>{t('costAnalysis')}</span>
           </Link>
-          <Link href="/dashboard/energy/efficiency" className={styles.sidebarItem}>
+          <Link href="/dashboard/energy/efficiency" className={styles.sidebarItem} title={t('efficiency')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
               <path d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -101,7 +102,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
             </svg>
             <span className={styles.sidebarItemText}>{t('efficiency')}</span>
           </Link>
-          <Link href="/dashboard/energy/goals" className={styles.sidebarItem}>
+          <Link href="/dashboard/energy/goals" className={styles.sidebarItem} title={t('goals')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
@@ -115,6 +116,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
           <Link
             href="/dashboard/gri"
             className={`${styles.sidebarItem} ${currentPath.startsWith('/dashboard/gri') ? styles.active : ''}`}
+            title={t('griOverview')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 11l3 3L22 4" />
@@ -122,25 +124,25 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
             </svg>
             <span className={styles.sidebarItemText}>{t('griOverview')}</span>
           </Link>
-          <Link href="/dashboard/gri/emissions" className={styles.sidebarItem}>
+          <Link href="/dashboard/gri/emissions" className={styles.sidebarItem} title={t('gri305Emissions')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
             </svg>
             <span className={styles.sidebarItemText}>{t('gri305Emissions')}</span>
           </Link>
-          <Link href="/dashboard/gri/energy" className={styles.sidebarItem}>
+          <Link href="/dashboard/gri/energy" className={styles.sidebarItem} title={t('gri302Energy')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
             <span className={styles.sidebarItemText}>{t('gri302Energy')}</span>
           </Link>
-          <Link href="/dashboard/gri/water" className={styles.sidebarItem}>
+          <Link href="/dashboard/gri/water" className={styles.sidebarItem} title={t('gri303Water')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
             </svg>
             <span className={styles.sidebarItemText}>{t('gri303Water')}</span>
           </Link>
-          <Link href="/dashboard/gri/waste" className={styles.sidebarItem}>
+          <Link href="/dashboard/gri/waste" className={styles.sidebarItem} title={t('gri306Waste')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
             </svg>
@@ -150,13 +152,13 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
 
         <div className={styles.sidebarSection}>
           <div className={styles.sidebarSectionTitle}>{t('settings')}</div>
-          <Link href="/dashboard/billing" className={styles.sidebarItem}>
+          <Link href="/dashboard/billing" className={styles.sidebarItem} title={t('billing')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
             <span className={styles.sidebarItemText}>{t('billing')}</span>
           </Link>
-          <Link href="/dashboard/integrations" className={styles.sidebarItem}>
+          <Link href="/dashboard/integrations" className={styles.sidebarItem} title={t('integrations')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M20 7h-9" />
               <path d="M14 17H5" />
@@ -165,7 +167,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
             </svg>
             <span className={styles.sidebarItemText}>{t('integrations')}</span>
           </Link>
-          <Link href="/dashboard/settings" className={styles.sidebarItem}>
+          <Link href="/dashboard/settings" className={styles.sidebarItem} title={t('settings')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
