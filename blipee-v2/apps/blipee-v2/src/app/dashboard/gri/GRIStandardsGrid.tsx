@@ -29,12 +29,34 @@ const automationLevels: Record<string, string> = {
 }
 
 export function GRIStandardsGrid({ data }: GRIStandardsGridProps) {
+  // Helper to get status badge details
+  const getStatusBadge = (status: 'full' | 'partial' | 'none') => {
+    switch (status) {
+      case 'full':
+        return { emoji: '🟢', label: 'Well Reported', class: styles.statusBadgeFull }
+      case 'partial':
+        return { emoji: '🟡', label: 'Partially Reported', class: styles.statusBadgePartial }
+      case 'none':
+        return { emoji: '🔴', label: 'Not Reported', class: styles.statusBadgeNone }
+    }
+  }
+
+  // Helper to format YoY with arrow
+  const formatYoY = (yoy: number | null | undefined) => {
+    if (yoy === null || yoy === undefined) return null
+    const arrow = yoy < 0 ? '↓' : '↑'
+    const color = yoy < 0 ? '#10b981' : '#ef4444'
+    return { value: Math.abs(yoy).toFixed(1), arrow, color }
+  }
+
   return (
     <div className={styles.standardsSection}>
       <h2 className={styles.sectionTitle}>GRI Environmental Standards (301-308)</h2>
 
       <div className={styles.standardsGrid}>
         {data.standards.map((standard) => {
+          const statusBadge = getStatusBadge(standard.status)
+          const yoyData = formatYoY(standard.key_metric_yoy)
           const completionClass =
             standard.completion_percentage >= 75
               ? styles.statusHigh
@@ -48,6 +70,7 @@ export function GRIStandardsGrid({ data }: GRIStandardsGridProps) {
               key={standard.standard_code}
               className={styles.standardCard}
             >
+              {/* Header with icon and code */}
               <div className={styles.standardHeader}>
                 <span className={styles.standardIcon}>
                   {standardIcons[standard.standard_code]}
@@ -57,19 +80,35 @@ export function GRIStandardsGrid({ data }: GRIStandardsGridProps) {
 
               <h3 className={styles.standardName}>{standard.standard_name}</h3>
 
-              <div className={styles.standardMetrics}>
-                <div className={styles.metricRow}>
-                  <span>Metrics Recorded</span>
-                  <span className={styles.metricValue}>
+              {/* Status Badge */}
+              <div className={`${styles.statusBadge} ${statusBadge.class}`}>
+                <span className={styles.statusEmoji}>{statusBadge.emoji}</span>
+                <span className={styles.statusLabel}>{statusBadge.label}</span>
+              </div>
+
+              {/* Coverage and Data Depth */}
+              <div className={styles.metricsGrid}>
+                <div className={styles.metricBox}>
+                  <div className={styles.metricLabel}>Coverage</div>
+                  <div className={styles.metricValue}>
                     {standard.metrics_recorded}/{standard.total_metrics}
-                  </span>
+                  </div>
+                  <div className={styles.metricSubtext}>{standard.completion_percentage}%</div>
                 </div>
-                <div className={styles.metricRow}>
-                  <span>Automation</span>
-                  <span className={styles.metricValue}>
-                    {automationLevels[standard.standard_code]}
-                  </span>
+                <div className={styles.metricBox}>
+                  <div className={styles.metricLabel}>Data Depth</div>
+                  <div className={styles.metricValue}>{standard.total_records}</div>
+                  <div className={styles.metricSubtext}>
+                    {standard.data_quality === 'high' ? 'High granularity' :
+                     standard.data_quality === 'medium' ? 'Medium' : 'Annual only'}
+                  </div>
                 </div>
+              </div>
+
+              {/* Automation */}
+              <div className={styles.automationRow}>
+                <span className={styles.automationLabel}>🤖 Automation:</span>
+                <span className={styles.automationValue}>{automationLevels[standard.standard_code]}</span>
               </div>
 
               {/* Progress Bar */}
@@ -77,33 +116,37 @@ export function GRIStandardsGrid({ data }: GRIStandardsGridProps) {
                 <div className={styles.progressBar}>
                   <div
                     className={`${styles.progressFill} ${completionClass}`}
-                    style={{ width: `${standard.completion_percentage}%` }}
+                    style={{ width: `${Math.min(standard.completion_percentage, 100)}%` }}
                   />
                 </div>
-                <span className={styles.progressLabel}>{standard.completion_percentage}% complete</span>
               </div>
 
-              {/* Key Metric */}
-              {standard.key_metric_value !== undefined && (
-                <div className={styles.keyMetric}>
-                  <span className={styles.keyMetricLabel}>Key Metric:</span>
-                  <span className={styles.keyMetricValue}>
+              {/* Key Metric with YoY */}
+              {standard.key_metric_value !== undefined && standard.key_metric_value > 0 && (
+                <div className={styles.keyMetricSection}>
+                  <div className={styles.keyMetricLabel}>KEY METRIC</div>
+                  <div className={styles.keyMetricValue}>
                     {standard.key_metric_value.toLocaleString('en-US', {
                       maximumFractionDigits: 0,
                     })}{' '}
-                    {standard.key_metric_unit}
-                  </span>
+                    <span className={styles.keyMetricUnit}>{standard.key_metric_unit}</span>
+                  </div>
+                  {yoyData && (
+                    <div className={styles.yoyIndicator} style={{ color: yoyData.color }}>
+                      <span className={styles.yoyArrow}>{yoyData.arrow}</span>
+                      <span className={styles.yoyValue}>{yoyData.value}% vs last year</span>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Last Updated */}
               {standard.last_updated && (
                 <div className={styles.lastUpdated}>
-                  Last updated:{' '}
+                  Last update:{' '}
                   {new Date(standard.last_updated).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
-                    year: 'numeric',
                   })}
                 </div>
               )}

@@ -87,5 +87,42 @@
     "showing": "Mostrando",
     "to": "a",
     "results": "resultados"
+  },
+  "sidebar": {
+    "overview": "Resumen",
+    "dashboard": "Panel",
+    "analytics": "Analíticas",
+    "reports": "Informes",
+    "energy": "Energía",
+    "consumption": "Consumo",
+    "costAnalysis": "Análisis de Costos",
+    "efficiency": "Eficiencia",
+    "goals": "Objetivos",
+    "griStandards": "Estándares GRI",
+    "griOverview": "Resumen GRI",
+    "gri305Emissions": "GRI 305 - Emisiones",
+    "gri302Energy": "GRI 302 - Energía",
+    "gri303Water": "GRI 303 - Agua",
+    "gri306Waste": "GRI 306 - Residuos",
+    "settings": "Configuración",
+    "billing": "Facturación",
+    "integrations": "Integraciones",
+    "version": "Versión",
+    "poweredBy": "Desarrollado por",
+    "allRightsReserved": "Todos los derechos reservados"
+  },
+  "navbar": {
+    "energy": "Energía",
+    "water": "Agua",
+    "carbon": "Carbono",
+    "waste": "Residuos",
+    "notifications": "Notificaciones",
+    "settings": "Configuración",
+    "userMenu": "Menú de usuario",
+    "darkMode": "Modo Oscuro",
+    "lightMode": "Modo Claro",
+    "myProfile": "Mi Perfil",
+    "logout": "Cerrar Sesión",
+    "user": "Usuario"
   }
 }

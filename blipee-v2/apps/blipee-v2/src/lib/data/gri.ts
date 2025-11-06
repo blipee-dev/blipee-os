@@ -547,6 +547,20 @@ export async function getGRIDashboardData(
     ? Math.round(((totalWasteKg - prevYearWasteKg) / prevYearWasteKg) * 10000) / 100
     : null
 
+  // Map YoY values to corresponding GRI standards
+  if (standardsMap.has('302')) {
+    standardsMap.get('302')!.key_metric_yoy = total_energy_yoy
+  }
+  if (standardsMap.has('303')) {
+    standardsMap.get('303')!.key_metric_yoy = total_water_yoy
+  }
+  if (standardsMap.has('305')) {
+    standardsMap.get('305')!.key_metric_yoy = total_emissions_yoy
+  }
+  if (standardsMap.has('306')) {
+    standardsMap.get('306')!.key_metric_yoy = total_waste_yoy
+  }
+
   return {
     standards: Array.from(standardsMap.values()),
     total_emissions_tonnes: Math.round(totalEmissionsTonnes * 100) / 100,

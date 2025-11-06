@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { signOut } from '@/app/actions/v2/auth'
 import { createClient } from '@/lib/supabase/v2/client'
 import styles from './Navbar.module.css'
@@ -51,6 +52,7 @@ const iconComponents: Record<AvatarIcon, React.ComponentType<any>> = {
 }
 
 export function Navbar({ user }: NavbarProps) {
+  const t = useTranslations('common.navbar')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [avatarSettings, setAvatarSettings] = useState<{
@@ -175,22 +177,22 @@ export function Navbar({ user }: NavbarProps) {
         <ul className={styles.navLinks}>
           <li>
             <Link href="/dashboard/energy" className={styles.navLink}>
-              Energy
+              {t('energy')}
             </Link>
           </li>
           <li>
             <Link href="/dashboard/water" className={styles.navLink}>
-              Water
+              {t('water')}
             </Link>
           </li>
           <li>
             <Link href="/dashboard" className={`${styles.navLink} ${styles.active}`}>
-              Carbon
+              {t('carbon')}
             </Link>
           </li>
           <li>
             <Link href="/dashboard/waste" className={styles.navLink}>
-              Waste
+              {t('waste')}
             </Link>
           </li>
         </ul>
@@ -198,7 +200,7 @@ export function Navbar({ user }: NavbarProps) {
         {/* Right Side Actions */}
         <div className={styles.navActions}>
           {/* Notifications */}
-          <button className={styles.iconBtn} aria-label="Notifications">
+          <button className={styles.iconBtn} aria-label={t('notifications')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -207,7 +209,7 @@ export function Navbar({ user }: NavbarProps) {
           </button>
 
           {/* Settings */}
-          <Link href="/dashboard/settings" className={styles.iconBtn} aria-label="Settings">
+          <Link href="/dashboard/settings" className={styles.iconBtn} aria-label={t('settings')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -216,9 +218,9 @@ export function Navbar({ user }: NavbarProps) {
 
           {/* User Profile */}
           <div className={styles.userMenu}>
-            <button 
-              className={styles.userAvatar} 
-              aria-label="User menu"
+            <button
+              className={styles.userAvatar}
+              aria-label={t('userMenu')}
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               style={{ background: gradients[avatarSettings.gradient] }}
             >
@@ -235,7 +237,7 @@ export function Navbar({ user }: NavbarProps) {
             </button>
             <div className={`${styles.userDropdown} ${isUserMenuOpen ? styles.open : ''}`}>
               <div className={styles.userInfo}>
-                <div className={styles.userName}>{fullName || user.name || 'User'}</div>
+                <div className={styles.userName}>{fullName || user.name || t('user')}</div>
                 <div className={styles.userEmail}>{user.email}</div>
               </div>
 
@@ -255,7 +257,7 @@ export function Navbar({ user }: NavbarProps) {
                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                   </g>
                 </svg>
-                <span className={styles.themeLabel}>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+                <span className={styles.themeLabel}>{theme === 'dark' ? t('darkMode') : t('lightMode')}</span>
                 <div className={styles.themeSwitch}>
                   <div className={styles.themeSwitchSlider} style={{ transform: theme === 'light' ? 'translateX(20px)' : 'translateX(0)' }} />
                 </div>
@@ -267,14 +269,14 @@ export function Navbar({ user }: NavbarProps) {
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
-                My Profile
+                {t('myProfile')}
               </Link>
               <Link href="/dashboard/settings" className={styles.dropdownItem}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="3" />
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                 </svg>
-                Settings
+                {t('settings')}
               </Link>
               <div className={styles.dropdownDivider} />
               <button onClick={handleSignOut} className={`${styles.dropdownItem} ${styles.logout}`}>
@@ -283,7 +285,7 @@ export function Navbar({ user }: NavbarProps) {
                   <polyline points="16 17 21 12 16 7" />
                   <line x1="21" y1="12" x2="9" y2="12" />
                 </svg>
-                Logout
+                {t('logout')}
               </button>
             </div>
           </div>
