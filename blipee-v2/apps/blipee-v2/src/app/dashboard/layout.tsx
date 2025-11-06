@@ -29,10 +29,10 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
       {/* Content Wrapper */}
       <div className="content-wrapper">
-        <Navbar user={{ 
-          id: mockUser.id, 
-          email: mockUser.email, 
-          name: mockUser.user_metadata?.name 
+        <Navbar user={{
+          id: mockUser.id,
+          email: mockUser.email,
+          name: mockUser.user_metadata?.name
         }} />
         <Sidebar />
         <main className={styles.mainContent} id="mainContent">

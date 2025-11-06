@@ -2,6 +2,7 @@
 
 import { useState, useLayoutEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import styles from './Sidebar.module.css'
 
@@ -9,8 +10,10 @@ interface SidebarProps {
   currentPath?: string
 }
 
-export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
+export function Sidebar({ currentPath }: SidebarProps) {
   const t = useTranslations('common.sidebar')
+  const pathname = usePathname()
+  const activePath = currentPath || pathname
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   const toggleSidebar = () => {
@@ -49,7 +52,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
           <div className={styles.sidebarItemWrapper} data-tooltip={t('dashboard')}>
             <Link
               href="/dashboard"
-              className={`${styles.sidebarItem} ${currentPath === '/dashboard' ? styles.active : ''}`}
+              className={`${styles.sidebarItem} ${activePath === '/dashboard' ? styles.active : ''}`}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="7" height="7" />
@@ -129,7 +132,7 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
           <div className={styles.sidebarItemWrapper} data-tooltip={t('griOverview')}>
             <Link
               href="/dashboard/gri"
-              className={`${styles.sidebarItem} ${currentPath.startsWith('/dashboard/gri') ? styles.active : ''}`}
+              className={`${styles.sidebarItem} ${activePath.startsWith('/dashboard/gri') ? styles.active : ''}`}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 11l3 3L22 4" />
