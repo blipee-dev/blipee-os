@@ -300,12 +300,43 @@
   .chartsSection {
     grid-template-columns: 1fr;
   }
+
+  .mainContent {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
+
+  .mainContent.sidebarCollapsed {
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 768px) {
+  .mainContent {
+    padding: 1rem;
+  }
+
   .dashboardHeader {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .filters {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .filterSelect {
+    width: 100% !important;
+  }
+
+  .filterSelect > * {
+    width: 100% !important;
+  }
+
+  .filterSelect > div > button {
+    width: 100% !important;
+    min-width: 100% !important;
   }
 
   .kpiGrid {
@@ -314,6 +345,87 @@
 
   .dashboardTitle h1 {
     font-size: 1.5rem;
+  }
+
+  .carbonIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .kpiValue {
+    font-size: 1.75rem;
+  }
+
+  .tableCard {
+    padding: 1rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .table th:first-child,
+  .table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--glass-bg);
+    z-index: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding: 0.75rem;
+    margin-top: 70px;
+  }
+
+  .dashboardTitle h1 {
+    font-size: 1.25rem;
+  }
+
+  .carbonIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+  }
+
+  .kpiCard {
+    padding: 1rem;
+  }
+
+  .kpiValue {
+    font-size: 1.5rem;
+  }
+
+  .kpiLabel {
+    font-size: 0.8rem;
+  }
+
+  .chartCard {
+    padding: 1rem;
+  }
+
+  .chartTitle {
+    font-size: 1.1rem;
+  }
+
+  .chartDescription {
+    font-size: 0.8rem;
+  }
+
+  .tableCard {
+    padding: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
   }
 }
 
