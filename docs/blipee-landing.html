@@ -1003,10 +1003,11 @@
         <div class="nav-container">
           <a href="blipee-landing.html" class="logo">blipee</a>
           <ul class="nav-links">
-            <li><a href="company.html">Company</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="careers.html">Careers</a></li>
-            <li><a href="signin.html" class="btn btn-primary">Sign In</a></li>
+            <li><a href="company.html" data-i18n="landing.nav.company">Company</a></li>
+            <li><a href="about.html" data-i18n="landing.nav.about">About</a></li>
+            <li><a href="careers.html" data-i18n="landing.nav.careers">Careers</a></li>
+            <li><a href="signin.html" class="btn btn-primary" data-i18n="landing.nav.signIn">Sign In</a></li>
+            <li><div id="lang-selector-nav"></div></li>
           </ul>
         </div>
       </nav>
@@ -1016,19 +1017,19 @@
         <div class="hero-content">
           <div class="hero-badge">
             <span class="pulse"></span>
-            <span>8 AI Agents Working 24/7 for Your Sustainability Goals</span>
+            <span data-i18n="landing.hero.badge">8 AI Agents Working 24/7 for Your Sustainability Goals</span>
           </div>
           <h1 class="hero-title">
-            Stop Managing Sustainability.<br />
-            Start <span class="gradient-text">Living It</span>
+            <span data-i18n="landing.hero.title">Stop Managing Sustainability</span>.<br />
+            <span data-i18n="landing.hero.titleHighlight">Start <span class="gradient-text">Living It</span></span>
           </h1>
-          <p class="hero-subtitle">
+          <p class="hero-subtitle" data-i18n="landing.hero.description">
             While your competitors hire consultants and build spreadsheets, you get an entire AI
             workforce that never sleeps. 8 autonomous agents analyzing data, predicting risks,
             finding savings, and ensuring compliance — automatically.
           </p>
           <div class="hero-actions">
-            <a href="#" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem">
+            <a href="#" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem" data-i18n="landing.hero.primaryCta">
               Meet Your AI Workforce
               <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                 <path
@@ -1036,7 +1037,7 @@
                 />
               </svg>
             </a>
-            <a href="#features" class="btn btn-ghost"> See What Makes Us Different </a>
+            <a href="#features" class="btn btn-ghost" data-i18n="landing.hero.secondaryCta"> See What Makes Us Different </a>
           </div>
         </div>
       </section>
@@ -1490,6 +1491,9 @@
       </footer>
     </div>
 
+    <!-- i18n Translation System -->
+    <script src="landing-i18n.js"></script>
+
     <script>
       // Smooth scrolling
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
@@ -1545,6 +1549,15 @@
         if (!localStorage.getItem('blipee-theme')) {
           const newTheme = e.matches ? 'dark' : 'light';
           document.body.setAttribute('data-theme', newTheme);
+        }
+      });
+
+      // Initialize language selector when i18n is ready
+      window.addEventListener('DOMContentLoaded', async () => {
+        if (window.i18n) {
+          await window.i18n.init();
+          // Add language selector to navigation
+          window.i18n.createLanguageSelector('lang-selector-nav');
         }
       });
     </script>

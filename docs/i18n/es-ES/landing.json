@@ -1,0 +1,148 @@
+{
+  "landing": {
+    "nav": {
+      "company": "Empresa",
+      "about": "Acerca de",
+      "careers": "Carreras",
+      "signIn": "Iniciar Sesión"
+    },
+    "hero": {
+      "badge": "8 Agentes de IA Trabajando 24/7 para tus Objetivos de Sostenibilidad",
+      "title": "Deja de Gestionar la Sostenibilidad.",
+      "titleHighlight": "Comienza a Vivirla",
+      "description": "Mientras tus competidores contratan consultores y crean hojas de cálculo, tú obtienes una fuerza laboral de IA completa que nunca duerme. 8 agentes autónomos analizando datos, prediciendo riesgos, encontrando ahorros y garantizando el compliance — automáticamente.",
+      "primaryCta": "Comenzar",
+      "secondaryCta": "Descubre Qué Nos Hace Diferentes"
+    },
+    "problem": {
+      "titlePrefix": "El Desafío de la Sostenibilidad es",
+      "titleHighlight": "Imposible",
+      "titleSuffix": "de Gestionar Manualmente",
+      "description": "Te ahogas en datos de más de 15 categorías de emisiones. Los frameworks de compliance cambian mensualmente. Los patrones de energía se esconden en miles de puntos de datos. Los proveedores quedan sin supervisión. Cuando detectas un problema, ya te ha costado miles — o peor, tu reputación."
+    },
+    "aiFeatures": {
+      "autonomousOps": {
+        "title": "Operaciones de IA Autónomas",
+        "description": "Cada workflow orquestado por agentes ajustados para ESG. Priorizan iniciativas y mantienen a la junta informada sin esfuerzo manual."
+      },
+      "realTimeVision": {
+        "title": "Visión de Sostenibilidad en Tiempo Real",
+        "description": "Computer vision en instalaciones y activos identifica anomalías instantáneamente, fundamentando insights en comportamientos del mundo real."
+      },
+      "predictiveIntelligence": {
+        "title": "Inteligencia Predictiva en Todas Partes",
+        "description": "Pronostica impactos de energía, agua, residuos y carbono 12 meses por adelantado con 98.5% de precisión. Los agentes actúan antes de que los problemas escalen."
+      }
+    },
+    "agents": {
+      "chiefOfStaff": {
+        "name": "Director General ESG",
+        "role": "Liderazgo Ejecutivo • 24/7",
+        "description": "Supervisión estratégica de todas las operaciones de sostenibilidad. Coordina actividades de agentes, prioriza iniciativas y entrega insights listos para la junta."
+      },
+      "complianceGuardian": {
+        "name": "Guardián del Compliance",
+        "role": "Experto Regulatorio • 24/7",
+        "description": "Monitoriza más de 7 frameworks (GHG, GRI, ESRS, TCFD). Genera reports automáticamente, señala riesgos antes de las auditorías y te mantiene perpetuamente compliant."
+      },
+      "carbonHunter": {
+        "name": "Cazador de Carbono",
+        "role": "Especialista en Emisiones • 24/7",
+        "description": "Busca oportunidades de reducción de carbono en todos los alcances. Identifica quick wins, rastrea progreso y optimiza el uso de energía en tiempo real."
+      },
+      "supplyChainInvestigator": {
+        "name": "Investigador de Cadena de Suministro",
+        "role": "Analista de Riesgos • 24/7",
+        "description": "Due diligence continua de proveedores y evaluación de riesgos. Señala violaciones ESG antes de que se conviertan en responsabilidades."
+      },
+      "costSavingFinder": {
+        "name": "Detector de Ahorros",
+        "role": "Analista Financiero • 24/7",
+        "description": "Descubre ahorros ocultos en facturas de energía, gestión de residuos y operaciones. El cliente promedio ahorra 18% en el primer año."
+      },
+      "predictiveMaintenance": {
+        "name": "Mantenimiento Predictivo",
+        "role": "Especialista en Equipos • 24/7",
+        "description": "Predice fallos de equipos con semanas de anticipación. Programa mantenimiento en ventanas óptimas, previniendo costosos tiempos de inactividad."
+      },
+      "autonomousOptimizer": {
+        "name": "Optimizador Autónomo",
+        "role": "Ajustador de Rendimiento • 24/7",
+        "description": "Optimiza continuamente las operaciones para máxima eficiencia. Auto-ajusta sistemas basándose en patrones invisibles para los humanos."
+      },
+      "regulatoryForesight": {
+        "name": "Prospección Regulatoria",
+        "role": "Predictor del Futuro • 24/7",
+        "description": "Monitoriza cambios regulatorios globalmente. Te prepara para nuevos requisitos meses antes de que entren en vigor."
+      }
+    },
+    "assistant": {
+      "title": "blipee",
+      "titleHighlight": "Assistant",
+      "description": "IA conversacional que orquesta tu fuerza laboral de 8 agentes. Pregunta lo que sea, obtén respuestas resumidas y mantén a cada stakeholder alineado.",
+      "features": {
+        "plainLanguage": "Respuestas en lenguaje natural basadas en tus datos ESG",
+        "autoRouting": "Dirige cada solicitud al especialista correcto automáticamente",
+        "proactiveBriefs": "Entrega briefings proactivos, alertas y próximos pasos",
+        "retainsContext": "Retiene contexto entre equipos y conversaciones pasadas"
+      }
+    },
+    "impact": {
+      "costSavings": {
+        "value": "18%",
+        "label": "Ahorro Promedio de Costes\nPrimer Año"
+      },
+      "forecastAccuracy": {
+        "value": "98.5%",
+        "label": "Precisión del Forecast\n12 Meses Por Adelantado"
+      },
+      "continuousMonitoring": {
+        "value": "24/7",
+        "label": "Monitorización Continua\nNunca Duerme"
+      },
+      "reportingReduction": {
+        "value": "85%",
+        "label": "Reducción en Tiempo de\nReporting Manual"
+      }
+    },
+    "cta": {
+      "titlePrefix": "Tu Fuerza Laboral de IA",
+      "titleHighlight": "Comienza Hoy",
+      "description": "Sin consultores. Sin meses de configuración. Sin curva de aprendizaje. Tus 8 agentes de IA están listos para comenzar a trabajar en el momento que te registres.",
+      "primaryCta": "Contactar Ventas",
+      "secondaryCta": "Saber Más"
+    },
+    "footer": {
+      "product": {
+        "title": "Producto",
+        "aiWorkforce": "Fuerza Laboral de IA",
+        "capabilities": "Capacidades",
+        "pricing": "Precios",
+        "updates": "Actualizaciones"
+      },
+      "company": {
+        "title": "Empresa",
+        "aboutUs": "Sobre Nosotros",
+        "ourStory": "Nuestra Historia",
+        "careers": "Carreras",
+        "contact": "Contacto"
+      },
+      "resources": {
+        "title": "Recursos",
+        "documentation": "Documentación",
+        "api": "API",
+        "faq": "FAQ",
+        "support": "Soporte",
+        "status": "Estado"
+      },
+      "brand": "blipee",
+      "description": "Plataforma de sostenibilidad potenciada por IA con 8 agentes autónomos trabajando 24/7 para optimizar tus operaciones.",
+      "newsletterPlaceholder": "Introduce tu email",
+      "newsletterCta": "Suscribirse",
+      "copyright": "© 2025 blipee. Todos los derechos reservados.",
+      "socialTwitter": "Twitter",
+      "socialLinkedIn": "LinkedIn",
+      "socialGitHub": "GitHub"
+    }
+  }
+}
