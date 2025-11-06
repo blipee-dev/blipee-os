@@ -62,6 +62,7 @@ export default getRequestConfig(async () => {
       settings: (await import(`./locales/${locale}/settings.json`)).default,
       landing: (await import(`./locales/${locale}/landing.json`)).default,
       marketing: (await import(`./locales/${locale}/marketing.json`)).default,
+      legal: (await import(`./locales/${locale}/legal.json`)).default,
     }
   }
 })

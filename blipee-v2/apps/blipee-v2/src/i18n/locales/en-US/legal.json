@@ -1,0 +1,278 @@
+{
+  "common": {
+    "backToHome": "Back to Home",
+    "lastUpdated": "Last updated: November 1, 2025"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "metaDescription": "Terms of Service for Blipee AI-Powered Sustainability Platform",
+    "section1": {
+      "title": "1. Acceptance of Terms",
+      "content": "By accessing and using Blipee (\"Service,\" \"Platform,\" \"we,\" \"us,\" or \"our\"), you accept and agree to be bound by these Terms of Service (\"Terms\"). If you do not agree to these Terms, please do not use our Service."
+    },
+    "section2": {
+      "title": "2. Description of Service",
+      "intro": "Blipee is an AI-powered sustainability platform that provides:",
+      "items": [
+        "AI-driven sustainability analytics and predictions",
+        "8 autonomous agents for carbon, energy, ESG tracking, and more",
+        "Machine learning-powered forecasting with 98.5% accuracy",
+        "Real-time sustainability reporting and insights",
+        "BlipeeAssistant AI chat interface"
+      ]
+    },
+    "section3": {
+      "title": "3. Account Registration",
+      "subsection1": {
+        "title": "3.1 Account Creation",
+        "intro": "To use our Service, you must create an account. You agree to:",
+        "items": [
+          "Provide accurate and complete information",
+          "Maintain the security of your account credentials",
+          "Notify us immediately of any unauthorized access",
+          "Be responsible for all activities under your account"
+        ]
+      },
+      "subsection2": {
+        "title": "3.2 Account Eligibility",
+        "content": "You must be at least 18 years old and have the legal capacity to enter into contracts to use our Service."
+      }
+    },
+    "section4": {
+      "title": "4. User Responsibilities",
+      "intro": "You agree to:",
+      "items": [
+        "Use the Service only for lawful purposes",
+        "Not interfere with or disrupt the Service",
+        "Not attempt to gain unauthorized access to any part of the Service",
+        "Provide accurate sustainability data and information",
+        "Not use the Service to transmit malicious code or harmful content",
+        "Comply with all applicable laws and regulations"
+      ]
+    },
+    "section5": {
+      "title": "5. Intellectual Property Rights",
+      "subsection1": {
+        "title": "5.1 Our Rights",
+        "content": "All rights, title, and interest in the Service, including all software, AI models, algorithms, designs, and content, are owned by Blipee or our licensors."
+      },
+      "subsection2": {
+        "title": "5.2 Your Data",
+        "intro": "You retain all rights to the data you input into the Platform. By using our Service, you grant us a license to use your data to:",
+        "items": [
+          "Provide and improve the Service",
+          "Train and enhance our AI models (in anonymized form)",
+          "Generate analytics and insights"
+        ]
+      }
+    },
+    "section6": {
+      "title": "6. Payment and Billing",
+      "subsection1": {
+        "title": "6.1 Fees",
+        "content": "Access to certain features requires payment of fees. All fees are non-refundable except as required by law or as explicitly stated in our refund policy."
+      },
+      "subsection2": {
+        "title": "6.2 Subscription",
+        "content": "Subscriptions automatically renew unless canceled before the renewal date. You can cancel your subscription at any time through your account settings."
+      },
+      "subsection3": {
+        "title": "6.3 Price Changes",
+        "content": "We reserve the right to change our pricing with 30 days' notice. Price changes will not affect your current billing cycle."
+      }
+    },
+    "section7": {
+      "title": "7. AI Predictions and Accuracy",
+      "content": "While our ML-powered predictions achieve 98.5% accuracy, all predictions and recommendations are provided \"as is\" without warranties. You should not rely solely on AI predictions for critical business decisions."
+    },
+    "section8": {
+      "title": "8. Data Privacy and Security",
+      "content": "Your privacy is important to us. Our collection and use of personal information is governed by our Privacy Policy, which is incorporated into these Terms by reference.",
+      "privacyLinkText": "Privacy Policy"
+    },
+    "section9": {
+      "title": "9. Service Availability",
+      "content": "We strive to maintain 99.9% uptime, but we do not guarantee that the Service will be uninterrupted or error-free. We may temporarily suspend access for maintenance or updates."
+    },
+    "section10": {
+      "title": "10. Limitation of Liability",
+      "content": "To the maximum extent permitted by law, Blipee shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service."
+    },
+    "section11": {
+      "title": "11. Warranties Disclaimer",
+      "content": "THE SERVICE IS PROVIDED \"AS IS\" AND \"AS AVAILABLE\" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT."
+    },
+    "section12": {
+      "title": "12. Termination",
+      "subsection1": {
+        "title": "12.1 By You",
+        "content": "You may terminate your account at any time by contacting support or through your account settings."
+      },
+      "subsection2": {
+        "title": "12.2 By Us",
+        "content": "We may suspend or terminate your access if you violate these Terms or for any other reason at our discretion, with or without notice."
+      }
+    },
+    "section13": {
+      "title": "13. Changes to Terms",
+      "content": "We reserve the right to modify these Terms at any time. We will notify you of material changes via email or through the Service. Your continued use after changes constitutes acceptance of the modified Terms."
+    },
+    "section14": {
+      "title": "14. Governing Law",
+      "content": "These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction], without regard to its conflict of law provisions."
+    },
+    "section15": {
+      "title": "15. Dispute Resolution",
+      "content": "Any disputes arising from these Terms or your use of the Service shall be resolved through binding arbitration in accordance with [Arbitration Rules], except where prohibited by law."
+    },
+    "section16": {
+      "title": "16. Contact Information",
+      "intro": "For questions about these Terms, please contact us:",
+      "items": [
+        "Email: legal@blipee.com",
+        "Support: {contactForm}",
+        "Address: [Your Company Address]"
+      ],
+      "contactFormText": "Contact Form"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "metaDescription": "Privacy Policy for Blipee AI-Powered Sustainability Platform",
+    "section1": {
+      "title": "1. Introduction",
+      "content": "Welcome to Blipee (\"we,\" \"our,\" or \"us\"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered sustainability platform."
+    },
+    "section2": {
+      "title": "2. Information We Collect",
+      "subsection1": {
+        "title": "2.1 Information You Provide",
+        "intro": "We collect information that you provide directly to us, including:",
+        "items": [
+          "Account information (name, email address, password)",
+          "Company information (company name, industry, size)",
+          "Sustainability data you input into the platform",
+          "Communications with our support team",
+          "Payment and billing information"
+        ]
+      },
+      "subsection2": {
+        "title": "2.2 Automatically Collected Information",
+        "intro": "When you use our platform, we automatically collect:",
+        "items": [
+          "Device and browser information",
+          "IP address and location data",
+          "Usage data and analytics",
+          "Cookies and similar tracking technologies"
+        ]
+      }
+    },
+    "section3": {
+      "title": "3. How We Use Your Information",
+      "intro": "We use the information we collect to:",
+      "items": [
+        "Provide, maintain, and improve our services",
+        "Process your transactions and manage your account",
+        "Train and improve our AI models and predictions",
+        "Send you technical notices, updates, and support messages",
+        "Respond to your comments and questions",
+        "Monitor and analyze trends, usage, and activities",
+        "Detect, prevent, and address technical issues and fraud",
+        "Comply with legal obligations"
+      ]
+    },
+    "section4": {
+      "title": "4. Data Sharing and Disclosure",
+      "intro": "We may share your information in the following circumstances:",
+      "items": [
+        {
+          "label": "Service Providers:",
+          "text": "With third-party vendors who perform services on our behalf"
+        },
+        {
+          "label": "Business Transfers:",
+          "text": "In connection with a merger, acquisition, or sale of assets"
+        },
+        {
+          "label": "Legal Requirements:",
+          "text": "When required by law or to protect our rights"
+        },
+        {
+          "label": "With Your Consent:",
+          "text": "When you explicitly authorize us to share information"
+        }
+      ],
+      "highlight": "We never sell your personal information to third parties."
+    },
+    "section5": {
+      "title": "5. Data Security",
+      "intro": "We implement appropriate technical and organizational measures to protect your personal information, including:",
+      "items": [
+        "End-to-end encryption for data in transit",
+        "Encrypted data storage",
+        "Regular security audits and penetration testing",
+        "Access controls and authentication measures",
+        "Employee training on data protection"
+      ]
+    },
+    "section6": {
+      "title": "6. Data Retention",
+      "content": "We retain your personal information for as long as necessary to fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required or permitted by law. When we no longer need your information, we will securely delete or anonymize it."
+    },
+    "section7": {
+      "title": "7. Your Rights and Choices",
+      "intro": "Depending on your location, you may have the following rights:",
+      "items": [
+        {
+          "label": "Access:",
+          "text": "Request access to your personal information"
+        },
+        {
+          "label": "Correction:",
+          "text": "Request correction of inaccurate information"
+        },
+        {
+          "label": "Deletion:",
+          "text": "Request deletion of your personal information"
+        },
+        {
+          "label": "Data Portability:",
+          "text": "Request a copy of your data in a portable format"
+        },
+        {
+          "label": "Opt-Out:",
+          "text": "Opt out of marketing communications"
+        },
+        {
+          "label": "Withdraw Consent:",
+          "text": "Withdraw consent where we rely on it"
+        }
+      ],
+      "footer": "To exercise these rights, please contact us at privacy@blipee.com"
+    },
+    "section8": {
+      "title": "8. Cookies and Tracking Technologies",
+      "content": "We use cookies and similar tracking technologies to collect and track information about your use of our platform. You can control cookies through your browser settings and other tools."
+    },
+    "section9": {
+      "title": "9. International Data Transfers",
+      "content": "Your information may be transferred to and processed in countries other than your country of residence. We ensure appropriate safeguards are in place to protect your information in accordance with this Privacy Policy."
+    },
+    "section10": {
+      "title": "10. Children's Privacy",
+      "content": "Our platform is not intended for children under 16 years of age. We do not knowingly collect personal information from children under 16."
+    },
+    "section11": {
+      "title": "11. Changes to This Privacy Policy",
+      "content": "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the \"Last updated\" date."
+    },
+    "section12": {
+      "title": "12. Contact Us",
+      "intro": "If you have any questions about this Privacy Policy, please contact us:",
+      "items": [
+        "Email: privacy@blipee.com",
+        "Address: [Your Company Address]"
+      ]
+    }
+  }
+}

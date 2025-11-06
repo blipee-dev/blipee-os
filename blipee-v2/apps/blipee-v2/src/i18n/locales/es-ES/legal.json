@@ -1,0 +1,278 @@
+{
+  "common": {
+    "backToHome": "Volver al inicio",
+    "lastUpdated": "Última actualización: 1 de noviembre de 2025"
+  },
+  "terms": {
+    "title": "Términos de Servicio",
+    "metaDescription": "Términos de Servicio para la Plataforma de Sostenibilidad Impulsada por IA de Blipee",
+    "section1": {
+      "title": "1. Aceptación de los Términos",
+      "content": "Al acceder y utilizar Blipee (\"Servicio\", \"Plataforma\", \"nosotros\" o \"nuestro\"), usted acepta y se compromete a cumplir estos Términos de Servicio (\"Términos\"). Si no está de acuerdo con estos Términos, por favor no utilice nuestro Servicio."
+    },
+    "section2": {
+      "title": "2. Descripción del Servicio",
+      "intro": "Blipee es una plataforma de sostenibilidad impulsada por IA que proporciona:",
+      "items": [
+        "Análisis y predicciones de sostenibilidad impulsados por IA",
+        "8 agentes autónomos para carbono, energía, seguimiento ESG y más",
+        "Previsiones impulsadas por aprendizaje automático con una precisión del 98,5%",
+        "Informes e información de sostenibilidad en tiempo real",
+        "Interfaz de chat con IA BlipeeAssistant"
+      ]
+    },
+    "section3": {
+      "title": "3. Registro de Cuenta",
+      "subsection1": {
+        "title": "3.1 Creación de Cuenta",
+        "intro": "Para utilizar nuestro Servicio, debe crear una cuenta. Usted acepta:",
+        "items": [
+          "Proporcionar información precisa y completa",
+          "Mantener la seguridad de las credenciales de su cuenta",
+          "Notificarnos inmediatamente de cualquier acceso no autorizado",
+          "Ser responsable de todas las actividades realizadas bajo su cuenta"
+        ]
+      },
+      "subsection2": {
+        "title": "3.2 Elegibilidad de Cuenta",
+        "content": "Debe tener al menos 18 años de edad y capacidad legal para celebrar contratos para utilizar nuestro Servicio."
+      }
+    },
+    "section4": {
+      "title": "4. Responsabilidades del Usuario",
+      "intro": "Usted acepta:",
+      "items": [
+        "Utilizar el Servicio únicamente con fines lícitos",
+        "No interferir ni interrumpir el Servicio",
+        "No intentar obtener acceso no autorizado a ninguna parte del Servicio",
+        "Proporcionar datos e información de sostenibilidad precisos",
+        "No utilizar el Servicio para transmitir código malicioso o contenido dañino",
+        "Cumplir con todas las leyes y regulaciones aplicables"
+      ]
+    },
+    "section5": {
+      "title": "5. Derechos de Propiedad Intelectual",
+      "subsection1": {
+        "title": "5.1 Nuestros Derechos",
+        "content": "Todos los derechos, títulos e intereses sobre el Servicio, incluidos todo el software, modelos de IA, algoritmos, diseños y contenido, son propiedad de Blipee o de nuestros licenciantes."
+      },
+      "subsection2": {
+        "title": "5.2 Sus Datos",
+        "intro": "Usted conserva todos los derechos sobre los datos que introduce en la Plataforma. Al utilizar nuestro Servicio, nos otorga una licencia para utilizar sus datos para:",
+        "items": [
+          "Proporcionar y mejorar el Servicio",
+          "Entrenar y mejorar nuestros modelos de IA (en forma anonimizada)",
+          "Generar análisis e información"
+        ]
+      }
+    },
+    "section6": {
+      "title": "6. Pago y Facturación",
+      "subsection1": {
+        "title": "6.1 Tarifas",
+        "content": "El acceso a ciertas funcionalidades requiere el pago de tarifas. Todas las tarifas no son reembolsables excepto cuando lo exija la ley o como se indique explícitamente en nuestra política de reembolso."
+      },
+      "subsection2": {
+        "title": "6.2 Suscripción",
+        "content": "Las suscripciones se renuevan automáticamente a menos que se cancelen antes de la fecha de renovación. Puede cancelar su suscripción en cualquier momento a través de la configuración de su cuenta."
+      },
+      "subsection3": {
+        "title": "6.3 Cambios de Precio",
+        "content": "Nos reservamos el derecho de cambiar nuestros precios con un aviso de 30 días. Los cambios de precio no afectarán su ciclo de facturación actual."
+      }
+    },
+    "section7": {
+      "title": "7. Predicciones de IA y Precisión",
+      "content": "Aunque nuestras predicciones impulsadas por ML logran una precisión del 98,5%, todas las predicciones y recomendaciones se proporcionan \"tal cual\" sin garantías. No debe confiar únicamente en las predicciones de IA para decisiones comerciales críticas."
+    },
+    "section8": {
+      "title": "8. Privacidad y Seguridad de Datos",
+      "content": "Su privacidad es importante para nosotros. La recopilación y el uso de información personal se rigen por nuestra Política de Privacidad, que se incorpora a estos Términos por referencia.",
+      "privacyLinkText": "Política de Privacidad"
+    },
+    "section9": {
+      "title": "9. Disponibilidad del Servicio",
+      "content": "Nos esforzamos por mantener un tiempo de actividad del 99,9%, pero no garantizamos que el Servicio sea ininterrumpido o libre de errores. Podemos suspender temporalmente el acceso para mantenimiento o actualizaciones."
+    },
+    "section10": {
+      "title": "10. Limitación de Responsabilidad",
+      "content": "En la máxima medida permitida por la ley, Blipee no será responsable de ningún daño indirecto, incidental, especial, consecuente o punitivo que surja del uso del Servicio."
+    },
+    "section11": {
+      "title": "11. Exclusión de Garantías",
+      "content": "EL SERVICIO SE PROPORCIONA \"TAL CUAL\" Y \"SEGÚN DISPONIBILIDAD\" SIN GARANTÍAS DE NINGÚN TIPO, YA SEAN EXPRESAS O IMPLÍCITAS, INCLUIDAS, ENTRE OTRAS, LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR O NO INFRACCIÓN."
+    },
+    "section12": {
+      "title": "12. Terminación",
+      "subsection1": {
+        "title": "12.1 Por Usted",
+        "content": "Puede terminar su cuenta en cualquier momento contactando con el soporte o a través de la configuración de su cuenta."
+      },
+      "subsection2": {
+        "title": "12.2 Por Nosotros",
+        "content": "Podemos suspender o terminar su acceso si viola estos Términos o por cualquier otro motivo a nuestra discreción, con o sin previo aviso."
+      }
+    },
+    "section13": {
+      "title": "13. Cambios en los Términos",
+      "content": "Nos reservamos el derecho de modificar estos Términos en cualquier momento. Le notificaremos los cambios materiales por correo electrónico o a través del Servicio. Su uso continuado después de los cambios constituye la aceptación de los Términos modificados."
+    },
+    "section14": {
+      "title": "14. Ley Aplicable",
+      "content": "Estos Términos se regirán e interpretarán de acuerdo con las leyes de [Su Jurisdicción], sin tener en cuenta sus disposiciones sobre conflictos de leyes."
+    },
+    "section15": {
+      "title": "15. Resolución de Disputas",
+      "content": "Cualquier disputa que surja de estos Términos o del uso del Servicio se resolverá mediante arbitraje vinculante de acuerdo con [Normas de Arbitraje], excepto cuando lo prohíba la ley."
+    },
+    "section16": {
+      "title": "16. Información de Contacto",
+      "intro": "Para preguntas sobre estos Términos, por favor contáctenos:",
+      "items": [
+        "Correo electrónico: legal@blipee.com",
+        "Soporte: {contactForm}",
+        "Dirección: [Dirección de su Empresa]"
+      ],
+      "contactFormText": "Formulario de Contacto"
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidad",
+    "metaDescription": "Política de Privacidad para la Plataforma de Sostenibilidad Impulsada por IA de Blipee",
+    "section1": {
+      "title": "1. Introducción",
+      "content": "Bienvenido a Blipee (\"nosotros\" o \"nuestro\"). Estamos comprometidos a proteger su información personal y su derecho a la privacidad. Esta Política de Privacidad explica cómo recopilamos, utilizamos, divulgamos y protegemos su información cuando utiliza nuestra plataforma de sostenibilidad impulsada por IA."
+    },
+    "section2": {
+      "title": "2. Información que Recopilamos",
+      "subsection1": {
+        "title": "2.1 Información que Usted Proporciona",
+        "intro": "Recopilamos información que usted nos proporciona directamente, incluyendo:",
+        "items": [
+          "Información de cuenta (nombre, dirección de correo electrónico, contraseña)",
+          "Información de la empresa (nombre de la empresa, industria, tamaño)",
+          "Datos de sostenibilidad que introduce en la plataforma",
+          "Comunicaciones con nuestro equipo de soporte",
+          "Información de pago y facturación"
+        ]
+      },
+      "subsection2": {
+        "title": "2.2 Información Recopilada Automáticamente",
+        "intro": "Cuando utiliza nuestra plataforma, recopilamos automáticamente:",
+        "items": [
+          "Información del dispositivo y navegador",
+          "Dirección IP y datos de ubicación",
+          "Datos de uso y análisis",
+          "Cookies y tecnologías de seguimiento similares"
+        ]
+      }
+    },
+    "section3": {
+      "title": "3. Cómo Utilizamos su Información",
+      "intro": "Utilizamos la información que recopilamos para:",
+      "items": [
+        "Proporcionar, mantener y mejorar nuestros servicios",
+        "Procesar sus transacciones y gestionar su cuenta",
+        "Entrenar y mejorar nuestros modelos de IA y predicciones",
+        "Enviarle avisos técnicos, actualizaciones y mensajes de soporte",
+        "Responder a sus comentarios y preguntas",
+        "Monitorear y analizar tendencias, uso y actividades",
+        "Detectar, prevenir y abordar problemas técnicos y fraude",
+        "Cumplir con obligaciones legales"
+      ]
+    },
+    "section4": {
+      "title": "4. Compartir y Divulgación de Datos",
+      "intro": "Podemos compartir su información en las siguientes circunstancias:",
+      "items": [
+        {
+          "label": "Proveedores de Servicios:",
+          "text": "Con proveedores externos que realizan servicios en nuestro nombre"
+        },
+        {
+          "label": "Transferencias Comerciales:",
+          "text": "En relación con una fusión, adquisición o venta de activos"
+        },
+        {
+          "label": "Requisitos Legales:",
+          "text": "Cuando sea requerido por ley o para proteger nuestros derechos"
+        },
+        {
+          "label": "Con su Consentimiento:",
+          "text": "Cuando usted nos autorice explícitamente a compartir información"
+        }
+      ],
+      "highlight": "Nunca vendemos su información personal a terceros."
+    },
+    "section5": {
+      "title": "5. Seguridad de Datos",
+      "intro": "Implementamos medidas técnicas y organizativas apropiadas para proteger su información personal, incluyendo:",
+      "items": [
+        "Cifrado de extremo a extremo para datos en tránsito",
+        "Almacenamiento de datos cifrado",
+        "Auditorías de seguridad regulares y pruebas de penetración",
+        "Controles de acceso y medidas de autenticación",
+        "Capacitación de empleados sobre protección de datos"
+      ]
+    },
+    "section6": {
+      "title": "6. Retención de Datos",
+      "content": "Conservamos su información personal durante el tiempo necesario para cumplir con los propósitos descritos en esta Política de Privacidad, a menos que la ley requiera o permita un período de retención más largo. Cuando ya no necesitemos su información, la eliminaremos de forma segura o la anonimizaremos."
+    },
+    "section7": {
+      "title": "7. Sus Derechos y Opciones",
+      "intro": "Dependiendo de su ubicación, puede tener los siguientes derechos:",
+      "items": [
+        {
+          "label": "Acceso:",
+          "text": "Solicitar acceso a su información personal"
+        },
+        {
+          "label": "Corrección:",
+          "text": "Solicitar la corrección de información inexacta"
+        },
+        {
+          "label": "Eliminación:",
+          "text": "Solicitar la eliminación de su información personal"
+        },
+        {
+          "label": "Portabilidad de Datos:",
+          "text": "Solicitar una copia de sus datos en un formato portable"
+        },
+        {
+          "label": "Exclusión:",
+          "text": "Optar por no recibir comunicaciones de marketing"
+        },
+        {
+          "label": "Retirar Consentimiento:",
+          "text": "Retirar el consentimiento cuando nos basamos en él"
+        }
+      ],
+      "footer": "Para ejercer estos derechos, por favor contáctenos en privacy@blipee.com"
+    },
+    "section8": {
+      "title": "8. Cookies y Tecnologías de Seguimiento",
+      "content": "Utilizamos cookies y tecnologías de seguimiento similares para recopilar y rastrear información sobre el uso de nuestra plataforma. Puede controlar las cookies a través de la configuración de su navegador y otras herramientas."
+    },
+    "section9": {
+      "title": "9. Transferencias Internacionales de Datos",
+      "content": "Su información puede ser transferida y procesada en países distintos al de su residencia. Nos aseguramos de que existan salvaguardas apropiadas para proteger su información de acuerdo con esta Política de Privacidad."
+    },
+    "section10": {
+      "title": "10. Privacidad de Menores",
+      "content": "Nuestra plataforma no está destinada a menores de 16 años. No recopilamos intencionalmente información personal de menores de 16 años."
+    },
+    "section11": {
+      "title": "11. Cambios a esta Política de Privacidad",
+      "content": "Podemos actualizar esta Política de Privacidad de vez en cuando. Le notificaremos cualquier cambio publicando la nueva Política de Privacidad en esta página y actualizando la fecha de \"Última actualización\"."
+    },
+    "section12": {
+      "title": "12. Contáctenos",
+      "intro": "Si tiene alguna pregunta sobre esta Política de Privacidad, por favor contáctenos:",
+      "items": [
+        "Correo electrónico: privacy@blipee.com",
+        "Dirección: [Dirección de su Empresa]"
+      ]
+    }
+  }
+}
