@@ -7,12 +7,14 @@ import { FormMessage } from '@/components/FormMessage'
 import { Mail, Phone, MapPin, Calendar } from 'lucide-react'
 import { FormEvent, useState } from 'react'
 import { useThemeToggle } from '../landing/hooks/useThemeToggle'
+import { useTranslations } from 'next-intl'
 import { submitContactForm } from '@/app/actions/v2/contact'
 import styles from './contact.module.css'
 import landingStyles from '../landing/landing.module.css'
 
 export default function ContactPage() {
   const { mode: themeMode, setTheme } = useThemeToggle()
+  const t = useTranslations('marketing.contact')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
@@ -50,26 +52,25 @@ export default function ContactPage() {
           <section className={styles.hero}>
             <div className={styles.heroContent}>
               <h1 className={styles.heroTitle}>
-                Get in <span className={landingStyles.gradientText}>Touch</span>
+                {t('hero.title')} <span className={landingStyles.gradientText}>{t('hero.titleHighlight')}</span>
               </h1>
               <p className={styles.heroSubtitle}>
-                Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                {t('hero.subtitle')}
               </p>
             </div>
 
             <div className={styles.container}>
               <div className={styles.contactGrid}>
                 <div className={styles.contactInfo}>
-                  <h2>Let's Talk</h2>
+                  <h2>{t('info.title')}</h2>
                   <p>
-                    Whether you're interested in our AI workforce, have questions about sustainability, 
-                    or want to explore a partnership, we're here to help.
+                    {t('info.description')}
                   </p>
 
                   <div className={styles.contactDetails}>
-                    <a 
-                      href="https://calendar.app.google/rzB6Ddh7T1qcctmE8" 
-                      target="_blank" 
+                    <a
+                      href="https://calendar.app.google/rzB6Ddh7T1qcctmE8"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className={styles.contactItem}
                     >
@@ -77,8 +78,8 @@ export default function ContactPage() {
                         <Calendar size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>Schedule a Meeting</h3>
-                        <p>Book a time that works for you</p>
+                        <h3>{t('contactItems.meeting.title')}</h3>
+                        <p>{t('contactItems.meeting.description')}</p>
                       </div>
                     </a>
 
@@ -87,8 +88,8 @@ export default function ContactPage() {
                         <Mail size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>Email</h3>
-                        <p>info@blipee.com</p>
+                        <h3>{t('contactItems.email.title')}</h3>
+                        <p>{t('contactItems.email.description')}</p>
                       </div>
                     </div>
 
@@ -97,8 +98,8 @@ export default function ContactPage() {
                         <Phone size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>Phone</h3>
-                        <p>+351 934 866 155</p>
+                        <h3>{t('contactItems.phone.title')}</h3>
+                        <p>{t('contactItems.phone.description')}</p>
                       </div>
                     </div>
 
@@ -107,8 +108,8 @@ export default function ContactPage() {
                         <MapPin size={20} />
                       </div>
                       <div className={styles.contactItemText}>
-                        <h3>Office</h3>
-                        <p>Lisboa, PT</p>
+                        <h3>{t('contactItems.office.title')}</h3>
+                        <p>{t('contactItems.office.description')}</p>
                       </div>
                     </div>
                   </div>
@@ -120,45 +121,45 @@ export default function ContactPage() {
                   )}
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="name">Full Name</label>
-                    <input type="text" id="name" name="name" required placeholder="John Doe" disabled={isSubmitting} />
+                    <label htmlFor="name">{t('form.labelName')}</label>
+                    <input type="text" id="name" name="name" required placeholder={t('form.placeholderName')} disabled={isSubmitting} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="john@company.com" disabled={isSubmitting} />
+                    <label htmlFor="email">{t('form.labelEmail')}</label>
+                    <input type="email" id="email" name="email" required placeholder={t('form.placeholderEmail')} disabled={isSubmitting} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="company">Company</label>
-                    <input type="text" id="company" name="company" placeholder="Your Company" disabled={isSubmitting} />
+                    <label htmlFor="company">{t('form.labelCompany')}</label>
+                    <input type="text" id="company" name="company" placeholder={t('form.placeholderCompany')} disabled={isSubmitting} />
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="subject">Subject</label>
+                    <label htmlFor="subject">{t('form.labelSubject')}</label>
                     <select id="subject" name="subject" required disabled={isSubmitting}>
-                      <option value="">Select a subject</option>
-                      <option value="demo">Request a Demo</option>
-                      <option value="pricing">Pricing Question</option>
-                      <option value="partnership">Partnership Opportunity</option>
-                      <option value="support">Technical Support</option>
-                      <option value="other">Other</option>
+                      <option value="">{t('form.placeholderSubject')}</option>
+                      <option value="demo">{t('form.subjectDemo')}</option>
+                      <option value="pricing">{t('form.subjectPricing')}</option>
+                      <option value="partnership">{t('form.subjectPartnership')}</option>
+                      <option value="support">{t('form.subjectSupport')}</option>
+                      <option value="other">{t('form.subjectOther')}</option>
                     </select>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="message">Message</label>
-                    <textarea 
-                      id="message" 
-                      name="message" 
-                      required 
-                      placeholder="Tell us about your needs..."
+                    <label htmlFor="message">{t('form.labelMessage')}</label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      required
+                      placeholder={t('form.placeholderMessage')}
                       rows={5}
                       disabled={isSubmitting}
                     />
                   </div>
                   <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
-                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                    {isSubmitting ? t('form.buttonSending') : t('form.buttonSend')}
                   </button>
                 </form>
               </div>

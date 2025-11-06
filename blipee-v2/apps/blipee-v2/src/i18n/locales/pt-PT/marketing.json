@@ -1,0 +1,227 @@
+{
+  "about": {
+    "hero": {
+      "title": "A Construir os Negócios Sustentáveis",
+      "titleHighlight": "de Amanhã Hoje",
+      "subtitle": "A nossa missão é tornar a sustentabilidade rentável, mensurável e acessível a cada negócio através da inovação em IA."
+    },
+    "story": {
+      "title": "A Nossa",
+      "titleHighlight": "História",
+      "paragraph1": "A blipee nasceu de uma observação simples mas poderosa: as empresas querem ser sustentáveis, mas faltam-lhes tempo, experiência e recursos para o fazer eficazmente. A consultoria de sustentabilidade tradicional é cara e morosa. Sabíamos que tinha de haver uma forma melhor.",
+      "paragraph2": "Os nossos fundadores – uma mistura única de investigadores de IA, cientistas ambientais e estrategas de negócio – juntaram-se para construir algo sem precedentes: uma força de trabalho de IA autónoma dedicada inteiramente à sustentabilidade. Cada um dos nossos 8 agentes é treinado com milhões de pontos de dados, a trabalhar 24/7 para otimizar cada aspeto das suas operações.",
+      "paragraph3": "Hoje, a blipee representa a convergência da inteligência artificial de vanguarda e da ação ambiental urgente. Não somos apenas uma plataforma de software – somos a sua equipa de sustentabilidade, escalada infinitamente e sempre disponível."
+    },
+    "stats": {
+      "title": "Pelos",
+      "titleHighlight": "Números",
+      "aiAgents": {
+        "number": "8",
+        "label": "Agentes de IA"
+      },
+      "uptime": {
+        "number": "24/7",
+        "label": "Disponibilidade"
+      },
+      "accuracy": {
+        "number": "98.5%",
+        "label": "Precisão"
+      },
+      "costReduction": {
+        "number": "18%",
+        "label": "Redução de Custos Média"
+      }
+    },
+    "timeline": {
+      "title": "A Nossa",
+      "titleHighlight": "Jornada",
+      "vision": {
+        "year": "2023",
+        "title": "A Visão",
+        "description": "Fundada por uma equipa de investigadores de IA e especialistas em sustentabilidade que acreditavam que os negócios podiam ser uma força para o bem ambiental."
+      },
+      "firstAgents": {
+        "year": "2024",
+        "title": "Primeiros Agentes Implementados",
+        "description": "Lançámos os nossos primeiros 3 agentes de IA focados em compliance ESG, rastreamento de carbono e otimização da cadeia de fornecimento."
+      },
+      "completeWorkforce": {
+        "year": "2025",
+        "title": "Força de Trabalho de IA Completa",
+        "description": "Expandimos para 8 agentes especializados que cobrem todos os aspetos de operações sustentáveis, desde manutenção até compliance regulatório."
+      }
+    },
+    "cta": {
+      "title": "Junte-se à Nossa",
+      "titleHighlight": "Missão",
+      "text": "Faça parte da equipa que está a redefinir como os negócios abordam a sustentabilidade.",
+      "button": "Explorar Carreiras"
+    }
+  },
+  "company": {
+    "hero": {
+      "title": "Pioneiros no Futuro do",
+      "titleHighlight": "Negócio Sustentável",
+      "subtitle": "Estamos a construir a força de trabalho de IA mais avançada do mundo dedicada à sustentabilidade e excelência operacional."
+    },
+    "mission": {
+      "title": "A Nossa",
+      "titleHighlight": "Missão",
+      "paragraph1": "Na blipee, acreditamos que cada negócio pode ser uma força para o bem. A nossa missão é tornar a sustentabilidade acessível, mensurável e rentável para empresas de todos os tamanhos através do poder de agentes de IA autónomos.",
+      "paragraph2": "Reunimos 8 agentes de IA especializados que trabalham 24/7, cada um especialista num aspeto crítico de operações sustentáveis. Desde compliance ESG até rastreamento de carbono, desde otimização da cadeia de fornecimento até poupança de custos – cobrimos tudo com precisão e inteligência sem precedentes."
+    },
+    "values": {
+      "title": "Os Nossos",
+      "titleHighlight": "Valores",
+      "innovation": {
+        "title": "Inovação",
+        "description": "Aproveitamos IA de vanguarda para resolver desafios de sustentabilidade que importam."
+      },
+      "commitment": {
+        "title": "Compromisso 24/7",
+        "description": "Os nossos agentes de IA trabalham ininterruptamente, garantindo que os seus objetivos de sustentabilidade nunca dormem."
+      },
+      "trust": {
+        "title": "Confiança e Transparência",
+        "description": "Construímos confiança através de processos transparentes e resultados verificáveis."
+      },
+      "impact": {
+        "title": "Impacto",
+        "description": "Cada ação que tomamos é medida pelo seu impacto ambiental e empresarial no mundo real."
+      }
+    },
+    "cta": {
+      "title": "Junte-se à Nossa",
+      "titleHighlight": "Jornada",
+      "text": "Procuramos sempre pessoas talentosas que partilhem a nossa paixão pela sustentabilidade e inovação.",
+      "button": "Ver Posições Abertas"
+    }
+  },
+  "careers": {
+    "hero": {
+      "title": "Construa o Futuro do",
+      "titleHighlight": "Negócio Sustentável",
+      "subtitle": "Junte-se a uma equipa de inovadores a trabalhar para tornar a sustentabilidade acessível, mensurável e rentável para cada negócio."
+    },
+    "benefits": {
+      "title": "Porquê a",
+      "titleHighlight": "blipee",
+      "cuttingEdge": {
+        "title": "IA de Vanguarda",
+        "description": "Trabalhe com modelos de IA de última geração e contribua para soluções de sustentabilidade revolucionárias."
+      },
+      "realImpact": {
+        "title": "Impacto Real",
+        "description": "Cada linha de código que escreve ajuda as empresas a reduzir a sua pegada ambiental."
+      },
+      "remoteFirst": {
+        "title": "Remoto em Primeiro",
+        "description": "Trabalhe de qualquer parte do mundo. Valorizamos resultados sobre localização."
+      },
+      "growth": {
+        "title": "Crescimento e Aprendizagem",
+        "description": "Orçamento de aprendizagem contínua, conferências e programas de mentoria."
+      },
+      "compensation": {
+        "title": "Pacote Competitivo",
+        "description": "Salário de topo, opções de equity e benefícios abrangentes."
+      },
+      "wellness": {
+        "title": "Apoio ao Bem-Estar",
+        "description": "Seguro de saúde, programas de bem-estar mental e férias ilimitadas."
+      }
+    },
+    "jobs": {
+      "title": "Posições",
+      "titleHighlight": "Abertas",
+      "seniorAI": {
+        "title": "Engenheiro Sénior de IA",
+        "location": "Remoto",
+        "type": "Tempo Integral",
+        "department": "Engenharia",
+        "description": "Lidere o desenvolvimento dos nossos agentes de IA autónomos. Desenhe e implemente modelos de machine learning que impulsionam insights de sustentabilidade.",
+        "tags": ["Python", "TensorFlow", "LLMs", "MLOps"]
+      },
+      "fullStack": {
+        "title": "Engenheiro Full-Stack",
+        "location": "Remoto",
+        "type": "Tempo Integral",
+        "department": "Engenharia",
+        "description": "Construa interfaces bonitas e eficientes que tornam os dados de sustentabilidade acionáveis. Trabalhe no nosso frontend Next.js e backend Node.js.",
+        "tags": ["React", "Next.js", "TypeScript", "Node.js"]
+      },
+      "productDesigner": {
+        "title": "Designer de Produto",
+        "location": "Remoto",
+        "type": "Tempo Integral",
+        "department": "Design",
+        "description": "Crie experiências intuitivas que tornam métricas de sustentabilidade complexas compreensíveis. Gira todo o sistema de design.",
+        "tags": ["Figma", "UI/UX", "Design Systems", "User Research"]
+      },
+      "sustainability": {
+        "title": "Especialista em Sustentabilidade",
+        "location": "Remoto",
+        "type": "Tempo Integral",
+        "department": "Produto",
+        "description": "Faça a ponte entre as capacidades de IA e as práticas de sustentabilidade do mundo real. Ajude a moldar a experiência dos nossos agentes.",
+        "tags": ["ESG", "Carbon Accounting", "Supply Chain", "Compliance"]
+      },
+      "applyButton": "Candidatar-me Agora",
+      "applyAlert": "Demo: Formulário de candidatura"
+    },
+    "cta": {
+      "title": "Não Vê a Sua",
+      "titleHighlight": "Função?",
+      "text": "Procuramos sempre talento excecional. Envie-nos o seu currículo e conte-nos como pode ajudar a construir o futuro do negócio sustentável.",
+      "button": "Entre em Contacto"
+    }
+  },
+  "contact": {
+    "hero": {
+      "title": "Entre em",
+      "titleHighlight": "Contacto",
+      "subtitle": "Tem questões? Adoraríamos ouvir de si. Envie-nos uma mensagem e responderemos o mais breve possível."
+    },
+    "info": {
+      "title": "Vamos Falar",
+      "description": "Quer esteja interessado na nossa força de trabalho de IA, tenha questões sobre sustentabilidade ou queira explorar uma parceria, estamos aqui para ajudar."
+    },
+    "contactItems": {
+      "meeting": {
+        "title": "Agendar uma Reunião",
+        "description": "Reserve um horário que funcione para si"
+      },
+      "email": {
+        "title": "Email",
+        "description": "info@blipee.com"
+      },
+      "phone": {
+        "title": "Telefone",
+        "description": "+351 934 866 155"
+      },
+      "office": {
+        "title": "Escritório",
+        "description": "Lisboa, PT"
+      }
+    },
+    "form": {
+      "labelName": "Nome Completo",
+      "placeholderName": "João Silva",
+      "labelEmail": "Email",
+      "placeholderEmail": "joao@empresa.com",
+      "labelCompany": "Empresa",
+      "placeholderCompany": "A Sua Empresa",
+      "labelSubject": "Assunto",
+      "placeholderSubject": "Selecione um assunto",
+      "subjectDemo": "Solicitar uma Demo",
+      "subjectPricing": "Questão sobre Preços",
+      "subjectPartnership": "Oportunidade de Parceria",
+      "subjectSupport": "Suporte Técnico",
+      "subjectOther": "Outro",
+      "labelMessage": "Mensagem",
+      "placeholderMessage": "Conte-nos sobre as suas necessidades...",
+      "buttonSending": "A enviar...",
+      "buttonSend": "Enviar Mensagem"
+    }
+  }
+}

@@ -5,79 +5,81 @@ import { Footer } from '../landing/components/Footer'
 import { Background } from '../landing/components/Background'
 import { BrainCircuit, Globe, Home, TrendingUp, DollarSign, Heart } from 'lucide-react'
 import { useThemeToggle } from '../landing/hooks/useThemeToggle'
+import { useTranslations } from 'next-intl'
 import styles from './careers.module.css'
 import landingStyles from '../landing/landing.module.css'
 
-const benefits = [
-  {
-    icon: BrainCircuit,
-    title: 'Cutting-Edge AI',
-    description: 'Work with state-of-the-art AI models and contribute to groundbreaking sustainability solutions.',
-  },
-  {
-    icon: Globe,
-    title: 'Real Impact',
-    description: 'Every line of code you write helps businesses reduce their environmental footprint.',
-  },
-  {
-    icon: Home,
-    title: 'Remote-First',
-    description: 'Work from anywhere in the world. We value results over location.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Growth & Learning',
-    description: 'Continuous learning budget, conferences, and mentorship programs.',
-  },
-  {
-    icon: DollarSign,
-    title: 'Competitive Package',
-    description: 'Top-tier salary, equity options, and comprehensive benefits.',
-  },
-  {
-    icon: Heart,
-    title: 'Wellness Support',
-    description: 'Health insurance, mental wellness programs, and unlimited PTO.',
-  },
-]
-
-const jobs = [
-  {
-    title: 'Senior AI Engineer',
-    location: 'Remote',
-    type: 'Full-time',
-    department: 'Engineering',
-    description: 'Lead the development of our autonomous AI agents. Design and implement machine learning models that drive sustainability insights.',
-    tags: ['Python', 'TensorFlow', 'LLMs', 'MLOps'],
-  },
-  {
-    title: 'Full-Stack Engineer',
-    location: 'Remote',
-    type: 'Full-time',
-    department: 'Engineering',
-    description: 'Build beautiful, performant interfaces that make sustainability data actionable. Work across our Next.js frontend and Node.js backend.',
-    tags: ['React', 'Next.js', 'TypeScript', 'Node.js'],
-  },
-  {
-    title: 'Product Designer',
-    location: 'Remote',
-    type: 'Full-time',
-    department: 'Design',
-    description: 'Craft intuitive experiences that make complex sustainability metrics understandable. Own the entire design system.',
-    tags: ['Figma', 'UI/UX', 'Design Systems', 'User Research'],
-  },
-  {
-    title: 'Sustainability Specialist',
-    location: 'Remote',
-    type: 'Full-time',
-    department: 'Product',
-    description: 'Bridge the gap between AI capabilities and real-world sustainability practices. Help shape our agent expertise.',
-    tags: ['ESG', 'Carbon Accounting', 'Supply Chain', 'Compliance'],
-  },
-]
-
 export default function CareersPage() {
   const { mode: themeMode, setTheme } = useThemeToggle()
+  const t = useTranslations('marketing.careers')
+
+  const benefits = [
+    {
+      icon: BrainCircuit,
+      title: t('benefits.cuttingEdge.title'),
+      description: t('benefits.cuttingEdge.description'),
+    },
+    {
+      icon: Globe,
+      title: t('benefits.realImpact.title'),
+      description: t('benefits.realImpact.description'),
+    },
+    {
+      icon: Home,
+      title: t('benefits.remoteFirst.title'),
+      description: t('benefits.remoteFirst.description'),
+    },
+    {
+      icon: TrendingUp,
+      title: t('benefits.growth.title'),
+      description: t('benefits.growth.description'),
+    },
+    {
+      icon: DollarSign,
+      title: t('benefits.compensation.title'),
+      description: t('benefits.compensation.description'),
+    },
+    {
+      icon: Heart,
+      title: t('benefits.wellness.title'),
+      description: t('benefits.wellness.description'),
+    },
+  ]
+
+  const jobs = [
+    {
+      title: t('jobs.seniorAI.title'),
+      location: t('jobs.seniorAI.location'),
+      type: t('jobs.seniorAI.type'),
+      department: t('jobs.seniorAI.department'),
+      description: t('jobs.seniorAI.description'),
+      tags: ['Python', 'TensorFlow', 'LLMs', 'MLOps'],
+    },
+    {
+      title: t('jobs.fullStack.title'),
+      location: t('jobs.fullStack.location'),
+      type: t('jobs.fullStack.type'),
+      department: t('jobs.fullStack.department'),
+      description: t('jobs.fullStack.description'),
+      tags: ['React', 'Next.js', 'TypeScript', 'Node.js'],
+    },
+    {
+      title: t('jobs.productDesigner.title'),
+      location: t('jobs.productDesigner.location'),
+      type: t('jobs.productDesigner.type'),
+      department: t('jobs.productDesigner.department'),
+      description: t('jobs.productDesigner.description'),
+      tags: ['Figma', 'UI/UX', 'Design Systems', 'User Research'],
+    },
+    {
+      title: t('jobs.sustainability.title'),
+      location: t('jobs.sustainability.location'),
+      type: t('jobs.sustainability.type'),
+      department: t('jobs.sustainability.department'),
+      description: t('jobs.sustainability.description'),
+      tags: ['ESG', 'Carbon Accounting', 'Supply Chain', 'Compliance'],
+    },
+  ]
 
   return (
     <div className={landingStyles.landing}>
@@ -87,17 +89,17 @@ export default function CareersPage() {
         <main className={styles.main}>
           <section className={styles.hero}>
             <h1 className={styles.heroTitle}>
-              Build the Future of <span className={landingStyles.gradientText}>Sustainable Business</span>
+              {t('hero.title')} <span className={landingStyles.gradientText}>{t('hero.titleHighlight')}</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              Join a team of innovators working to make sustainability accessible, measurable, and profitable for every business.
+              {t('hero.subtitle')}
             </p>
           </section>
 
         <section className={styles.benefitsSection}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>
-              Why <span className={landingStyles.gradientText}>blipee</span>
+              {t('benefits.title')} <span className={landingStyles.gradientText}>{t('benefits.titleHighlight')}</span>
             </h2>
             <div className={styles.benefitsGrid}>
               {benefits.map((benefit) => (
@@ -116,7 +118,7 @@ export default function CareersPage() {
         <section className={styles.jobsSection}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>
-              Open <span className={landingStyles.gradientText}>Positions</span>
+              {t('jobs.title')} <span className={landingStyles.gradientText}>{t('jobs.titleHighlight')}</span>
             </h2>
             <div className={styles.jobsList}>
               {jobs.map((job) => (
@@ -130,8 +132,8 @@ export default function CareersPage() {
                         <span className={styles.jobMetaItem}>{job.department}</span>
                       </div>
                     </div>
-                    <button className={styles.applyBtn} onClick={() => alert('Demo: Application form')}>
-                      Apply Now
+                    <button className={styles.applyBtn} onClick={() => alert(t('jobs.applyAlert'))}>
+                      {t('jobs.applyButton')}
                     </button>
                   </div>
                   <p className={styles.jobDescription}>{job.description}</p>
@@ -149,13 +151,13 @@ export default function CareersPage() {
         <section className={styles.ctaSection}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>
-              Don't See Your <span className={styles.gradientText}>Role?</span>
+              {t('cta.title')} <span className={styles.gradientText}>{t('cta.titleHighlight')}</span>
             </h2>
             <p className={styles.ctaText}>
-              We're always looking for exceptional talent. Send us your resume and tell us how you can help build the future of sustainable business.
+              {t('cta.text')}
             </p>
             <a href="/contact" className={styles.ctaButton}>
-              Get in Touch
+              {t('cta.button')}
             </a>
           </div>
         </section>

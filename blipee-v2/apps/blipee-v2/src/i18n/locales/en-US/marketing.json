@@ -1,0 +1,227 @@
+{
+  "about": {
+    "hero": {
+      "title": "Building Tomorrow's Sustainable",
+      "titleHighlight": "Businesses Today",
+      "subtitle": "We're on a mission to make sustainability profitable, measurable, and accessible to every business through AI innovation."
+    },
+    "story": {
+      "title": "Our",
+      "titleHighlight": "Story",
+      "paragraph1": "blipee was born from a simple yet powerful observation: businesses want to be sustainable, but they lack the time, expertise, and resources to do it effectively. Traditional sustainability consulting is expensive and time-consuming. We knew there had to be a better way.",
+      "paragraph2": "Our founders – a unique blend of AI researchers, environmental scientists, and business strategists – came together to build something unprecedented: an autonomous AI workforce dedicated entirely to sustainability. Each of our 8 agents is trained on millions of data points, working 24/7 to optimize every aspect of your operations.",
+      "paragraph3": "Today, blipee represents the convergence of cutting-edge artificial intelligence and urgent environmental action. We're not just a software platform – we're your sustainability team, scaled infinitely and always available."
+    },
+    "stats": {
+      "title": "By the",
+      "titleHighlight": "Numbers",
+      "aiAgents": {
+        "number": "8",
+        "label": "AI Agents"
+      },
+      "uptime": {
+        "number": "24/7",
+        "label": "Uptime"
+      },
+      "accuracy": {
+        "number": "98.5%",
+        "label": "Accuracy"
+      },
+      "costReduction": {
+        "number": "18%",
+        "label": "Avg. Cost Reduction"
+      }
+    },
+    "timeline": {
+      "title": "Our",
+      "titleHighlight": "Journey",
+      "vision": {
+        "year": "2023",
+        "title": "The Vision",
+        "description": "Founded by a team of AI researchers and sustainability experts who believed business could be a force for environmental good."
+      },
+      "firstAgents": {
+        "year": "2024",
+        "title": "First Agents Deployed",
+        "description": "Launched our first 3 AI agents focusing on ESG compliance, carbon tracking, and supply chain optimization."
+      },
+      "completeWorkforce": {
+        "year": "2025",
+        "title": "Complete AI Workforce",
+        "description": "Expanded to 8 specialized agents covering all aspects of sustainable operations, from maintenance to regulatory compliance."
+      }
+    },
+    "cta": {
+      "title": "Join Our",
+      "titleHighlight": "Mission",
+      "text": "Be part of the team that's redefining how businesses approach sustainability.",
+      "button": "Explore Careers"
+    }
+  },
+  "company": {
+    "hero": {
+      "title": "Pioneering the Future of",
+      "titleHighlight": "Sustainable Business",
+      "subtitle": "We're building the world's most advanced AI workforce dedicated to sustainability and operational excellence."
+    },
+    "mission": {
+      "title": "Our",
+      "titleHighlight": "Mission",
+      "paragraph1": "At blipee, we believe that every business can be a force for good. Our mission is to make sustainability accessible, measurable, and profitable for companies of all sizes through the power of autonomous AI agents.",
+      "paragraph2": "We've assembled 8 specialized AI agents that work 24/7, each an expert in a critical aspect of sustainable operations. From ESG compliance to carbon tracking, from supply chain optimization to cost savings – we cover it all with unprecedented accuracy and intelligence."
+    },
+    "values": {
+      "title": "Our",
+      "titleHighlight": "Values",
+      "innovation": {
+        "title": "Innovation",
+        "description": "We leverage cutting-edge AI to solve sustainability challenges that matter."
+      },
+      "commitment": {
+        "title": "24/7 Commitment",
+        "description": "Our AI agents work around the clock, ensuring your sustainability goals never sleep."
+      },
+      "trust": {
+        "title": "Trust & Transparency",
+        "description": "We build trust through transparent processes and verifiable results."
+      },
+      "impact": {
+        "title": "Impact",
+        "description": "Every action we take is measured by its real-world environmental and business impact."
+      }
+    },
+    "cta": {
+      "title": "Join Our",
+      "titleHighlight": "Journey",
+      "text": "We're always looking for talented individuals who share our passion for sustainability and innovation.",
+      "button": "View Open Positions"
+    }
+  },
+  "careers": {
+    "hero": {
+      "title": "Build the Future of",
+      "titleHighlight": "Sustainable Business",
+      "subtitle": "Join a team of innovators working to make sustainability accessible, measurable, and profitable for every business."
+    },
+    "benefits": {
+      "title": "Why",
+      "titleHighlight": "blipee",
+      "cuttingEdge": {
+        "title": "Cutting-Edge AI",
+        "description": "Work with state-of-the-art AI models and contribute to groundbreaking sustainability solutions."
+      },
+      "realImpact": {
+        "title": "Real Impact",
+        "description": "Every line of code you write helps businesses reduce their environmental footprint."
+      },
+      "remoteFirst": {
+        "title": "Remote-First",
+        "description": "Work from anywhere in the world. We value results over location."
+      },
+      "growth": {
+        "title": "Growth & Learning",
+        "description": "Continuous learning budget, conferences, and mentorship programs."
+      },
+      "compensation": {
+        "title": "Competitive Package",
+        "description": "Top-tier salary, equity options, and comprehensive benefits."
+      },
+      "wellness": {
+        "title": "Wellness Support",
+        "description": "Health insurance, mental wellness programs, and unlimited PTO."
+      }
+    },
+    "jobs": {
+      "title": "Open",
+      "titleHighlight": "Positions",
+      "seniorAI": {
+        "title": "Senior AI Engineer",
+        "location": "Remote",
+        "type": "Full-time",
+        "department": "Engineering",
+        "description": "Lead the development of our autonomous AI agents. Design and implement machine learning models that drive sustainability insights.",
+        "tags": ["Python", "TensorFlow", "LLMs", "MLOps"]
+      },
+      "fullStack": {
+        "title": "Full-Stack Engineer",
+        "location": "Remote",
+        "type": "Full-time",
+        "department": "Engineering",
+        "description": "Build beautiful, performant interfaces that make sustainability data actionable. Work across our Next.js frontend and Node.js backend.",
+        "tags": ["React", "Next.js", "TypeScript", "Node.js"]
+      },
+      "productDesigner": {
+        "title": "Product Designer",
+        "location": "Remote",
+        "type": "Full-time",
+        "department": "Design",
+        "description": "Craft intuitive experiences that make complex sustainability metrics understandable. Own the entire design system.",
+        "tags": ["Figma", "UI/UX", "Design Systems", "User Research"]
+      },
+      "sustainability": {
+        "title": "Sustainability Specialist",
+        "location": "Remote",
+        "type": "Full-time",
+        "department": "Product",
+        "description": "Bridge the gap between AI capabilities and real-world sustainability practices. Help shape our agent expertise.",
+        "tags": ["ESG", "Carbon Accounting", "Supply Chain", "Compliance"]
+      },
+      "applyButton": "Apply Now",
+      "applyAlert": "Demo: Application form"
+    },
+    "cta": {
+      "title": "Don't See Your",
+      "titleHighlight": "Role?",
+      "text": "We're always looking for exceptional talent. Send us your resume and tell us how you can help build the future of sustainable business.",
+      "button": "Get in Touch"
+    }
+  },
+  "contact": {
+    "hero": {
+      "title": "Get in",
+      "titleHighlight": "Touch",
+      "subtitle": "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
+    },
+    "info": {
+      "title": "Let's Talk",
+      "description": "Whether you're interested in our AI workforce, have questions about sustainability, or want to explore a partnership, we're here to help."
+    },
+    "contactItems": {
+      "meeting": {
+        "title": "Schedule a Meeting",
+        "description": "Book a time that works for you"
+      },
+      "email": {
+        "title": "Email",
+        "description": "info@blipee.com"
+      },
+      "phone": {
+        "title": "Phone",
+        "description": "+351 934 866 155"
+      },
+      "office": {
+        "title": "Office",
+        "description": "Lisboa, PT"
+      }
+    },
+    "form": {
+      "labelName": "Full Name",
+      "placeholderName": "John Doe",
+      "labelEmail": "Email",
+      "placeholderEmail": "john@company.com",
+      "labelCompany": "Company",
+      "placeholderCompany": "Your Company",
+      "labelSubject": "Subject",
+      "placeholderSubject": "Select a subject",
+      "subjectDemo": "Request a Demo",
+      "subjectPricing": "Pricing Question",
+      "subjectPartnership": "Partnership Opportunity",
+      "subjectSupport": "Technical Support",
+      "subjectOther": "Other",
+      "labelMessage": "Message",
+      "placeholderMessage": "Tell us about your needs...",
+      "buttonSending": "Sending...",
+      "buttonSend": "Send Message"
+    }
+  }
+}

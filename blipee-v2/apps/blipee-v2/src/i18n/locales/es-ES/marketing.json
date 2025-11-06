@@ -1,0 +1,227 @@
+{
+  "about": {
+    "hero": {
+      "title": "Construyendo los Negocios Sostenibles",
+      "titleHighlight": "del Mañana Hoy",
+      "subtitle": "Nuestra misión es hacer que la sostenibilidad sea rentable, medible y accesible para cada negocio a través de la innovación en IA."
+    },
+    "story": {
+      "title": "Nuestra",
+      "titleHighlight": "Historia",
+      "paragraph1": "blipee nació de una observación simple pero poderosa: las empresas quieren ser sostenibles, pero carecen del tiempo, experiencia y recursos para hacerlo de manera efectiva. La consultoría de sostenibilidad tradicional es costosa y lenta. Sabíamos que tenía que haber una mejor manera.",
+      "paragraph2": "Nuestros fundadores – una mezcla única de investigadores de IA, científicos ambientales y estrategas de negocios – se unieron para construir algo sin precedentes: una fuerza laboral de IA autónoma dedicada enteramente a la sostenibilidad. Cada uno de nuestros 8 agentes está entrenado con millones de puntos de datos, trabajando 24/7 para optimizar cada aspecto de tus operaciones.",
+      "paragraph3": "Hoy, blipee representa la convergencia de la inteligencia artificial de vanguardia y la acción ambiental urgente. No somos solo una plataforma de software – somos tu equipo de sostenibilidad, escalado infinitamente y siempre disponible."
+    },
+    "stats": {
+      "title": "Por los",
+      "titleHighlight": "Números",
+      "aiAgents": {
+        "number": "8",
+        "label": "Agentes de IA"
+      },
+      "uptime": {
+        "number": "24/7",
+        "label": "Disponibilidad"
+      },
+      "accuracy": {
+        "number": "98.5%",
+        "label": "Precisión"
+      },
+      "costReduction": {
+        "number": "18%",
+        "label": "Reducción de Costos Promedio"
+      }
+    },
+    "timeline": {
+      "title": "Nuestro",
+      "titleHighlight": "Camino",
+      "vision": {
+        "year": "2023",
+        "title": "La Visión",
+        "description": "Fundada por un equipo de investigadores de IA y expertos en sostenibilidad que creían que los negocios podían ser una fuerza para el bien ambiental."
+      },
+      "firstAgents": {
+        "year": "2024",
+        "title": "Primeros Agentes Desplegados",
+        "description": "Lanzamos nuestros primeros 3 agentes de IA enfocados en compliance ESG, seguimiento de carbono y optimización de cadena de suministro."
+      },
+      "completeWorkforce": {
+        "year": "2025",
+        "title": "Fuerza Laboral de IA Completa",
+        "description": "Expandimos a 8 agentes especializados que cubren todos los aspectos de operaciones sostenibles, desde mantenimiento hasta compliance regulatorio."
+      }
+    },
+    "cta": {
+      "title": "Únete a Nuestra",
+      "titleHighlight": "Misión",
+      "text": "Sé parte del equipo que está redefiniendo cómo los negocios abordan la sostenibilidad.",
+      "button": "Explorar Carreras"
+    }
+  },
+  "company": {
+    "hero": {
+      "title": "Pioneros en el Futuro del",
+      "titleHighlight": "Negocio Sostenible",
+      "subtitle": "Estamos construyendo la fuerza laboral de IA más avanzada del mundo dedicada a la sostenibilidad y excelencia operacional."
+    },
+    "mission": {
+      "title": "Nuestra",
+      "titleHighlight": "Misión",
+      "paragraph1": "En blipee, creemos que cada negocio puede ser una fuerza para el bien. Nuestra misión es hacer que la sostenibilidad sea accesible, medible y rentable para empresas de todos los tamaños a través del poder de agentes de IA autónomos.",
+      "paragraph2": "Hemos reunido 8 agentes de IA especializados que trabajan 24/7, cada uno experto en un aspecto crítico de operaciones sostenibles. Desde compliance ESG hasta seguimiento de carbono, desde optimización de cadena de suministro hasta ahorro de costos – lo cubrimos todo con precisión e inteligencia sin precedentes."
+    },
+    "values": {
+      "title": "Nuestros",
+      "titleHighlight": "Valores",
+      "innovation": {
+        "title": "Innovación",
+        "description": "Aprovechamos IA de vanguardia para resolver desafíos de sostenibilidad que importan."
+      },
+      "commitment": {
+        "title": "Compromiso 24/7",
+        "description": "Nuestros agentes de IA trabajan las 24 horas, garantizando que tus objetivos de sostenibilidad nunca duerman."
+      },
+      "trust": {
+        "title": "Confianza y Transparencia",
+        "description": "Construimos confianza a través de procesos transparentes y resultados verificables."
+      },
+      "impact": {
+        "title": "Impacto",
+        "description": "Cada acción que tomamos se mide por su impacto ambiental y empresarial en el mundo real."
+      }
+    },
+    "cta": {
+      "title": "Únete a Nuestro",
+      "titleHighlight": "Camino",
+      "text": "Siempre buscamos personas talentosas que compartan nuestra pasión por la sostenibilidad e innovación.",
+      "button": "Ver Posiciones Abiertas"
+    }
+  },
+  "careers": {
+    "hero": {
+      "title": "Construye el Futuro del",
+      "titleHighlight": "Negocio Sostenible",
+      "subtitle": "Únete a un equipo de innovadores trabajando para hacer la sostenibilidad accesible, medible y rentable para cada negocio."
+    },
+    "benefits": {
+      "title": "Por Qué",
+      "titleHighlight": "blipee",
+      "cuttingEdge": {
+        "title": "IA de Vanguardia",
+        "description": "Trabaja con modelos de IA de última generación y contribuye a soluciones de sostenibilidad revolucionarias."
+      },
+      "realImpact": {
+        "title": "Impacto Real",
+        "description": "Cada línea de código que escribes ayuda a las empresas a reducir su huella ambiental."
+      },
+      "remoteFirst": {
+        "title": "Remoto Primero",
+        "description": "Trabaja desde cualquier parte del mundo. Valoramos los resultados sobre la ubicación."
+      },
+      "growth": {
+        "title": "Crecimiento y Aprendizaje",
+        "description": "Presupuesto de aprendizaje continuo, conferencias y programas de mentoría."
+      },
+      "compensation": {
+        "title": "Paquete Competitivo",
+        "description": "Salario de primer nivel, opciones de equity y beneficios completos."
+      },
+      "wellness": {
+        "title": "Soporte de Bienestar",
+        "description": "Seguro de salud, programas de bienestar mental y PTO ilimitado."
+      }
+    },
+    "jobs": {
+      "title": "Posiciones",
+      "titleHighlight": "Abiertas",
+      "seniorAI": {
+        "title": "Ingeniero Senior de IA",
+        "location": "Remoto",
+        "type": "Tiempo Completo",
+        "department": "Ingeniería",
+        "description": "Lidera el desarrollo de nuestros agentes de IA autónomos. Diseña e implementa modelos de machine learning que impulsan insights de sostenibilidad.",
+        "tags": ["Python", "TensorFlow", "LLMs", "MLOps"]
+      },
+      "fullStack": {
+        "title": "Ingeniero Full-Stack",
+        "location": "Remoto",
+        "type": "Tiempo Completo",
+        "department": "Ingeniería",
+        "description": "Construye interfaces hermosas y eficientes que hacen que los datos de sostenibilidad sean accionables. Trabaja en nuestro frontend Next.js y backend Node.js.",
+        "tags": ["React", "Next.js", "TypeScript", "Node.js"]
+      },
+      "productDesigner": {
+        "title": "Diseñador de Producto",
+        "location": "Remoto",
+        "type": "Tiempo Completo",
+        "department": "Diseño",
+        "description": "Crea experiencias intuitivas que hacen que las métricas de sostenibilidad complejas sean comprensibles. Gestiona todo el sistema de diseño.",
+        "tags": ["Figma", "UI/UX", "Design Systems", "User Research"]
+      },
+      "sustainability": {
+        "title": "Especialista en Sostenibilidad",
+        "location": "Remoto",
+        "type": "Tiempo Completo",
+        "department": "Producto",
+        "description": "Cierra la brecha entre las capacidades de IA y las prácticas de sostenibilidad del mundo real. Ayuda a dar forma a la experiencia de nuestros agentes.",
+        "tags": ["ESG", "Carbon Accounting", "Supply Chain", "Compliance"]
+      },
+      "applyButton": "Aplicar Ahora",
+      "applyAlert": "Demo: Formulario de aplicación"
+    },
+    "cta": {
+      "title": "¿No Ves Tu",
+      "titleHighlight": "Rol?",
+      "text": "Siempre buscamos talento excepcional. Envíanos tu currículum y cuéntanos cómo puedes ayudar a construir el futuro del negocio sostenible.",
+      "button": "Contacta con Nosotros"
+    }
+  },
+  "contact": {
+    "hero": {
+      "title": "Ponte en",
+      "titleHighlight": "Contacto",
+      "subtitle": "¿Tienes preguntas? Nos encantaría saber de ti. Envíanos un mensaje y responderemos lo antes posible."
+    },
+    "info": {
+      "title": "Hablemos",
+      "description": "Ya sea que estés interesado en nuestra fuerza laboral de IA, tengas preguntas sobre sostenibilidad o quieras explorar una asociación, estamos aquí para ayudar."
+    },
+    "contactItems": {
+      "meeting": {
+        "title": "Agendar una Reunión",
+        "description": "Reserva un horario que te funcione"
+      },
+      "email": {
+        "title": "Email",
+        "description": "info@blipee.com"
+      },
+      "phone": {
+        "title": "Teléfono",
+        "description": "+351 934 866 155"
+      },
+      "office": {
+        "title": "Oficina",
+        "description": "Lisboa, PT"
+      }
+    },
+    "form": {
+      "labelName": "Nombre Completo",
+      "placeholderName": "Juan Pérez",
+      "labelEmail": "Email",
+      "placeholderEmail": "juan@empresa.com",
+      "labelCompany": "Empresa",
+      "placeholderCompany": "Tu Empresa",
+      "labelSubject": "Asunto",
+      "placeholderSubject": "Selecciona un asunto",
+      "subjectDemo": "Solicitar una Demo",
+      "subjectPricing": "Pregunta sobre Precios",
+      "subjectPartnership": "Oportunidad de Asociación",
+      "subjectSupport": "Soporte Técnico",
+      "subjectOther": "Otro",
+      "labelMessage": "Mensaje",
+      "placeholderMessage": "Cuéntanos sobre tus necesidades...",
+      "buttonSending": "Enviando...",
+      "buttonSend": "Enviar Mensaje"
+    }
+  }
+}

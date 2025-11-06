@@ -4,36 +4,38 @@ import { Navbar } from '../landing/components/Navbar'
 import { Footer } from '../landing/components/Footer'
 import { Background } from '../landing/components/Background'
 import { useThemeToggle } from '../landing/hooks/useThemeToggle'
+import { useTranslations } from 'next-intl'
 import styles from './about.module.css'
 import landingStyles from '../landing/landing.module.css'
 
-const stats = [
-  { number: '8', label: 'AI Agents' },
-  { number: '24/7', label: 'Uptime' },
-  { number: '98.5%', label: 'Accuracy' },
-  { number: '18%', label: 'Avg. Cost Reduction' },
-]
-
-const timeline = [
-  {
-    year: '2023',
-    title: 'The Vision',
-    description: 'Founded by a team of AI researchers and sustainability experts who believed business could be a force for environmental good.',
-  },
-  {
-    year: '2024',
-    title: 'First Agents Deployed',
-    description: 'Launched our first 3 AI agents focusing on ESG compliance, carbon tracking, and supply chain optimization.',
-  },
-  {
-    year: '2025',
-    title: 'Complete AI Workforce',
-    description: 'Expanded to 8 specialized agents covering all aspects of sustainable operations, from maintenance to regulatory compliance.',
-  },
-]
-
 export default function AboutPage() {
   const { mode: themeMode, setTheme } = useThemeToggle()
+  const t = useTranslations('marketing.about')
+
+  const stats = [
+    { number: t('stats.aiAgents.number'), label: t('stats.aiAgents.label') },
+    { number: t('stats.uptime.number'), label: t('stats.uptime.label') },
+    { number: t('stats.accuracy.number'), label: t('stats.accuracy.label') },
+    { number: t('stats.costReduction.number'), label: t('stats.costReduction.label') },
+  ]
+
+  const timeline = [
+    {
+      year: t('timeline.vision.year'),
+      title: t('timeline.vision.title'),
+      description: t('timeline.vision.description'),
+    },
+    {
+      year: t('timeline.firstAgents.year'),
+      title: t('timeline.firstAgents.title'),
+      description: t('timeline.firstAgents.description'),
+    },
+    {
+      year: t('timeline.completeWorkforce.year'),
+      title: t('timeline.completeWorkforce.title'),
+      description: t('timeline.completeWorkforce.description'),
+    },
+  ]
 
   return (
     <div className={landingStyles.landing}>
@@ -43,34 +45,27 @@ export default function AboutPage() {
         <main className={styles.main}>
           <section className={styles.hero}>
             <h1 className={styles.heroTitle}>
-              Building Tomorrow's Sustainable <span className={landingStyles.gradientText}>Businesses Today</span>
+              {t('hero.title')} <span className={landingStyles.gradientText}>{t('hero.titleHighlight')}</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              We're on a mission to make sustainability profitable, measurable, and accessible to every business through AI innovation.
+              {t('hero.subtitle')}
             </p>
           </section>
 
         <section className={styles.storySection}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>
-              Our <span className={landingStyles.gradientText}>Story</span>
+              {t('story.title')} <span className={landingStyles.gradientText}>{t('story.titleHighlight')}</span>
             </h2>
             <div className={styles.sectionContent}>
               <p>
-                blipee was born from a simple yet powerful observation: businesses want to be sustainable, 
-                but they lack the time, expertise, and resources to do it effectively. Traditional 
-                sustainability consulting is expensive and time-consuming. We knew there had to be a better way.
+                {t('story.paragraph1')}
               </p>
               <p>
-                Our founders – a unique blend of AI researchers, environmental scientists, and business 
-                strategists – came together to build something unprecedented: an autonomous AI workforce 
-                dedicated entirely to sustainability. Each of our 8 agents is trained on millions of data 
-                points, working 24/7 to optimize every aspect of your operations.
+                {t('story.paragraph2')}
               </p>
               <p>
-                Today, blipee represents the convergence of cutting-edge artificial intelligence and 
-                urgent environmental action. We're not just a software platform – we're your sustainability 
-                team, scaled infinitely and always available.
+                {t('story.paragraph3')}
               </p>
             </div>
           </div>
@@ -79,7 +74,7 @@ export default function AboutPage() {
         <section className={styles.statsSection}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>
-              By the <span className={landingStyles.gradientText}>Numbers</span>
+              {t('stats.title')} <span className={landingStyles.gradientText}>{t('stats.titleHighlight')}</span>
             </h2>
             <div className={styles.statsGrid}>
               {stats.map((stat) => (
@@ -95,7 +90,7 @@ export default function AboutPage() {
         <section className={styles.timelineSection}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>
-              Our <span className={landingStyles.gradientText}>Journey</span>
+              {t('timeline.title')} <span className={landingStyles.gradientText}>{t('timeline.titleHighlight')}</span>
             </h2>
             <div className={styles.timeline}>
               {timeline.map((item) => (
@@ -114,13 +109,13 @@ export default function AboutPage() {
         <section className={styles.ctaSection}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>
-              Join Our <span className={styles.gradientText}>Mission</span>
+              {t('cta.title')} <span className={styles.gradientText}>{t('cta.titleHighlight')}</span>
             </h2>
             <p className={styles.ctaText}>
-              Be part of the team that's redefining how businesses approach sustainability.
+              {t('cta.text')}
             </p>
             <a href="/careers" className={styles.ctaButton}>
-              Explore Careers
+              {t('cta.button')}
             </a>
           </div>
         </section>

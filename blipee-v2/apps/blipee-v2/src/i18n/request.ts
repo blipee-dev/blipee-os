@@ -61,6 +61,7 @@ export default getRequestConfig(async () => {
       profile: (await import(`./locales/${locale}/profile.json`)).default,
       settings: (await import(`./locales/${locale}/settings.json`)).default,
       landing: (await import(`./locales/${locale}/landing.json`)).default,
+      marketing: (await import(`./locales/${locale}/marketing.json`)).default,
     }
   }
 })
