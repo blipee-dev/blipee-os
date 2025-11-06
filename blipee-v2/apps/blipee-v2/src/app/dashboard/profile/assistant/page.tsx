@@ -39,9 +39,7 @@ export default function AssistantPage() {
     }
   }, [settings])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
+  async function handleSave() {
     try {
       await updateSettingsAsync({
         personality: {
@@ -193,9 +191,7 @@ export default function AssistantPage() {
           <FormActions
             onCancel={handleCancel}
             isSaving={updating}
-            onSave={() => {
-              handleSubmit({} as any)
-            }}
+            onSave={handleSave}
             isSubmitButton={false}
           />
         </div>

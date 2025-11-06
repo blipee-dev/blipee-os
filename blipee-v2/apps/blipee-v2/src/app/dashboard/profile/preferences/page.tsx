@@ -31,9 +31,7 @@ export default function PreferencesPage() {
     }
   }, [userPreferences])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
+  async function handleSave() {
     try {
       await updatePreferencesAsync(formData)
       toast.showSuccess(t('updateSuccess'))
@@ -168,9 +166,7 @@ export default function PreferencesPage() {
         <FormActions
           onCancel={handleCancel}
           isSaving={updating}
-          onSave={() => {
-            handleSubmit({} as any)
-          }}
+          onSave={handleSave}
           isSubmitButton={false}
         />
       </div>
