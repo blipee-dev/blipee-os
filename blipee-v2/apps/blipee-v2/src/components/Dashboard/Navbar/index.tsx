@@ -290,9 +290,9 @@ export function Navbar({ user }: NavbarProps) {
                     cursor: 'pointer',
                   }}
                 >
-                  <option value="pt-PT">🇵🇹 Português</option>
-                  <option value="en-US">🇺🇸 English</option>
-                  <option value="es-ES">🇪🇸 Español</option>
+                  <option value="pt-PT">🇵🇹 PT</option>
+                  <option value="en-US">🇺🇸 EN</option>
+                  <option value="es-ES">🇪🇸 ES</option>
                 </select>
               </button>
 
