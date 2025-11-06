@@ -173,30 +173,6 @@ export function Navbar({ user }: NavbarProps) {
           <span className={styles.navLogoText}>blipee</span>
         </Link>
 
-        {/* Dashboard Navigation Links */}
-        <ul className={styles.navLinks}>
-          <li>
-            <Link href="/dashboard/energy" className={styles.navLink}>
-              {t('energy')}
-            </Link>
-          </li>
-          <li>
-            <Link href="/dashboard/water" className={styles.navLink}>
-              {t('water')}
-            </Link>
-          </li>
-          <li>
-            <Link href="/dashboard" className={`${styles.navLink} ${styles.active}`}>
-              {t('carbon')}
-            </Link>
-          </li>
-          <li>
-            <Link href="/dashboard/waste" className={styles.navLink}>
-              {t('waste')}
-            </Link>
-          </li>
-        </ul>
-
         {/* Right Side Actions */}
         <div className={styles.navActions}>
           {/* Notifications */}
