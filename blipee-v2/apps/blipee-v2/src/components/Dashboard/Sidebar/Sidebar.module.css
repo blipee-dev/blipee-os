@@ -46,6 +46,10 @@
   padding: 0 0.75rem;
 }
 
+.sidebarItemWrapper {
+  position: relative;
+}
+
 .sidebarItem {
   display: flex;
   align-items: center;
@@ -57,11 +61,10 @@
   transition: all 0.3s ease;
   margin-bottom: 0.25rem;
   cursor: pointer;
-  position: relative;
 }
 
 /* Tooltip for collapsed sidebar */
-.sidebar.collapsed .sidebarItem[data-tooltip]::before {
+.sidebar.collapsed .sidebarItemWrapper[data-tooltip]::before {
   content: attr(data-tooltip);
   position: fixed;
   left: calc(80px + 0.75rem);
@@ -81,7 +84,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-.sidebar.collapsed .sidebarItem[data-tooltip]:hover::before {
+.sidebar.collapsed .sidebarItemWrapper[data-tooltip]:hover::before {
   opacity: 1;
 }
 
