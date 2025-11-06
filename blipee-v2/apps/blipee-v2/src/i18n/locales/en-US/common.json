@@ -77,9 +77,7 @@
     "months": "months",
     "years": "years",
     "ago": "ago",
-    "just
-
-Now": "just now"
+    "justNow": "just now"
   },
   "pagination": {
     "previous": "Previous",
