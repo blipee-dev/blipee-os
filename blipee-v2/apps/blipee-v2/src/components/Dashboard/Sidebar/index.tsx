@@ -173,6 +173,28 @@ export function Sidebar({ currentPath }: SidebarProps) {
               <span className={styles.sidebarItemText}>{t('gri306Waste')}</span>
             </Link>
           </div>
+          <div className={styles.sidebarItemWrapper} data-tooltip={t('griMateriality')}>
+            <Link href="/dashboard/gri/materiality" className={styles.sidebarItem}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <span className={styles.sidebarItemText}>{t('griMateriality')}</span>
+            </Link>
+          </div>
+          <div className={styles.sidebarItemWrapper} data-tooltip={t('initiatives')}>
+            <Link href="/dashboard/initiatives" className={styles.sidebarItem}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                <path d="M8 12h8" />
+                <path d="M12 8v8" />
+              </svg>
+              <span className={styles.sidebarItemText}>{t('initiatives')}</span>
+            </Link>
+          </div>
         </div>
 
         <div className={styles.sidebarSection}>

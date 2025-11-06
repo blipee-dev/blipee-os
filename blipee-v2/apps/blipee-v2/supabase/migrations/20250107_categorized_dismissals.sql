@@ -39,7 +39,7 @@ CREATE OR REPLACE FUNCTION calculate_gri_materiality(
   p_organization_id UUID
 )
 RETURNS TABLE (
-  gri_standard VARCHAR,
+  gri_standard TEXT,
   standard_name TEXT,
   is_material BOOLEAN,
   total_metrics INT,
@@ -59,16 +59,11 @@ BEGIN
         WHEN mc.code ~ '^scope[123]' THEN '305'  -- Map scope emissions to GRI 305
         ELSE NULL
       END as standard_code,
-      mc.id as metric_id,
-      mc.name as metric_name,
-      mc.code as metric_code,
       mr.status,
       mr.dismissed_category,
       mr.affects_materiality,
       mr.peer_adoption_percent,
-      im.gri_disclosure,
-      im.impact_materiality,
-      im.financial_materiality
+      im.gri_disclosure
     FROM metrics_catalog mc
     LEFT JOIN metric_recommendations mr
       ON mc.id = mr.metric_catalog_id
@@ -78,16 +73,16 @@ BEGIN
     WHERE mc.code ~ '^(gri_30[1-8]|scope[123])'
   )
   SELECT
-    sa.standard_code,
+    sa.standard_code::TEXT,
     CASE sa.standard_code
-      WHEN '301' THEN 'Materials'
-      WHEN '302' THEN 'Energy'
-      WHEN '303' THEN 'Water and Effluents'
-      WHEN '304' THEN 'Biodiversity'
-      WHEN '305' THEN 'Emissions'
-      WHEN '306' THEN 'Waste'
-      WHEN '307' THEN 'Environmental Compliance'
-      WHEN '308' THEN 'Supplier Environmental Assessment'
+      WHEN '301' THEN 'Materials'::TEXT
+      WHEN '302' THEN 'Energy'::TEXT
+      WHEN '303' THEN 'Water and Effluents'::TEXT
+      WHEN '304' THEN 'Biodiversity'::TEXT
+      WHEN '305' THEN 'Emissions'::TEXT
+      WHEN '306' THEN 'Waste'::TEXT
+      WHEN '307' THEN 'Environmental Compliance'::TEXT
+      WHEN '308' THEN 'Supplier Environmental Assessment'::TEXT
     END as standard_name,
 
     -- Material if:
@@ -112,8 +107,11 @@ BEGIN
       1
     ) as materiality_percentage,
 
-    -- List of GRI disclosures that are material
-    ARRAY_AGG(DISTINCT sa.gri_disclosure) FILTER (WHERE sa.status IN ('accepted', 'tracking')) as material_disclosures,
+    -- List of GRI disclosures that are material (cast to TEXT[])
+    ARRAY(
+      SELECT DISTINCT gd::TEXT
+      FROM unnest(ARRAY_AGG(DISTINCT sa.gri_disclosure) FILTER (WHERE sa.status IN ('accepted', 'tracking'))) AS gd
+    ) as material_disclosures,
 
     -- Average peer adoption
     ROUND(AVG(sa.peer_adoption_percent) FILTER (WHERE sa.peer_adoption_percent IS NOT NULL), 1) as peer_adoption_avg

@@ -86,7 +86,7 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
 }
 
-.sidebar.collapsed .sidebarItemWrapper:hover::after {
+.sidebar.collapsed .sidebarItemWrapper[data-tooltip]:hover::after {
   opacity: 1;
   visibility: visible;
 }

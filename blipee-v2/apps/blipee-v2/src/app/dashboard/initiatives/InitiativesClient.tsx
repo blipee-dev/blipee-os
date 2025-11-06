@@ -14,6 +14,7 @@ import {
   Activity,
   AlertTriangle,
   Info,
+  Edit3,
 } from 'lucide-react'
 import type { DismissedMetric, DismissedBreakdown } from '@/lib/data/initiatives'
 
@@ -76,6 +77,18 @@ export function InitiativesClient({
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'dismissed' | 'materiality'>('dismissed')
   const [reactivating, setReactivating] = useState<string | null>(null)
+  const [recategorizing, setRecategorizing] = useState<string | null>(null)
+  const [recategorizeModal, setRecategorizeModal] = useState<{
+    isOpen: boolean
+    metricId: string
+    metricName: string
+    currentCategory: string
+  }>({
+    isOpen: false,
+    metricId: '',
+    metricName: '',
+    currentCategory: '',
+  })
 
   const handleReactivate = async (recommendationId: string) => {
     const reason = prompt('Why are you reactivating this metric?')
@@ -104,6 +117,53 @@ export function InitiativesClient({
     } finally {
       setReactivating(null)
     }
+  }
+
+  const handleRecategorize = async (
+    category: string,
+    notes: string
+  ) => {
+    if (!recategorizeModal.metricId) return
+
+    setRecategorizing(recategorizeModal.metricId)
+
+    try {
+      const response = await fetch('/api/sustainability/recommendations/recategorize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recommendation_id: recategorizeModal.metricId,
+          new_category: category,
+          notes,
+        }),
+      })
+
+      if (response.ok) {
+        setRecategorizeModal({ isOpen: false, metricId: '', metricName: '', currentCategory: '' })
+        router.refresh()
+      } else {
+        const data = await response.json()
+        alert(data.error || 'Failed to recategorize metric')
+      }
+    } catch (error) {
+      console.error('Error recategorizing metric:', error)
+      alert('An error occurred')
+    } finally {
+      setRecategorizing(null)
+    }
+  }
+
+  const openRecategorizeModal = (
+    metricId: string,
+    metricName: string,
+    currentCategory: string
+  ) => {
+    setRecategorizeModal({
+      isOpen: true,
+      metricId,
+      metricName,
+      currentCategory,
+    })
   }
 
   return (
@@ -262,6 +322,12 @@ export function InitiativesClient({
                               <span className={`px-2 py-1 bg-${color}-100 dark:bg-${color}-900/30 text-${color}-700 dark:text-${color}-400 text-xs rounded`}>
                                 {metric.dismissed_category.replace('_', ' ')}
                               </span>
+                              {metric.dismissed_notes?.includes('Migrated from legacy') && (
+                                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Needs Recategorization
+                                </span>
+                              )}
                               {metric.gri_disclosure && (
                                 <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded">
                                   {metric.gri_disclosure}
@@ -287,15 +353,29 @@ export function InitiativesClient({
                           </div>
                         </div>
 
-                        {/* Reactivate Button */}
-                        <button
-                          onClick={() => handleReactivate(metric.id)}
-                          disabled={reactivating === metric.id}
-                          className="px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                          {reactivating === metric.id ? 'Reactivating...' : 'Re-activate'}
-                        </button>
+                        {/* Action Buttons */}
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => openRecategorizeModal(
+                              metric.id,
+                              metric.metric_name,
+                              metric.dismissed_category
+                            )}
+                            disabled={recategorizing === metric.id}
+                            className="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            {recategorizing === metric.id ? 'Updating...' : 'Update Category'}
+                          </button>
+                          <button
+                            onClick={() => handleReactivate(metric.id)}
+                            disabled={reactivating === metric.id}
+                            className="px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                            {reactivating === metric.id ? 'Reactivating...' : 'Re-activate'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )
@@ -374,6 +454,88 @@ export function InitiativesClient({
             </a>{' '}
             to view your auto-generated materiality assessment based on these dismissals.
           </p>
+        </div>
+      )}
+
+      {/* Recategorize Modal */}
+      {recategorizeModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Update Dismissal Category
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {recategorizeModal.metricName}
+              </p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Current Category */}
+              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Current Category:</p>
+                <p className="font-medium text-gray-900 dark:text-white capitalize">
+                  {recategorizeModal.currentCategory.replace('_', ' ')}
+                </p>
+              </div>
+
+              {/* Category Options */}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Select new category:
+                </p>
+                {[
+                  { value: 'not_material', label: 'Not Material to Business', icon: XCircle, color: 'red', desc: 'This metric does not apply to our business model' },
+                  { value: 'not_priority', label: 'Not a Priority Now', icon: Clock, color: 'yellow', desc: 'We may track this later when resources allow' },
+                  { value: 'already_tracking', label: 'Already Tracking Elsewhere', icon: CheckCircle, color: 'green', desc: 'We track this metric in another system' },
+                  { value: 'data_not_available', label: 'Data Not Available', icon: AlertCircle, color: 'orange', desc: 'We cannot currently collect this data' },
+                  { value: 'cost_prohibitive', label: 'Too Expensive to Track', icon: DollarSign, color: 'purple', desc: 'The cost outweighs the value for now' },
+                  { value: 'other', label: 'Other Reason', icon: HelpCircle, color: 'gray', desc: 'None of the above categories fit' },
+                ].map((option) => {
+                  const Icon = option.icon
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        const notes = prompt(`Optional notes for recategorization to "${option.label}":`)
+                        if (notes !== null) {
+                          handleRecategorize(option.value, notes)
+                        }
+                      }}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                        recategorizeModal.currentCategory === option.value
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded-lg bg-${option.color}-100 dark:bg-${option.color}-900/30`}>
+                          <Icon className={`w-5 h-5 text-${option.color}-600 dark:text-${option.color}-400`} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 dark:text-white">
+                            {option.label}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {option.desc}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+              <button
+                onClick={() => setRecategorizeModal({ isOpen: false, metricId: '', metricName: '', currentCategory: '' })}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
