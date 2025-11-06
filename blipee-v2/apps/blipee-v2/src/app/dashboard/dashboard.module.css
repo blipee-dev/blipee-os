@@ -215,6 +215,8 @@
   padding: 1.5rem;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  min-width: 0; /* Allow charts to shrink */
+  overflow: hidden; /* Prevent overflow */
 }
 
 .chartCard:hover {
@@ -297,28 +299,37 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .chartsSection {
-    grid-template-columns: 1fr;
-  }
-
   .mainContent {
     margin-left: 0;
     padding: 1.5rem;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .mainContent.sidebarCollapsed {
     margin-left: 0;
+  }
+
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+
+  .kpiGrid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
   .mainContent {
     padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .dashboardHeader {
     flex-direction: column;
     align-items: flex-start;
+    gap: 1.5rem;
   }
 
   .filters {
@@ -341,6 +352,12 @@
 
   .kpiGrid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .chartsSection {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .dashboardTitle h1 {
@@ -356,8 +373,21 @@
     font-size: 1.75rem;
   }
 
+  .kpiCard,
+  .chartCard {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   .tableCard {
     padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 600px;
   }
 
   .table th,

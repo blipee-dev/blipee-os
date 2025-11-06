@@ -330,11 +330,16 @@
 /* Line Chart */
 .lineChart {
   padding: 1rem;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .lineChartSvg {
   width: 100%;
   height: auto;
+  max-width: 100%;
+  display: block;
 }
 
 /* Donut Chart Simple (for Energy Dashboard) */
@@ -344,6 +349,9 @@
   justify-content: center;
   gap: 2rem;
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .donutChartSimple svg {
@@ -380,4 +388,52 @@
 
 .legendItemDetailed:hover {
   opacity: 0.8;
+}
+
+/* Responsive Charts */
+@media (max-width: 768px) {
+  .donutChartSimple {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .donutChartSimple svg {
+    width: 200px;
+    height: 200px;
+  }
+
+  .donutLegendDetailed {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .lineChart {
+    padding: 0.5rem;
+  }
+
+  .barChart {
+    padding: 0.5rem;
+  }
+
+  .donutSvg {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .donutChartSimple svg {
+    width: 160px;
+    height: 160px;
+  }
+
+  .donutSvg {
+    width: 120px;
+    height: 120px;
+  }
+
+  .lineChart,
+  .barChart {
+    padding: 0.25rem;
+  }
 }
