@@ -1,0 +1,148 @@
+{
+  "landing": {
+    "nav": {
+      "company": "Company",
+      "about": "About",
+      "careers": "Careers",
+      "signIn": "Sign In"
+    },
+    "hero": {
+      "badge": "8 AI Agents Working 24/7 for Your Sustainability Goals",
+      "title": "Stop Managing Sustainability.",
+      "titleHighlight": "Start Living It",
+      "description": "While your competitors hire consultants and build spreadsheets, you get an entire AI workforce that never sleeps. 8 autonomous agents analyzing data, predicting risks, finding savings, and ensuring compliance — automatically.",
+      "primaryCta": "Get Started",
+      "secondaryCta": "See What Makes Us Different"
+    },
+    "problem": {
+      "titlePrefix": "The Sustainability Challenge is",
+      "titleHighlight": "Impossible",
+      "titleSuffix": "to Manage Manually",
+      "description": "You're drowning in data from 15+ emission categories. Compliance frameworks change monthly. Energy patterns hide in thousands of data points. Suppliers go unmonitored. By the time you spot a problem, it's already cost you thousands — or worse, your reputation."
+    },
+    "aiFeatures": {
+      "autonomousOps": {
+        "title": "Autonomous AI Operations",
+        "description": "Every workflow orchestrated by agents tuned for ESG. They prioritise initiatives and keep the board informed without manual effort."
+      },
+      "realTimeVision": {
+        "title": "Real-time Sustainability Vision",
+        "description": "Computer vision across facilities and assets identifies anomalies instantly, grounding insights in real-world behaviour."
+      },
+      "predictiveIntelligence": {
+        "title": "Predictive Intelligence Everywhere",
+        "description": "Forecast energy, water, waste, and carbon impacts 12 months ahead with 98.5% accuracy. Agents act before issues escalate."
+      }
+    },
+    "agents": {
+      "chiefOfStaff": {
+        "name": "ESG Chief of Staff",
+        "role": "Executive Leadership • 24/7",
+        "description": "Strategic oversight across all sustainability operations. Coordinates agent activities, prioritizes initiatives, and delivers board-ready insights."
+      },
+      "complianceGuardian": {
+        "name": "Compliance Guardian",
+        "role": "Regulatory Expert • 24/7",
+        "description": "Monitors 7+ frameworks (GHG, GRI, ESRS, TCFD). Auto-generates reports, flags risks before audits, and keeps you perpetually compliant."
+      },
+      "carbonHunter": {
+        "name": "Carbon Hunter",
+        "role": "Emissions Specialist • 24/7",
+        "description": "Hunts carbon reduction opportunities across all scopes. Identifies quick wins, tracks progress, and optimizes energy usage in real-time."
+      },
+      "supplyChainInvestigator": {
+        "name": "Supply Chain Investigator",
+        "role": "Risk Analyst • 24/7",
+        "description": "Continuous supplier due diligence and risk assessment. Flags ESG violations before they become liabilities."
+      },
+      "costSavingFinder": {
+        "name": "Cost Saving Finder",
+        "role": "Financial Analyst • 24/7",
+        "description": "Discovers hidden savings in energy bills, waste management, and operations. Average client saves 18% in year one."
+      },
+      "predictiveMaintenance": {
+        "name": "Predictive Maintenance",
+        "role": "Equipment Specialist • 24/7",
+        "description": "Predicts equipment failures weeks in advance. Schedules maintenance during optimal windows, preventing costly downtime."
+      },
+      "autonomousOptimizer": {
+        "name": "Autonomous Optimizer",
+        "role": "Performance Tuner • 24/7",
+        "description": "Continuously optimizes operations for maximum efficiency. Auto-adjusts systems based on patterns invisible to humans."
+      },
+      "regulatoryForesight": {
+        "name": "Regulatory Foresight",
+        "role": "Future Predictor • 24/7",
+        "description": "Monitors regulatory changes globally. Prepares you for new requirements months before they take effect."
+      }
+    },
+    "assistant": {
+      "title": "blipee",
+      "titleHighlight": "Assistant",
+      "description": "Conversational AI that orchestrates your 8-agent workforce. Ask anything, get summarized answers, and keep every stakeholder aligned.",
+      "features": {
+        "plainLanguage": "Plain-language answers grounded in your ESG data",
+        "autoRouting": "Routes every request to the right specialist automatically",
+        "proactiveBriefs": "Delivers proactive briefs, alerts, and next steps",
+        "retainsContext": "Retains context across teams and past conversations"
+      }
+    },
+    "impact": {
+      "costSavings": {
+        "value": "18%",
+        "label": "Average Cost Savings\nFirst Year"
+      },
+      "forecastAccuracy": {
+        "value": "98.5%",
+        "label": "Forecast Accuracy\n12 Months Ahead"
+      },
+      "continuousMonitoring": {
+        "value": "24/7",
+        "label": "Continuous Monitoring\nNever Sleeps"
+      },
+      "reportingReduction": {
+        "value": "85%",
+        "label": "Reduction in Manual\nReporting Time"
+      }
+    },
+    "cta": {
+      "titlePrefix": "Your AI Workforce",
+      "titleHighlight": "Starts Today",
+      "description": "No consultants. No months of setup. No learning curve. Your 8 AI agents are ready to start working the moment you sign up.",
+      "primaryCta": "Contact Sales",
+      "secondaryCta": "Learn More"
+    },
+    "footer": {
+      "product": {
+        "title": "Product",
+        "aiWorkforce": "AI Workforce",
+        "capabilities": "Capabilities",
+        "pricing": "Pricing",
+        "updates": "Updates"
+      },
+      "company": {
+        "title": "Company",
+        "aboutUs": "About Us",
+        "ourStory": "Our Story",
+        "careers": "Careers",
+        "contact": "Contact"
+      },
+      "resources": {
+        "title": "Resources",
+        "documentation": "Documentation",
+        "api": "API",
+        "faq": "FAQ",
+        "support": "Support",
+        "status": "Status"
+      },
+      "brand": "blipee",
+      "description": "AI-powered sustainability platform with 8 autonomous agents working 24/7 to optimise your operations.",
+      "newsletterPlaceholder": "Enter your email",
+      "newsletterCta": "Subscribe",
+      "copyright": "© 2025 blipee. All rights reserved.",
+      "socialTwitter": "Twitter",
+      "socialLinkedIn": "LinkedIn",
+      "socialGitHub": "GitHub"
+    }
+  }
+}
