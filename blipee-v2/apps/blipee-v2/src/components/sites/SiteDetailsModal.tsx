@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { toast } from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/v2/client'
 import { useUserOrganization } from '@/hooks/useUserOrganization'
 import styles from '@/styles/settings-layout.module.css'
@@ -54,8 +55,8 @@ function isEmptyJSON(value: any): boolean {
 }
 
 // Helper function to render floor details
-function renderFloorDetails(floorDetails: any) {
-  if (isEmptyJSON(floorDetails)) return <span>Not specified</span>
+function renderFloorDetails(floorDetails: any, t: any) {
+  if (isEmptyJSON(floorDetails)) return <span>{t('notSpecified')}</span>
 
   if (Array.isArray(floorDetails) && floorDetails.length > 0) {
     return (
@@ -73,7 +74,7 @@ function renderFloorDetails(floorDetails: any) {
             }}
           >
             <span style={{ fontWeight: 600, color: 'var(--green)' }}>
-              Floor {floor.floor !== undefined ? floor.floor : index + 1}
+              {t('facilityFloorDisplay').replace('{number}', floor.floor !== undefined ? floor.floor : index + 1)}
             </span>
             {floor.area_sqm && (
               <span style={{ color: 'var(--text-secondary)' }}>
@@ -95,14 +96,17 @@ function renderFloorDetails(floorDetails: any) {
 }
 
 // Helper function to generate operating hours summary
-function getOperatingHoursSummary(hours: Array<{ day: string; dayLabel: string; openTime: string; closeTime: string; isClosed: boolean }>): string {
+function getOperatingHoursSummary(
+  hours: Array<{ day: string; dayLabel: string; openTime: string; closeTime: string; isClosed: boolean }>,
+  t: any
+): string {
   const openDays = hours.filter(h => !h.isClosed)
   const closedDays = hours.filter(h => h.isClosed)
 
-  if (openDays.length === 0) return 'Closed all week'
+  if (openDays.length === 0) return t('operatingHoursClosedAll')
   if (closedDays.length === 0) {
     const firstDay = openDays[0]
-    return `${firstDay.openTime}-${firstDay.closeTime} (All days)`
+    return `${firstDay.openTime}-${firstDay.closeTime} ${t('operatingHoursAllDays')}`
   }
 
   // Check if weekdays have same hours
@@ -114,11 +118,11 @@ function getOperatingHoursSummary(hours: Array<{ day: string; dayLabel: string; 
   if (weekdaysOpen.length === 5 && weekendClosed) {
     const monday = hours.find(h => h.day === 'monday')
     if (monday && !monday.isClosed) {
-      return `Mon-Fri: ${monday.openTime}-${monday.closeTime}`
+      return `${t('operatingHoursMonFri')}: ${monday.openTime}-${monday.closeTime}`
     }
   }
 
-  return `${openDays.length} days open`
+  return t('operatingHoursDaysOpen').replace('{count}', openDays.length.toString())
 }
 
 // Calculate operating hours metrics
@@ -179,6 +183,8 @@ export function SiteDetailsModal({
   isSuperAdmin,
   onUpdate,
 }: SiteDetailsModalProps) {
+  const t = useTranslations('settings.modals.siteDetails')
+
   // Get user organization for creating new sites
   const { organization } = useUserOrganization()
 
@@ -227,13 +233,13 @@ export function SiteDetailsModal({
     closeTime: string
     isClosed: boolean
   }>>([
-    { day: 'monday', dayLabel: 'Monday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-    { day: 'tuesday', dayLabel: 'Tuesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-    { day: 'wednesday', dayLabel: 'Wednesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-    { day: 'thursday', dayLabel: 'Thursday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-    { day: 'friday', dayLabel: 'Friday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-    { day: 'saturday', dayLabel: 'Saturday', openTime: '09:00', closeTime: '18:00', isClosed: true },
-    { day: 'sunday', dayLabel: 'Sunday', openTime: '09:00', closeTime: '18:00', isClosed: true },
+    { day: 'monday', dayLabel: t('dayMonday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+    { day: 'tuesday', dayLabel: t('dayTuesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+    { day: 'wednesday', dayLabel: t('dayWednesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+    { day: 'thursday', dayLabel: t('dayThursday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+    { day: 'friday', dayLabel: t('dayFriday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+    { day: 'saturday', dayLabel: t('daySaturday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
+    { day: 'sunday', dayLabel: t('daySunday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
   ])
 
   // Operating hours popup state
@@ -245,12 +251,12 @@ export function SiteDetailsModal({
   // Define steps based on user role
   const getSteps = () => {
     const baseSteps = [
-      { number: 1, title: 'Basic Info & Address', icon: '📍' },
-      { number: 2, title: 'Size & Structure', icon: '📐' },
+      { number: 1, title: t('step1Title'), icon: t('step1Icon') },
+      { number: 2, title: t('step2Title'), icon: t('step2Icon') },
     ]
 
     if (isSuperAdmin) {
-      baseSteps.push({ number: 3, title: 'Status', icon: '⚙️' })
+      baseSteps.push({ number: 3, title: t('step3Title'), icon: t('step3Icon') })
     }
 
     return baseSteps
@@ -399,17 +405,17 @@ export function SiteDetailsModal({
         }))
 
         if (isExactMatch) {
-          toast.success('Address found!')
+          toast.success(t('toastAddressFound'))
         } else {
-          toast.success('City found! Please verify the street address.')
+          toast.success(t('toastCityFound'))
         }
       } else {
         console.log('No results found')
-        toast.error('No address found for this postal code. Try entering the street address instead.')
+        toast.error(t('toastErrorAddress'))
       }
     } catch (error) {
       console.error('Error fetching postal code data:', error)
-      toast.error('Failed to fetch address')
+      toast.error(t('toastErrorFetch'))
     } finally {
       setIsLoadingAddress(false)
     }
@@ -521,7 +527,7 @@ export function SiteDetailsModal({
     if (site.floor_details && Array.isArray(site.floor_details)) {
       setFacilityAreas(
         site.floor_details.map((area: any) => ({
-          name: area.name || `Floor ${area.floor || ''}`,
+          name: area.name || `${t('facilityFloorDisplay').replace('{number}', area.floor || '')}`,
           area_sqm: area.area_sqm || null,
           employees: area.employees || null,
         }))
@@ -538,25 +544,25 @@ export function SiteDetailsModal({
       } else {
         // Old format: reset to default
         setOperatingHours([
-          { day: 'monday', dayLabel: 'Monday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-          { day: 'tuesday', dayLabel: 'Tuesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-          { day: 'wednesday', dayLabel: 'Wednesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-          { day: 'thursday', dayLabel: 'Thursday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-          { day: 'friday', dayLabel: 'Friday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-          { day: 'saturday', dayLabel: 'Saturday', openTime: '09:00', closeTime: '18:00', isClosed: true },
-          { day: 'sunday', dayLabel: 'Sunday', openTime: '09:00', closeTime: '18:00', isClosed: true },
+          { day: 'monday', dayLabel: t('dayMonday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+          { day: 'tuesday', dayLabel: t('dayTuesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+          { day: 'wednesday', dayLabel: t('dayWednesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+          { day: 'thursday', dayLabel: t('dayThursday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+          { day: 'friday', dayLabel: t('dayFriday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+          { day: 'saturday', dayLabel: t('daySaturday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
+          { day: 'sunday', dayLabel: t('daySunday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
         ])
       }
     } else {
       // No existing data: use defaults
       setOperatingHours([
-        { day: 'monday', dayLabel: 'Monday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-        { day: 'tuesday', dayLabel: 'Tuesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-        { day: 'wednesday', dayLabel: 'Wednesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-        { day: 'thursday', dayLabel: 'Thursday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-        { day: 'friday', dayLabel: 'Friday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-        { day: 'saturday', dayLabel: 'Saturday', openTime: '09:00', closeTime: '18:00', isClosed: true },
-        { day: 'sunday', dayLabel: 'Sunday', openTime: '09:00', closeTime: '18:00', isClosed: true },
+        { day: 'monday', dayLabel: t('dayMonday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+        { day: 'tuesday', dayLabel: t('dayTuesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+        { day: 'wednesday', dayLabel: t('dayWednesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+        { day: 'thursday', dayLabel: t('dayThursday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+        { day: 'friday', dayLabel: t('dayFriday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+        { day: 'saturday', dayLabel: t('daySaturday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
+        { day: 'sunday', dayLabel: t('daySunday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
       ])
     }
 
@@ -568,11 +574,11 @@ export function SiteDetailsModal({
     // Validation: when creating, need site name and organization
     if (isCreating) {
       if (!formData.name) {
-        toast.error('Please enter a site name')
+        toast.error(t('toastErrorName'))
         return
       }
       if (!organization) {
-        toast.error('No organization found')
+        toast.error(t('toastErrorOrg'))
         return
       }
     }
@@ -645,7 +651,7 @@ export function SiteDetailsModal({
           })
 
         if (error) throw error
-        toast.success('Site created successfully!')
+        toast.success(t('toastCreateSuccess'))
       } else {
         // UPDATE existing site
         const { error } = await supabase
@@ -654,7 +660,7 @@ export function SiteDetailsModal({
           .eq('id', site!.id)
 
         if (error) throw error
-        toast.success('Site updated successfully!')
+        toast.success(t('toastUpdateSuccess'))
       }
 
       setIsEditing(false)
@@ -662,7 +668,7 @@ export function SiteDetailsModal({
       onUpdate() // Refresh the sites list
     } catch (error) {
       console.error(`Error ${isCreating ? 'creating' : 'updating'} site:`, error)
-      toast.error(`Failed to ${isCreating ? 'create' : 'update'} site`)
+      toast.error(isCreating ? t('toastCreateError') : t('toastUpdateError'))
     } finally {
       setSaving(false)
     }
@@ -686,12 +692,12 @@ export function SiteDetailsModal({
 
       if (error) throw error
 
-      toast.success('Site deleted successfully!')
+      toast.success(t('toastDeleteSuccess'))
       onClose()
       onUpdate()
     } catch (error) {
       console.error('Error deleting site:', error)
-      toast.error('Failed to delete site')
+      toast.error(t('toastDeleteError'))
     } finally {
       setDeleting(false)
     }
@@ -707,18 +713,18 @@ export function SiteDetailsModal({
             {/* Basic Info Section */}
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-                Basic Information
+                {t('sectionBasic')}
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem 1rem' }}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Site Name</label>
+                  <label className={styles.label}>{t('labelSiteName')}</label>
                   {isEditing ? (
                     <input
                       type="text"
                       className={styles.input}
                       value={formData.name || ''}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Enter site name"
+                      placeholder={t('placeholderSiteName')}
                     />
                   ) : (
                     <div style={readOnlyStyle}>{site?.name}</div>
@@ -726,23 +732,23 @@ export function SiteDetailsModal({
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Type</label>
+                  <label className={styles.label}>{t('labelType')}</label>
                   {isEditing ? (
                     <CustomSelect
                       value={formData.type || ''}
                       onChange={(value) => setFormData({ ...formData, type: value })}
                       options={[
-                        { value: '', label: 'Select type' },
-                        { value: 'Office', label: 'Office' },
-                        { value: 'Factory', label: 'Factory' },
-                        { value: 'Warehouse', label: 'Warehouse' },
-                        { value: 'Retail', label: 'Retail' },
-                        { value: 'Data Center', label: 'Data Center' },
-                        { value: 'Other', label: 'Other' },
+                        { value: '', label: t('selectType') },
+                        { value: 'Office', label: t('typeOffice') },
+                        { value: 'Factory', label: t('typeFactory') },
+                        { value: 'Warehouse', label: t('typeWarehouse') },
+                        { value: 'Retail', label: t('typeRetail') },
+                        { value: 'Data Center', label: t('typeDataCenter') },
+                        { value: 'Other', label: t('typeOther') },
                       ]}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.type || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.type || t('notSpecified')}</div>
                   )}
                 </div>
               </div>
@@ -751,14 +757,14 @@ export function SiteDetailsModal({
             {/* Address Section */}
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-                Address
+                {t('sectionAddress')}
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '1.5rem 1rem' }}>
                 <div className={styles.formGroup} style={{ position: 'relative' }}>
                   <label className={styles.label}>
-                    Street
+                    {t('labelStreet')}
                     <span style={{ color: 'var(--text-tertiary)', fontWeight: 400, marginLeft: '0.5rem', fontSize: '0.75rem' }}>
-                      (type to search - will autofill address)
+                      {t('helpCitySearch')}
                     </span>
                   </label>
                   {isEditing ? (
@@ -783,7 +789,7 @@ export function SiteDetailsModal({
                           // Delay to allow click on suggestion
                           setTimeout(() => setShowStreetSuggestions(false), 200)
                         }}
-                        placeholder="e.g. Avenida da Liberdade"
+                        placeholder={t('placeholderStreet')}
                         autoComplete="off"
                       />
                       {mounted && typeof document !== 'undefined' && showStreetSuggestions && streetSuggestions.length > 0 && suggestionsPosition && createPortal(
@@ -852,7 +858,7 @@ export function SiteDetailsModal({
                                   }))
                                   setStreetSuggestions([])
                                   setShowStreetSuggestions(false)
-                                  toast.success('Street selected! Add your building number.')
+                                  toast.success(t('toastStreetSelected'))
                                 }}
                                 style={{
                                   padding: '0.75rem 1rem',
@@ -869,7 +875,7 @@ export function SiteDetailsModal({
                                 }}
                               >
                                 <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-                                  {addr.road || addr.street || 'Unknown street'}
+                                  {addr.road || addr.street || t('unknownStreet')}
                                 </div>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
                                   {addr.city || addr.town || addr.village}, {addr.country}
@@ -883,12 +889,12 @@ export function SiteDetailsModal({
                       )}
                     </>
                   ) : (
-                    <div style={readOnlyStyle}>{site?.address?.street || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.address?.street || t('notSpecified')}</div>
                   )}
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Number</label>
+                  <label className={styles.label}>{t('labelNumber')}</label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -898,10 +904,10 @@ export function SiteDetailsModal({
                         const newNumber = e.target.value
                         setAddressFields({ ...addressFields, number: newNumber })
                       }}
-                      placeholder="No."
+                      placeholder={t('placeholderNumber')}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.address?.number || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.address?.number || t('notSpecified')}</div>
                   )}
                 </div>
 
@@ -910,7 +916,7 @@ export function SiteDetailsModal({
               {/* Postal Code, City, Country row */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem 1rem', marginTop: '1rem' }}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Postal Code</label>
+                  <label className={styles.label}>{t('labelPostalCode')}</label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -921,15 +927,15 @@ export function SiteDetailsModal({
                         setAddressFields({ ...addressFields, postal_code: newPostalCode })
                         setFormData({ ...formData, postal_code: newPostalCode })
                       }}
-                      placeholder="e.g. 1069-214"
+                      placeholder={t('placeholderPostalCode')}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.address?.postal_code || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.address?.postal_code || t('notSpecified')}</div>
                   )}
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>City</label>
+                  <label className={styles.label}>{t('labelCity')}</label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -940,15 +946,15 @@ export function SiteDetailsModal({
                         setAddressFields({ ...addressFields, city: newCity })
                         setFormData({ ...formData, city: newCity })
                       }}
-                      placeholder="City name"
+                      placeholder={t('placeholderCity')}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.address?.city || site?.city || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.address?.city || site?.city || t('notSpecified')}</div>
                   )}
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Country</label>
+                  <label className={styles.label}>{t('labelCountry')}</label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -959,10 +965,10 @@ export function SiteDetailsModal({
                         setAddressFields({ ...addressFields, country: newCountry })
                         setFormData({ ...formData, country: newCountry })
                       }}
-                      placeholder="Country name"
+                      placeholder={t('placeholderCountry')}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.address?.country || site?.country || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.address?.country || site?.country || t('notSpecified')}</div>
                   )}
                 </div>
               </div>
@@ -970,7 +976,7 @@ export function SiteDetailsModal({
               {/* Latitude, Longitude, Timezone row */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem 1rem', marginTop: '1rem' }}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Latitude</label>
+                  <label className={styles.label}>{t('labelLatitude')}</label>
                   {isEditing ? (
                     <input
                       type="number"
@@ -978,15 +984,15 @@ export function SiteDetailsModal({
                       className={styles.input}
                       value={formData.latitude || ''}
                       onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) || null })}
-                      placeholder="e.g., 40.7128"
+                      placeholder={t('placeholderLatitude')}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.latitude || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.latitude || t('notSpecified')}</div>
                   )}
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Longitude</label>
+                  <label className={styles.label}>{t('labelLongitude')}</label>
                   {isEditing ? (
                     <input
                       type="number"
@@ -994,25 +1000,25 @@ export function SiteDetailsModal({
                       className={styles.input}
                       value={formData.longitude || ''}
                       onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) || null })}
-                      placeholder="e.g., -74.0060"
+                      placeholder={t('placeholderLongitude')}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.longitude || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.longitude || t('notSpecified')}</div>
                   )}
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Timezone</label>
+                  <label className={styles.label}>{t('labelTimezone')}</label>
                   {isEditing ? (
                     <input
                       type="text"
                       className={styles.input}
                       value={formData.timezone || ''}
                       onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-                      placeholder="e.g., Europe/Lisbon"
+                      placeholder={t('placeholderTimezone')}
                     />
                   ) : (
-                    <div style={readOnlyStyle}>{site?.timezone || 'Not specified'}</div>
+                    <div style={readOnlyStyle}>{site?.timezone || t('notSpecified')}</div>
                   )}
                 </div>
               </div>
@@ -1027,51 +1033,51 @@ export function SiteDetailsModal({
             {/* Basic Metrics */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem 1rem' }}>
               <div className={styles.formGroup}>
-                <label className={styles.label}>Total Area (m²)</label>
+                <label className={styles.label}>{t('labelTotalArea')}</label>
                 {isEditing ? (
                   <input
                     type="number"
                     className={styles.input}
                     value={formData.total_area_sqm || ''}
                     onChange={(e) => setFormData({ ...formData, total_area_sqm: parseFloat(e.target.value) || null })}
-                    placeholder="Square meters"
+                    placeholder={t('placeholderArea')}
                   />
                 ) : (
                   <div style={readOnlyStyle}>
-                    {site?.total_area_sqm ? `${site.total_area_sqm.toLocaleString()} m²` : 'Not specified'}
+                    {site?.total_area_sqm ? `${site.total_area_sqm.toLocaleString()} m²` : t('notSpecified')}
                   </div>
                 )}
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Total Employees</label>
+                <label className={styles.label}>{t('labelTotalEmployees')}</label>
                 {isEditing ? (
                   <input
                     type="number"
                     className={styles.input}
                     value={formData.total_employees || ''}
                     onChange={(e) => setFormData({ ...formData, total_employees: parseInt(e.target.value) || null })}
-                    placeholder="Number of employees"
+                    placeholder={t('placeholderEmployees')}
                   />
                 ) : (
                   <div style={readOnlyStyle}>
-                    {site?.total_employees ? site.total_employees.toLocaleString() : 'Not specified'}
+                    {site?.total_employees ? site.total_employees.toLocaleString() : t('notSpecified')}
                   </div>
                 )}
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Number of Floors</label>
+                <label className={styles.label}>{t('labelFloors')}</label>
                 {isEditing ? (
                   <input
                     type="number"
                     className={styles.input}
                     value={formData.floors || ''}
                     onChange={(e) => setFormData({ ...formData, floors: parseInt(e.target.value) || null })}
-                    placeholder="Number of floors"
+                    placeholder={t('placeholderFloors')}
                   />
                 ) : (
-                  <div style={readOnlyStyle}>{site?.floors || 'Not specified'}</div>
+                  <div style={readOnlyStyle}>{site?.floors || t('notSpecified')}</div>
                 )}
               </div>
             </div>
@@ -1079,20 +1085,20 @@ export function SiteDetailsModal({
             {/* Operating Hours - Compact Button with Tooltip */}
             <div className={styles.formGroup}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
-                <label className={styles.label} style={{ margin: 0 }}>Operating Hours</label>
+                <label className={styles.label} style={{ margin: 0 }}>{t('labelOperatingHours')}</label>
                 {(() => {
                   // Get operating hours from input or use default business hours
                   let hoursToUse = isEditing ? operatingHours : (
                     site?.metadata && typeof site.metadata === 'object' && Array.isArray(site.metadata.operating_hours)
                       ? site.metadata.operating_hours
                       : [
-                          { day: 'monday', dayLabel: 'Monday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-                          { day: 'tuesday', dayLabel: 'Tuesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-                          { day: 'wednesday', dayLabel: 'Wednesday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-                          { day: 'thursday', dayLabel: 'Thursday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-                          { day: 'friday', dayLabel: 'Friday', openTime: '09:00', closeTime: '18:00', isClosed: false },
-                          { day: 'saturday', dayLabel: 'Saturday', openTime: '09:00', closeTime: '18:00', isClosed: true },
-                          { day: 'sunday', dayLabel: 'Sunday', openTime: '09:00', closeTime: '18:00', isClosed: true },
+                          { day: 'monday', dayLabel: t('dayMonday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+                          { day: 'tuesday', dayLabel: t('dayTuesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+                          { day: 'wednesday', dayLabel: t('dayWednesday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+                          { day: 'thursday', dayLabel: t('dayThursday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+                          { day: 'friday', dayLabel: t('dayFriday'), openTime: '09:00', closeTime: '18:00', isClosed: false },
+                          { day: 'saturday', dayLabel: t('daySaturday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
+                          { day: 'sunday', dayLabel: t('daySunday'), openTime: '09:00', closeTime: '18:00', isClosed: true },
                         ]
                   )
 
@@ -1192,14 +1198,14 @@ export function SiteDetailsModal({
                       >
                         {/* Header */}
                         <div style={{ fontWeight: 600, color: 'var(--green)', marginBottom: '0.75rem', fontSize: '0.875rem' }}>
-                          ⏰ Operating Hours Analysis
+                          {t('operatingHoursTooltipTitle')}
                         </div>
 
                         {/* Description */}
                         <div style={{ marginBottom: '1rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                           {employeesToUse
-                            ? 'Calculates total operating hours and employee-hours based on your schedule.'
-                            : 'Calculates total operating hours. Add total employees to see employee-hours calculations.'}
+                            ? t('operatingHoursTooltipDescWithEmployees')
+                            : t('operatingHoursTooltipDescNoEmployees')}
                         </div>
 
                         {/* Metrics Grid */}
@@ -1212,13 +1218,13 @@ export function SiteDetailsModal({
                             border: '1px solid rgba(16, 185, 129, 0.2)',
                           }}>
                             <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '0.375rem' }}>
-                              Weekly Operating Hours
+                              {t('operatingHoursWeekly')}
                             </div>
                             <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--green)' }}>
                               {metrics.weeklyOperatingHours.toFixed(1)}h
                             </div>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
-                              {metrics.openDaysPerWeek} days/week
+                              {metrics.openDaysPerWeek} {t('operatingHoursDaysWeek')}
                             </div>
                           </div>
 
@@ -1230,13 +1236,13 @@ export function SiteDetailsModal({
                             border: '1px solid rgba(16, 185, 129, 0.2)',
                           }}>
                             <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '0.375rem' }}>
-                              Annual Operating Hours
+                              {t('operatingHoursAnnual')}
                             </div>
                             <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                               {metrics.annualOperatingHours.toLocaleString()}h
                             </div>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
-                              {metrics.annualOperatingDays} days/year
+                              {metrics.annualOperatingDays} {t('operatingHoursDaysYear')}
                             </div>
                           </div>
 
@@ -1250,13 +1256,13 @@ export function SiteDetailsModal({
                                 border: '1px solid rgba(16, 185, 129, 0.2)',
                               }}>
                                 <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '0.375rem' }}>
-                                  Weekly Employee-Hours
+                                  {t('operatingHoursWeeklyEmployee')}
                                 </div>
                                 <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--green)' }}>
                                   {metrics.weeklyEmployeeHours.toLocaleString()}h
                                 </div>
                                 <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
-                                  {employeesToUse} employees
+                                  {employeesToUse} {t('operatingHoursEmployees')}
                                 </div>
                               </div>
 
@@ -1267,13 +1273,13 @@ export function SiteDetailsModal({
                                 border: '1px solid rgba(16, 185, 129, 0.2)',
                               }}>
                                 <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '0.375rem' }}>
-                                  Annual Employee-Hours
+                                  {t('operatingHoursAnnualEmployee')}
                                 </div>
                                 <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                                   {metrics.adjustedAnnualEmployeeHours.toLocaleString('en-US', { maximumFractionDigits: 0 })}h
                                 </div>
                                 <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
-                                  Adjusted for {metrics.publicHolidaysPerYear} holidays
+                                  {t('operatingHoursHolidays').replace('{count}', metrics.publicHolidaysPerYear.toString())}
                                 </div>
                               </div>
                             </>
@@ -1291,15 +1297,15 @@ export function SiteDetailsModal({
                           {employeesToUse && employeesToUse > 0 ? (
                             <>
                               <div style={{ marginBottom: '0.375rem' }}>
-                                • <strong>Employee-hours</strong> = Operating hours × Employees
+                                {t('operatingHoursInfo')}
                               </div>
                               <div>
-                                • Annual calculations account for <strong>{metrics.publicHolidaysPerYear} public holidays</strong>
+                                {t('operatingHoursHolidayInfo').replace('{count}', metrics.publicHolidaysPerYear.toString())}
                               </div>
                             </>
                           ) : (
                             <div>
-                              • Annual calculations account for <strong>{metrics.publicHolidaysPerYear} public holidays</strong>
+                              {t('operatingHoursHolidayInfo').replace('{count}', metrics.publicHolidaysPerYear.toString())}
                             </div>
                           )}
                         </div>
@@ -1337,7 +1343,7 @@ export function SiteDetailsModal({
                   }}
                 >
                   <span style={{ color: 'var(--text-primary)' }}>
-                    {getOperatingHoursSummary(operatingHours)}
+                    {getOperatingHoursSummary(operatingHours, t)}
                   </span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10" />
@@ -1348,12 +1354,12 @@ export function SiteDetailsModal({
                 <div style={readOnlyStyle}>
                   {(site?.metadata && typeof site.metadata === 'object' && site.metadata.operating_hours) ? (
                     Array.isArray(site.metadata.operating_hours) ? (
-                      getOperatingHoursSummary(site.metadata.operating_hours)
+                      getOperatingHoursSummary(site.metadata.operating_hours, t)
                     ) : (
                       JSON.stringify(site.metadata.operating_hours)
                     )
                   ) : (
-                    'Not specified'
+                    t('notSpecified')
                   )}
                 </div>
               )}
@@ -1363,9 +1369,9 @@ export function SiteDetailsModal({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <label className={styles.label} style={{ marginBottom: 0 }}>
-                  Facility Details
+                  {t('labelFacilityDetails')}
                   <span style={{ color: 'var(--text-tertiary)', fontWeight: 400, marginLeft: '0.5rem' }}>
-                    (Floors, Areas, Departments)
+                    {t('helpFacilityDetails')}
                   </span>
                 </label>
                 {isEditing && (
@@ -1390,7 +1396,7 @@ export function SiteDetailsModal({
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
-                    Add Area
+                    {t('facilityButtonAdd')}
                   </button>
                 )}
               </div>
@@ -1408,9 +1414,9 @@ export function SiteDetailsModal({
                         color: 'var(--text-tertiary)',
                       }}
                     >
-                      <p style={{ margin: 0 }}>No facility areas added yet</p>
+                      <p style={{ margin: 0 }}>{t('facilityEmptyTitle')}</p>
                       <p style={{ margin: '0.5rem 0 0', fontSize: '0.813rem' }}>
-                        Click "Add Area" to create floors, departments, or any custom areas
+                        {t('facilityEmptyDescription')}
                       </p>
                     </div>
                   ) : (
@@ -1430,7 +1436,7 @@ export function SiteDetailsModal({
                       >
                         <div className={styles.formGroup} style={{ marginBottom: 0 }}>
                           <label className={styles.label} style={{ fontSize: '0.75rem' }}>
-                            Name (Floor, Area, Department)
+                            {t('facilityFieldName')}
                           </label>
                           <input
                             type="text"
@@ -1441,13 +1447,13 @@ export function SiteDetailsModal({
                               newAreas[index].name = e.target.value
                               setFacilityAreas(newAreas)
                             }}
-                            placeholder="e.g., Ground Floor, Marketing Dept"
+                            placeholder={t('facilityPlaceholderName')}
                             style={{ fontSize: '0.813rem' }}
                           />
                         </div>
 
                         <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                          <label className={styles.label} style={{ fontSize: '0.75rem' }}>Area (m²)</label>
+                          <label className={styles.label} style={{ fontSize: '0.75rem' }}>{t('facilityFieldArea')}</label>
                           <input
                             type="number"
                             className={styles.input}
@@ -1457,13 +1463,13 @@ export function SiteDetailsModal({
                               newAreas[index].area_sqm = parseFloat(e.target.value) || null
                               setFacilityAreas(newAreas)
                             }}
-                            placeholder="0"
+                            placeholder={t('facilityPlaceholder')}
                             style={{ fontSize: '0.813rem' }}
                           />
                         </div>
 
                         <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                          <label className={styles.label} style={{ fontSize: '0.75rem' }}>Employees</label>
+                          <label className={styles.label} style={{ fontSize: '0.75rem' }}>{t('facilityFieldEmployees')}</label>
                           <input
                             type="number"
                             className={styles.input}
@@ -1473,7 +1479,7 @@ export function SiteDetailsModal({
                               newAreas[index].employees = parseInt(e.target.value) || null
                               setFacilityAreas(newAreas)
                             }}
-                            placeholder="0"
+                            placeholder={t('facilityPlaceholder')}
                             style={{ fontSize: '0.813rem' }}
                           />
                         </div>
@@ -1495,7 +1501,7 @@ export function SiteDetailsModal({
                             alignItems: 'center',
                             justifyContent: 'center',
                           }}
-                          title="Remove area"
+                          title={t('facilityButtonRemove')}
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="3 6 5 6 21 6" />
@@ -1507,7 +1513,7 @@ export function SiteDetailsModal({
                   )}
                 </div>
               ) : (
-                <div style={readOnlyStyle}>{renderFloorDetails(site?.floor_details)}</div>
+                <div style={readOnlyStyle}>{renderFloorDetails(site?.floor_details, t)}</div>
               )}
             </div>
           </div>
@@ -1519,19 +1525,19 @@ export function SiteDetailsModal({
         return (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Site Status</label>
+              <label className={styles.label}>{t('labelStatus')}</label>
               {isEditing ? (
                 <>
                   <CustomSelect
                     value={formData.status || 'active'}
                     onChange={(value) => setFormData({ ...formData, status: value })}
                     options={[
-                      { value: 'active', label: 'Active' },
-                      { value: 'inactive', label: 'Inactive' },
+                      { value: 'active', label: t('statusActive') },
+                      { value: 'inactive', label: t('statusInactive') },
                     ]}
                   />
                   <div style={{ fontSize: '0.813rem', color: 'var(--text-tertiary)', marginTop: '0.5rem' }}>
-                    Set site status to control visibility and operational status.
+                    {t('helpStatus')}
                   </div>
                 </>
               ) : (
@@ -1549,7 +1555,7 @@ export function SiteDetailsModal({
                       border: `1px solid ${site.status === 'active' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
                     }}
                   >
-                    {site.status === 'active' ? '● Active' : '✖ Inactive'}
+                    {site.status === 'active' ? t('statusBadgeActive') : t('statusBadgeInactive')}
                   </span>
                 </div>
               )}
@@ -1629,7 +1635,7 @@ export function SiteDetailsModal({
           >
             <div>
               <h2 className={styles.sectionTitle}>
-                {isCreating ? 'Create New Site' : isEditing ? 'Edit Site' : 'Site Details'}
+                {isCreating ? t('titleCreate') : isEditing ? t('titleEdit') : t('titleView')}
               </h2>
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                 {!isCreating && (
@@ -1646,7 +1652,7 @@ export function SiteDetailsModal({
                       border: `1px solid ${site?.status === 'active' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
                     }}
                   >
-                    {site?.status === 'active' ? '● Active' : '✖ Inactive'}
+                    {site?.status === 'active' ? t('statusBadgeActive') : t('statusBadgeInactive')}
                   </span>
                 )}
 
@@ -1661,7 +1667,7 @@ export function SiteDetailsModal({
                       color: 'white',
                     }}
                   >
-                    Super Admin Access
+                    {t('superAdminAccess')}
                   </span>
                 )}
 
@@ -1784,7 +1790,7 @@ export function SiteDetailsModal({
                   transition: 'all 0.3s ease',
                 }}
               >
-                ← Previous
+                {t('buttonPrevious')}
               </button>
 
               <div style={{ display: 'flex', gap: '1rem' }}>
@@ -1802,7 +1808,7 @@ export function SiteDetailsModal({
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  Cancel
+                  {t('buttonCancel')}
                 </button>
 
                 {currentStep < totalSteps ? (
@@ -1820,7 +1826,7 @@ export function SiteDetailsModal({
                       transition: 'all 0.3s ease',
                     }}
                   >
-                    Next →
+                    {t('buttonNext')}
                   </button>
                 ) : (
                   <button
@@ -1839,7 +1845,7 @@ export function SiteDetailsModal({
                       transition: 'all 0.3s ease',
                     }}
                   >
-                    {isSaving ? 'Saving...' : '✓ Save Changes'}
+                    {isSaving ? t('buttonSaving') : t('buttonSaveChanges')}
                   </button>
                 )}
               </div>
@@ -1871,7 +1877,7 @@ export function SiteDetailsModal({
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  ← Previous
+                  {t('buttonPrevious')}
                 </button>
                 <button
                   onClick={handleNextStep}
@@ -1889,7 +1895,7 @@ export function SiteDetailsModal({
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  Next →
+                  {t('buttonNext')}
                 </button>
               </div>
 
@@ -1912,7 +1918,7 @@ export function SiteDetailsModal({
                       transition: 'all 0.3s ease',
                     }}
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
+                    {isDeleting ? t('buttonDeleting') : t('buttonDelete')}
                   </button>
                   <button
                     onClick={handleEdit}
@@ -1928,7 +1934,7 @@ export function SiteDetailsModal({
                       transition: 'all 0.3s ease',
                     }}
                   >
-                    Edit
+                    {t('buttonEdit')}
                   </button>
                 </div>
               )}
@@ -1948,7 +1954,7 @@ export function SiteDetailsModal({
                 fontSize: '0.875rem',
               }}
             >
-              ℹ️ You can view this site but cannot edit it.
+              {t('noticeViewOnly')}
             </div>
           )}
 
@@ -1992,7 +1998,7 @@ export function SiteDetailsModal({
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                ⏰ Operating Hours
+                {t('operatingHoursModalTitle')}
               </h3>
               <button
                 type="button"
@@ -2041,7 +2047,7 @@ export function SiteDetailsModal({
                   whiteSpace: 'nowrap',
                 }}
               >
-                📋 Copy Monday to All
+                {t('operatingHoursButtonCopyAll')}
               </button>
               <button
                 type="button"
@@ -2073,7 +2079,7 @@ export function SiteDetailsModal({
                   whiteSpace: 'nowrap',
                 }}
               >
-                💼 Copy Monday to Weekdays
+                {t('operatingHoursButtonCopyWeekdays')}
               </button>
             </div>
 
@@ -2140,7 +2146,7 @@ export function SiteDetailsModal({
                       newHours[index].isClosed = checked
                       setOperatingHours(newHours)
                     }}
-                    label="Closed"
+                    label={t('checkboxClosed')}
                   />
                 </div>
               ))}
@@ -2162,7 +2168,7 @@ export function SiteDetailsModal({
                   cursor: 'pointer',
                 }}
               >
-                Done
+                {t('buttonDone')}
               </button>
             </div>
           </div>
@@ -2172,15 +2178,15 @@ export function SiteDetailsModal({
       {/* Delete confirmation dialog */}
       <ConfirmDialog
         isOpen={showDeleteDialog}
-        title="Delete Site"
-        message={`Are you sure you want to delete "${site?.name}"? This action cannot be undone.`}
-        confirmText="Yes, Delete"
-        cancelText="Cancel"
+        title={t('dialogDeleteTitle')}
+        message={t('dialogDeleteMessage').replace('{name}', site?.name || '')}
+        confirmText={t('dialogDeleteConfirm')}
+        cancelText={t('dialogDeleteCancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setShowDeleteDialog(false)}
         variant="danger"
         requireTextConfirmation={true}
-        confirmationText="delete_site"
+        confirmationText={t('dialogDeleteConfirmText')}
       />
     </>
   )

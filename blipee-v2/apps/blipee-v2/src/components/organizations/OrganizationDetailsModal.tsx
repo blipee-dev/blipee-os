@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import { Organization } from '@/hooks/useUserOrganizations'
 import { createClient } from '@/lib/supabase/v2/client'
 import { useIndustrySectors } from '@/hooks/useIndustrySectors'
@@ -61,6 +62,8 @@ export function OrganizationDetailsModal({
   isSuperAdmin,
   onUpdate,
 }: OrganizationDetailsModalProps) {
+  const t = useTranslations('settings.modals.organizationDetails')
+
   // State
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setSaving] = useState(false)
@@ -152,12 +155,12 @@ export function OrganizationDetailsModal({
 
       if (error) throw error
 
-      toast.success('Organization updated successfully!')
+      toast.success(t('toastUpdateSuccess'))
       setIsEditing(false)
       onUpdate()
     } catch (error) {
       console.error('Error updating organization:', error)
-      toast.error('Failed to update organization')
+      toast.error(t('toastUpdateError'))
     } finally {
       setSaving(false)
     }
@@ -181,12 +184,12 @@ export function OrganizationDetailsModal({
 
       if (error) throw error
 
-      toast.success('Organization deleted successfully!')
+      toast.success(t('toastDeleteSuccess'))
       onClose()
       onUpdate()
     } catch (error) {
       console.error('Error deleting organization:', error)
-      toast.error('Failed to delete organization')
+      toast.error(t('toastDeleteError'))
     } finally {
       setDeleting(false)
     }
@@ -256,7 +259,7 @@ export function OrganizationDetailsModal({
           >
             <div>
               <h2 className={styles.sectionTitle}>
-                {isEditing ? 'Edit Organization' : 'Organization Details'}
+                {isEditing ? t('titleEdit') : t('titleView')}
               </h2>
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                 <span
@@ -289,10 +292,10 @@ export function OrganizationDetailsModal({
                   }}
                 >
                   {organization.status === 'active'
-                    ? '● Active'
+                    ? t('statusBadgeActive')
                     : organization.status === 'setup'
-                    ? '⚙ Setup'
-                    : '✖ Inactive'}
+                    ? t('statusBadgeSetup')
+                    : t('statusBadgeInactive')}
                 </span>
 
                 {(isSuperAdmin || organization.role === 'platform_admin') && (
@@ -306,7 +309,7 @@ export function OrganizationDetailsModal({
                       color: 'white',
                     }}
                   >
-                    Super Admin Access
+                    {t('superAdminAccess')}
                   </span>
                 )}
                 {organization.role && organization.role !== 'platform_admin' && (
@@ -321,7 +324,7 @@ export function OrganizationDetailsModal({
                     }}
                   >
                     {organization.role}
-                    {organization.is_owner && ' • Owner'}
+                    {organization.is_owner && t('ownerIndicator')}
                   </span>
                 )}
               </div>
@@ -373,7 +376,7 @@ export function OrganizationDetailsModal({
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                   </svg>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Basic Information</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('sectionBasic')}</span>
                 </div>
                 <svg
                   width="20"
@@ -401,7 +404,7 @@ export function OrganizationDetailsModal({
                     }}
                   >
                     <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                      <label className={styles.label}>Organization Name</label>
+                      <label className={styles.label}>{t('labelOrgName')}</label>
                       {isEditing ? (
                         <input
                           type="text"
@@ -415,50 +418,50 @@ export function OrganizationDetailsModal({
                     </div>
 
                     <div className={styles.formGroup} style={{ gridColumn: 'span 2' }}>
-                      <label className={styles.label}>Legal Name</label>
+                      <label className={styles.label}>{t('labelLegalName')}</label>
                       {isEditing ? (
                         <input
                           type="text"
                           className={styles.input}
                           value={formData.legal_name || ''}
                           onChange={(e) => setFormData({ ...formData, legal_name: e.target.value })}
-                          placeholder="Official legal name"
+                          placeholder={t('placeholderLegalName')}
                         />
                       ) : (
-                        <div style={readOnlyStyle}>{organization.legal_name || 'Not specified'}</div>
+                        <div style={readOnlyStyle}>{organization.legal_name || t('notSpecified')}</div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Region</label>
+                      <label className={styles.label}>{t('labelRegion')}</label>
                       {isEditing ? (
                         <CustomSelect
                           value={formData.region || ''}
                           onChange={(value) => setFormData({ ...formData, region: value })}
                           options={[
-                            { value: '', label: 'Select region' },
-                            { value: 'North America', label: 'North America' },
-                            { value: 'South America', label: 'South America' },
-                            { value: 'Europe', label: 'Europe' },
-                            { value: 'Asia', label: 'Asia' },
-                            { value: 'Africa', label: 'Africa' },
-                            { value: 'Oceania', label: 'Oceania' },
+                            { value: '', label: t('selectRegion') },
+                            { value: 'North America', label: t('regionNorthAmerica') },
+                            { value: 'South America', label: t('regionSouthAmerica') },
+                            { value: 'Europe', label: t('regionEurope') },
+                            { value: 'Asia', label: t('regionAsia') },
+                            { value: 'Africa', label: t('regionAfrica') },
+                            { value: 'Oceania', label: t('regionOceania') },
                           ]}
                         />
                       ) : (
-                        <div style={readOnlyStyle}>{organization.region || 'Not specified'}</div>
+                        <div style={readOnlyStyle}>{organization.region || t('notSpecified')}</div>
                       )}
                     </div>
 
                     <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                      <label className={styles.label}>Website</label>
+                      <label className={styles.label}>{t('labelWebsite')}</label>
                       {isEditing ? (
                         <input
                           type="url"
                           className={styles.input}
                           value={formData.website || ''}
                           onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                          placeholder="https://example.com"
+                          placeholder={t('placeholderWebsite')}
                         />
                       ) : (
                         <div style={readOnlyStyle}>
@@ -472,7 +475,7 @@ export function OrganizationDetailsModal({
                               {organization.website}
                             </a>
                           ) : (
-                            'Not specified'
+                            t('notSpecified')
                           )}
                         </div>
                       )}
@@ -512,7 +515,7 @@ export function OrganizationDetailsModal({
                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                   </svg>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Industry & Classification</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('sectionIndustry')}</span>
                 </div>
                 <svg
                   width="20"
@@ -540,7 +543,7 @@ export function OrganizationDetailsModal({
                     }}
                   >
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Primary Industry</label>
+                      <label className={styles.label}>{t('labelPrimaryIndustry')}</label>
                       {isEditing ? (
                         <CustomSelect
                           value={formData.industry_primary || ''}
@@ -553,7 +556,7 @@ export function OrganizationDetailsModal({
                             })
                           }}
                           options={[
-                            { value: '', label: 'Select primary industry' },
+                            { value: '', label: t('placeholderPrimaryIndustry') },
                             ...sectors.map((sector) => ({
                               value: sector.sector_name,
                               label: sector.gri_standard
@@ -563,18 +566,18 @@ export function OrganizationDetailsModal({
                           ]}
                         />
                       ) : (
-                        <div style={readOnlyStyle}>{organization.industry_primary || 'Not specified'}</div>
+                        <div style={readOnlyStyle}>{organization.industry_primary || t('notSpecified')}</div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Secondary Industry</label>
+                      <label className={styles.label}>{t('labelSecondaryIndustry')}</label>
                       {isEditing ? (
                         <CustomSelect
                           value={formData.industry_secondary || ''}
                           onChange={(value) => setFormData({ ...formData, industry_secondary: value })}
                           options={[
-                            { value: '', label: 'None (optional)' },
+                            { value: '', label: t('placeholderSecondaryIndustry') },
                             ...sectors.map((sector) => ({
                               value: sector.sector_name,
                               label: sector.gri_standard
@@ -584,12 +587,12 @@ export function OrganizationDetailsModal({
                           ]}
                         />
                       ) : (
-                        <div style={readOnlyStyle}>{organization.industry_secondary || 'Not specified'}</div>
+                        <div style={readOnlyStyle}>{organization.industry_secondary || t('notSpecified')}</div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Standard</label>
+                      <label className={styles.label}>{t('labelStandard')}</label>
                       {isEditing ? (
                         <>
                           <input
@@ -597,7 +600,7 @@ export function OrganizationDetailsModal({
                             className={styles.input}
                             value={formData.gri_sector_code || ''}
                             onChange={(e) => setFormData({ ...formData, gri_sector_code: e.target.value })}
-                            placeholder="e.g., GRI 11"
+                            placeholder={t('placeholderStandard')}
                             disabled
                             style={{ opacity: 0.7 }}
                           />
@@ -608,11 +611,11 @@ export function OrganizationDetailsModal({
                               marginTop: '0.25rem',
                             }}
                           >
-                            Auto-filled from primary industry selection
+                            {t('helpStandard')}
                           </div>
                         </>
                       ) : (
-                        <div style={readOnlyStyle}>{organization.gri_sector_code || 'Not specified'}</div>
+                        <div style={readOnlyStyle}>{organization.gri_sector_code || t('notSpecified')}</div>
                       )}
                     </div>
                   </div>
@@ -652,7 +655,7 @@ export function OrganizationDetailsModal({
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Organization Size</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('sectionSize')}</span>
                 </div>
                 <svg
                   width="20"
@@ -680,10 +683,10 @@ export function OrganizationDetailsModal({
                     }}
                   >
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Number of Employees</label>
+                      <label className={styles.label}>{t('labelEmployees')}</label>
                       <div style={readOnlyStyle}>
                         {loadingEmployees ? (
-                          <span style={{ color: 'var(--text-tertiary)' }}>Calculating...</span>
+                          <span style={{ color: 'var(--text-tertiary)' }}>{t('calculating')}</span>
                         ) : (
                           <>
                             {totalEmployees?.toLocaleString() || '0'}
@@ -694,7 +697,7 @@ export function OrganizationDetailsModal({
                                 marginLeft: '0.5rem',
                               }}
                             >
-                              (calculated from sites)
+                              {t('calculatedFromSites')}
                             </span>
                           </>
                         )}
@@ -702,9 +705,9 @@ export function OrganizationDetailsModal({
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Company Size</label>
+                      <label className={styles.label}>{t('labelCompanySize')}</label>
                       <div style={readOnlyStyle}>
-                        {getCompanySize(totalEmployees) || 'Not specified'}
+                        {getCompanySize(totalEmployees) || t('notSpecified')}
                         <span
                           style={{
                             fontSize: '0.75rem',
@@ -712,7 +715,7 @@ export function OrganizationDetailsModal({
                             marginLeft: '0.5rem',
                           }}
                         >
-                          (auto-calculated)
+                          {t('autoCalculated')}
                         </span>
                       </div>
                     </div>
@@ -751,7 +754,7 @@ export function OrganizationDetailsModal({
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                     <polyline points="22,6 12,13 2,6" />
                   </svg>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Contact Information</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('sectionContact')}</span>
                 </div>
                 <svg
                   width="20"
@@ -779,7 +782,7 @@ export function OrganizationDetailsModal({
                     }}
                   >
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Primary Contact Email</label>
+                      <label className={styles.label}>{t('labelContactEmail')}</label>
                       {isEditing ? (
                         <input
                           type="email"
@@ -788,17 +791,17 @@ export function OrganizationDetailsModal({
                           onChange={(e) =>
                             setFormData({ ...formData, primary_contact_email: e.target.value })
                           }
-                          placeholder="contact@example.com"
+                          placeholder={t('placeholderContactEmail')}
                         />
                       ) : (
                         <div style={readOnlyStyle}>
-                          {organization.primary_contact_email || 'Not specified'}
+                          {organization.primary_contact_email || t('notSpecified')}
                         </div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Primary Contact Phone</label>
+                      <label className={styles.label}>{t('labelContactPhone')}</label>
                       {isEditing ? (
                         <input
                           type="tel"
@@ -807,11 +810,11 @@ export function OrganizationDetailsModal({
                           onChange={(e) =>
                             setFormData({ ...formData, primary_contact_phone: e.target.value })
                           }
-                          placeholder="+1 (555) 123-4567"
+                          placeholder={t('placeholderContactPhone')}
                         />
                       ) : (
                         <div style={readOnlyStyle}>
-                          {organization.primary_contact_phone || 'Not specified'}
+                          {organization.primary_contact_phone || t('notSpecified')}
                         </div>
                       )}
                     </div>
@@ -853,7 +856,7 @@ export function OrganizationDetailsModal({
                     <line x1="16" y1="17" x2="8" y2="17" />
                     <polyline points="10 9 9 9 8 9" />
                   </svg>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Reporting Configuration</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('sectionReporting')}</span>
                 </div>
                 <svg
                   width="20"
@@ -881,7 +884,7 @@ export function OrganizationDetailsModal({
                     }}
                   >
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Base Year</label>
+                      <label className={styles.label}>{t('labelBaseYear')}</label>
                       {isEditing ? (
                         <>
                           <input
@@ -891,7 +894,7 @@ export function OrganizationDetailsModal({
                             onChange={(e) =>
                               setFormData({ ...formData, base_year: parseInt(e.target.value) || null })
                             }
-                            placeholder="2024"
+                            placeholder={t('placeholderBaseYear')}
                             min="1900"
                             max="2100"
                           />
@@ -902,36 +905,36 @@ export function OrganizationDetailsModal({
                               marginTop: '0.25rem',
                             }}
                           >
-                            Used for baseline emissions calculations and reduction targets
+                            {t('helpBaseYear')}
                           </div>
                         </>
                       ) : (
-                        <div style={readOnlyStyle}>{organization.base_year || 'Not specified'}</div>
+                        <div style={readOnlyStyle}>{organization.base_year || t('notSpecified')}</div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Consolidation Approach</label>
+                      <label className={styles.label}>{t('labelConsolidation')}</label>
                       {isEditing ? (
                         <CustomSelect
                           value={formData.consolidation_approach || ''}
                           onChange={(value) => setFormData({ ...formData, consolidation_approach: value })}
                           options={[
-                            { value: '', label: 'Select approach' },
-                            { value: 'Operational Control', label: 'Operational Control' },
-                            { value: 'Financial Control', label: 'Financial Control' },
-                            { value: 'Equity Share', label: 'Equity Share' },
+                            { value: '', label: t('selectConsolidation') },
+                            { value: 'Operational Control', label: t('consolidationOperational') },
+                            { value: 'Financial Control', label: t('consolidationFinancial') },
+                            { value: 'Equity Share', label: t('consolidationEquity') },
                           ]}
                         />
                       ) : (
                         <div style={readOnlyStyle}>
-                          {organization.consolidation_approach || 'Not specified'}
+                          {organization.consolidation_approach || t('notSpecified')}
                         </div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Annual Operating Hours</label>
+                      <label className={styles.label}>{t('labelOperatingHours')}</label>
                       {isEditing ? (
                         <>
                           <input
@@ -944,7 +947,7 @@ export function OrganizationDetailsModal({
                                 annual_operating_hours: parseInt(e.target.value) || null,
                               })
                             }
-                            placeholder="8760"
+                            placeholder={t('placeholderOperatingHours')}
                           />
                           <div
                             style={{
@@ -953,14 +956,14 @@ export function OrganizationDetailsModal({
                               marginTop: '0.25rem',
                             }}
                           >
-                            Default: 8,760 hours (24h × 365 days). Adjust for actual operation schedule.
+                            {t('helpOperatingHours')}
                           </div>
                         </>
                       ) : (
                         <div style={readOnlyStyle}>
                           {organization.annual_operating_hours
                             ? organization.annual_operating_hours.toLocaleString()
-                            : 'Not specified'}
+                            : t('notSpecified')}
                         </div>
                       )}
                     </div>
@@ -999,7 +1002,7 @@ export function OrganizationDetailsModal({
                     <line x1="12" y1="1" x2="12" y2="23" />
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Financial Information</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('sectionFinancial')}</span>
                 </div>
                 <svg
                   width="20"
@@ -1027,7 +1030,7 @@ export function OrganizationDetailsModal({
                     }}
                   >
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Annual Revenue</label>
+                      <label className={styles.label}>{t('labelRevenue')}</label>
                       {isEditing ? (
                         <input
                           type="number"
@@ -1036,19 +1039,19 @@ export function OrganizationDetailsModal({
                           onChange={(e) =>
                             setFormData({ ...formData, annual_revenue: parseFloat(e.target.value) || null })
                           }
-                          placeholder="Revenue in USD"
+                          placeholder={t('placeholderRevenue')}
                         />
                       ) : (
                         <div style={readOnlyStyle}>
                           {organization.annual_revenue
                             ? `$${organization.annual_revenue.toLocaleString()}`
-                            : 'Not specified'}
+                            : t('notSpecified')}
                         </div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Annual Customers</label>
+                      <label className={styles.label}>{t('labelCustomers')}</label>
                       {isEditing ? (
                         <input
                           type="number"
@@ -1057,32 +1060,32 @@ export function OrganizationDetailsModal({
                           onChange={(e) =>
                             setFormData({ ...formData, annual_customers: parseInt(e.target.value) || null })
                           }
-                          placeholder="Number of customers"
+                          placeholder={t('placeholderCustomers')}
                         />
                       ) : (
                         <div style={readOnlyStyle}>
                           {organization.annual_customers
                             ? organization.annual_customers.toLocaleString()
-                            : 'Not specified'}
+                            : t('notSpecified')}
                         </div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Public Company</label>
+                      <label className={styles.label}>{t('labelPublicCompany')}</label>
                       {isEditing ? (
                         <CustomCheckbox
                           checked={formData.public_company || false}
                           onChange={(checked) => setFormData({ ...formData, public_company: checked })}
-                          label="Publicly traded"
+                          label={t('checkboxPubliclyTraded')}
                         />
                       ) : (
-                        <div style={readOnlyStyle}>{organization.public_company ? 'Yes' : 'No'}</div>
+                        <div style={readOnlyStyle}>{organization.public_company ? t('yes') : t('no')}</div>
                       )}
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Stock Ticker</label>
+                      <label className={styles.label}>{t('labelStockTicker')}</label>
                       {isEditing ? (
                         <input
                           type="text"
@@ -1091,12 +1094,12 @@ export function OrganizationDetailsModal({
                           onChange={(e) =>
                             setFormData({ ...formData, stock_ticker: e.target.value.toUpperCase() })
                           }
-                          placeholder="e.g., AAPL"
+                          placeholder={t('placeholderStockTicker')}
                           disabled={!formData.public_company}
                           style={{ opacity: formData.public_company ? 1 : 0.5 }}
                         />
                       ) : (
-                        <div style={readOnlyStyle}>{organization.stock_ticker || 'Not specified'}</div>
+                        <div style={readOnlyStyle}>{organization.stock_ticker || t('notSpecified')}</div>
                       )}
                     </div>
                   </div>
@@ -1135,9 +1138,9 @@ export function OrganizationDetailsModal({
                       <circle cx="12" cy="12" r="3" />
                       <path d="M12 1v6m0 6v6m9-9h-6M7 12H1m16.24-7.76l-4.24 4.24M11 11L6.76 6.76m10.48 10.48l-4.24-4.24M11 13l-4.24 4.24" />
                     </svg>
-                    <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Status Management</span>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('sectionStatus')}</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: 400 }}>
-                      (Super Admin Only)
+                      {t('sectionStatusSubtitle')}
                     </span>
                   </div>
                   <svg
@@ -1166,7 +1169,7 @@ export function OrganizationDetailsModal({
                       }}
                     >
                       <div className={styles.formGroup}>
-                        <label className={styles.label}>Organization Status</label>
+                        <label className={styles.label}>{t('labelStatus')}</label>
                         {isEditing ? (
                           <>
                             <CustomSelect
@@ -1175,9 +1178,9 @@ export function OrganizationDetailsModal({
                                 setFormData({ ...formData, status: value as 'setup' | 'active' | 'inactive' })
                               }
                               options={[
-                                { value: 'active', label: 'Active' },
-                                { value: 'setup', label: 'Setup Required' },
-                                { value: 'inactive', label: 'Inactive (Manually Disabled)' },
+                                { value: 'active', label: t('statusActive') },
+                                { value: 'setup', label: t('statusSetup') },
+                                { value: 'inactive', label: t('statusInactive') },
                               ]}
                             />
                             <div
@@ -1187,8 +1190,7 @@ export function OrganizationDetailsModal({
                                 marginTop: '0.5rem',
                               }}
                             >
-                              Status is automatically calculated: <strong>Active</strong> = has account owner +
-                              sites. Only set to <strong>Inactive</strong> manually if needed.
+                              {t('helpStatus')}
                             </div>
                           </>
                         ) : (
@@ -1223,10 +1225,10 @@ export function OrganizationDetailsModal({
                               }}
                             >
                               {organization.status === 'active'
-                                ? '● Active'
+                                ? t('statusBadgeActive')
                                 : organization.status === 'setup'
-                                ? '⚙ Setup'
-                                : '✖ Inactive'}
+                                ? t('statusBadgeSetup')
+                                : t('statusBadgeInactive')}
                             </span>
                           </div>
                         )}
@@ -1251,7 +1253,7 @@ export function OrganizationDetailsModal({
                 fontSize: '0.875rem',
               }}
             >
-              ℹ️ You can view this organization but cannot edit it.
+              {t('noticeViewOnly')}
             </div>
           )}
 
@@ -1261,7 +1263,7 @@ export function OrganizationDetailsModal({
               onCancel={() => setIsEditing(false)}
               onSave={handleSave}
               isSaving={isSaving}
-              saveButtonText="Save"
+              saveButtonText={t('buttonSave')}
               isSubmitButton={false}
               confirmCancel={false}
             />
@@ -1279,10 +1281,10 @@ export function OrganizationDetailsModal({
                     onClick={handleDeleteClick}
                     disabled={isDeleting}
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
+                    {isDeleting ? t('buttonDeleting') : t('buttonDelete')}
                   </button>
                   <button className={`${styles.button} ${styles.buttonPrimary}`} onClick={handleEdit}>
-                    Edit
+                    {t('buttonEdit')}
                   </button>
                 </>
               )}
@@ -1294,15 +1296,15 @@ export function OrganizationDetailsModal({
       {/* Delete confirmation dialog */}
       <ConfirmDialog
         isOpen={showDeleteDialog}
-        title="Delete Organization"
-        message={`Are you sure you want to delete "${organization?.name}"? This action cannot be undone.`}
-        confirmText="Yes, Delete"
-        cancelText="Cancel"
+        title={t('dialogDeleteTitle')}
+        message={t('dialogDeleteMessage').replace('{name}', organization?.name || '')}
+        confirmText={t('dialogDeleteConfirm')}
+        cancelText={t('dialogDeleteCancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setShowDeleteDialog(false)}
         variant="danger"
         requireTextConfirmation={true}
-        confirmationText="delete_organization"
+        confirmationText={t('dialogDeleteConfirmText')}
       />
     </>
   )
