@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/v2/server'
 
 export interface DismissedMetric {
   id: string
@@ -55,7 +55,7 @@ export async function getDismissedMetrics(
   can_reactivate: DismissedMetric[]
   all: DismissedMetric[]
 }> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('metric_recommendations')
@@ -124,7 +124,7 @@ export async function getDismissedMetrics(
 export async function getDismissedBreakdown(
   organizationId: string
 ): Promise<DismissedBreakdown[]> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase.rpc('get_dismissed_metrics_breakdown', {
     p_organization_id: organizationId,
@@ -142,7 +142,7 @@ export async function getDismissedBreakdown(
  * Calculate GRI materiality assessment from dismissals
  */
 export async function getGRIMateriality(organizationId: string): Promise<GRIMateriality[]> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase.rpc('calculate_gri_materiality', {
     p_organization_id: organizationId,
@@ -163,7 +163,7 @@ export async function reactivateMetric(
   recommendationId: string,
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Get current recommendation
   const { data: rec, error: fetchError } = await supabase
@@ -233,7 +233,7 @@ export async function getInitiativesStats(organizationId: string): Promise<{
   permanently_dismissed: number
   affects_materiality: number
 }> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('metric_recommendations')
