@@ -1,19 +1,22 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import styles from '../landing.module.css'
-import { assistantContent, assistantFeatures } from '../content/data'
+import { getAssistantContent, getAssistantFeatures } from '../content/data'
 
 export function AssistantSection() {
+  const t = useTranslations('landing')
+
   return (
     <section className={styles.assistantSection} id="assistant">
       <div className={styles.assistantGrid}>
         <div>
           <h2 className={styles.assistantHeading}>
-            The <span className={styles.gradientText}>{assistantContent.title}</span>
+            The <span className={styles.gradientText}>{getAssistantContent(t).title}</span>
           </h2>
-          <p className={styles.assistantDescription}>{assistantContent.description}</p>
+          <p className={styles.assistantDescription}>{getAssistantContent(t).description}</p>
           <ul className={styles.assistantFeatures}>
-            {assistantFeatures.map(feature => (
+            {getAssistantFeatures(t).map(feature => (
               <li key={feature} className={styles.assistantFeatureItem}>
                 {feature}
               </li>

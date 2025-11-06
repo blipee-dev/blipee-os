@@ -1,9 +1,12 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import styles from '../landing.module.css'
-import { agents } from '../content/data'
+import { getAgents } from '../content/data'
 
 export function AgentsSection() {
+  const t = useTranslations('landing')
+
   return (
     <section className={styles.agentsSection} id="agents">
       <div className={styles.sectionHeader}>
@@ -16,7 +19,7 @@ export function AgentsSection() {
         </p>
       </div>
       <div className={styles.agentsGrid}>
-        {agents.map(agent => (
+        {getAgents(t).map(agent => (
           <article key={agent.name} className={styles.agentCard}>
             <div className={styles.agentIcon}>{agent.icon}</div>
             <h3 className={styles.agentName}>{agent.name}</h3>

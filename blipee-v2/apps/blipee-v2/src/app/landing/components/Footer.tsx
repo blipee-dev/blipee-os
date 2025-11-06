@@ -1,7 +1,8 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import styles from '../landing.module.css'
-import { footerSections, footerSummary, footerSocial } from '../content/data'
+import { getFooterSections, getFooterSummary, getFooterSocial } from '../content/data'
 import { ThemeToggleButton } from './ThemeToggleButton'
 import { BlipeeAssistant } from '@/components/agents'
 import type { ThemeMode } from '../hooks/useThemeToggle'
@@ -14,6 +15,7 @@ type FooterProps = {
 }
 
 export function Footer({ themeMode, onThemeChange }: FooterProps) {
+  const t = useTranslations('landing')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleNewsletterSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -71,11 +73,11 @@ export function Footer({ themeMode, onThemeChange }: FooterProps) {
                   </svg>
                 </div>
               </div>
-              <div className={styles.footerLogo}>{footerSummary.brand}</div>
+              <div className={styles.footerLogo}>{getFooterSummary(t).brand}</div>
             </div>
-            <p className={styles.footerDescription}>{footerSummary.description}</p>
+            <p className={styles.footerDescription}>{getFooterSummary(t).description}</p>
             <div className={styles.socialLinks}>
-              {footerSocial.map(link => (
+              {getFooterSocial(t).map(link => (
                 <a key={link.label} href={link.href} className={styles.socialLink} aria-label={link.label}>
                   {link.icon}
                 </a>
@@ -86,7 +88,7 @@ export function Footer({ themeMode, onThemeChange }: FooterProps) {
             </div>
           </div>
 
-          {footerSections.map(section => (
+          {getFooterSections(t).map(section => (
             <div key={section.title} className={styles.footerSection}>
               <h4 className={styles.footerSectionTitle}>{section.title}</h4>
               <ul className={styles.footerLinks}>
@@ -113,14 +115,14 @@ export function Footer({ themeMode, onThemeChange }: FooterProps) {
                 required
                 disabled={isSubmitting}
                 className={styles.newsletterInput}
-                placeholder={footerSummary.newsletterPlaceholder}
+                placeholder={getFooterSummary(t).newsletterPlaceholder}
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isSubmitting}
                 className={`${styles.navButton} ${styles.primaryButton}`}
               >
-                {isSubmitting ? 'Subscribing...' : footerSummary.newsletterCta}
+                {isSubmitting ? 'Subscribing...' : getFooterSummary(t).newsletterCta}
               </button>
             </form>
           </div>
@@ -129,7 +131,7 @@ export function Footer({ themeMode, onThemeChange }: FooterProps) {
         <div className={`${styles.footerDivider} ${styles.footerDividerBottom}`} />
 
         <div className={styles.footerBottom}>
-          <p>{footerSummary.copyright}</p>
+          <p>{getFooterSummary(t).copyright}</p>
           <div className={styles.footerBottomLinks}>
             <a href="/privacy" className={styles.footerBottomLink}>
               Privacy Policy

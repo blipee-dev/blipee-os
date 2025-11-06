@@ -8,36 +8,34 @@ export type NavLink = {
   external?: boolean
 }
 
-export const navLinks: NavLink[] = [
-  { label: 'Company', href: '/company' },
-  { label: 'About', href: '/about' },
-  { label: 'Careers', href: '/careers' },
-  { label: 'Sign In', href: '/signin', prominent: true },
+export const getNavLinks = (t: (key: string) => string): NavLink[] => [
+  { label: t('nav.company'), href: '/company' },
+  { label: t('nav.about'), href: '/about' },
+  { label: t('nav.careers'), href: '/careers' },
+  { label: t('nav.signIn'), href: '/signin', prominent: true },
 ]
 
-export const heroContent = {
-  badge: '8 AI Agents Working 24/7 for Your Sustainability Goals',
-  title: 'Stop Managing Sustainability. Start Living It',
-  highlight: 'Living It',
-  description:
-    "While your competitors hire consultants and build spreadsheets, you get an entire AI workforce that never sleeps. 8 autonomous agents analyzing data, predicting risks, finding savings, and ensuring compliance — automatically.",
+export const getHeroContent = (t: (key: string) => string) => ({
+  badge: t('hero.badge'),
+  title: t('hero.title'),
+  highlight: t('hero.titleHighlight'),
+  description: t('hero.description'),
   primaryCta: {
-    label: 'Get Started',
+    label: t('hero.primaryCta'),
     href: '/contact',
   },
   secondaryCta: {
-    label: 'See What Makes Us Different',
+    label: t('hero.secondaryCta'),
     href: '#features',
   },
-}
+})
 
-export const problemContent = {
-  titlePrefix: 'The Sustainability Challenge is',
-  highlight: 'Impossible',
-  titleSuffix: 'to Manage Manually',
-  description:
-    "You're drowning in data from 15+ emission categories. Compliance frameworks change monthly. Energy patterns hide in thousands of data points. Suppliers go unmonitored. By the time you spot a problem, it's already cost you thousands — or worse, your reputation.",
-}
+export const getProblemContent = (t: (key: string) => string) => ({
+  titlePrefix: t('problem.titlePrefix'),
+  highlight: t('problem.titleHighlight'),
+  titleSuffix: t('problem.titleSuffix'),
+  description: t('problem.description'),
+})
 
 type FeatureCard = {
   title: string
@@ -45,23 +43,20 @@ type FeatureCard = {
   icon: ReactNode
 }
 
-export const aiFeatures: FeatureCard[] = [
+export const getAiFeatures = (t: (key: string) => string): FeatureCard[] => [
   {
-    title: 'Autonomous AI Operations',
-    description:
-      'Every workflow orchestrated by agents tuned for ESG. They prioritise initiatives and keep the board informed without manual effort.',
+    title: t('aiFeatures.autonomousOps.title'),
+    description: t('aiFeatures.autonomousOps.description'),
     icon: <BrainCircuit className="w-9 h-9" />,
   },
   {
-    title: 'Real-time Sustainability Vision',
-    description:
-      'Computer vision across facilities and assets identifies anomalies instantly, grounding insights in real-world behaviour.',
+    title: t('aiFeatures.realTimeVision.title'),
+    description: t('aiFeatures.realTimeVision.description'),
     icon: <BarChart3 className="w-9 h-9" />,
   },
   {
-    title: 'Predictive Intelligence Everywhere',
-    description:
-      'Forecast energy, water, waste, and carbon impacts 12 months ahead with 98.5% accuracy. Agents act before issues escalate.',
+    title: t('aiFeatures.predictiveIntelligence.title'),
+    description: t('aiFeatures.predictiveIntelligence.description'),
     icon: <MessageCircleQuestion className="w-9 h-9" />,
   },
 ]
@@ -74,12 +69,11 @@ type Agent = {
   icon: ReactNode
 }
 
-export const agents: Agent[] = [
+export const getAgents = (t: (key: string) => string): Agent[] => [
   {
-    name: 'ESG Chief of Staff',
-    role: 'Executive Leadership • 24/7',
-    description:
-      'Strategic oversight across all sustainability operations. Coordinates agent activities, prioritizes initiatives, and delivers board-ready insights.',
+    name: t('agents.chiefOfStaff.name'),
+    role: t('agents.chiefOfStaff.role'),
+    description: t('agents.chiefOfStaff.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="25" width="60" height="50" rx="8" fill="#10b981" />
@@ -92,10 +86,9 @@ export const agents: Agent[] = [
     ),
   },
   {
-    name: 'Compliance Guardian',
-    role: 'Regulatory Expert • 24/7',
-    description:
-      'Monitors 7+ frameworks (GHG, GRI, ESRS, TCFD). Auto-generates reports, flags risks before audits, and keeps you perpetually compliant.',
+    name: t('agents.complianceGuardian.name'),
+    role: t('agents.complianceGuardian.role'),
+    description: t('agents.complianceGuardian.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="25" width="60" height="50" rx="8" fill="#3b82f6" />
@@ -109,10 +102,9 @@ export const agents: Agent[] = [
     ),
   },
   {
-    name: 'Carbon Hunter',
-    role: 'Emissions Specialist • 24/7',
-    description:
-      'Hunts carbon reduction opportunities across all scopes. Identifies quick wins, tracks progress, and optimizes energy usage in real-time.',
+    name: t('agents.carbonHunter.name'),
+    role: t('agents.carbonHunter.role'),
+    description: t('agents.carbonHunter.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="25" width="60" height="50" rx="8" fill="#8b5cf6" />
@@ -129,10 +121,9 @@ export const agents: Agent[] = [
     ),
   },
   {
-    name: 'Supply Chain Investigator',
-    role: 'Risk Analyst • 24/7',
-    description:
-      'Continuous supplier due diligence and risk assessment. Flags ESG violations before they become liabilities.',
+    name: t('agents.supplyChainInvestigator.name'),
+    role: t('agents.supplyChainInvestigator.role'),
+    description: t('agents.supplyChainInvestigator.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="25" width="60" height="50" rx="8" fill="#f97316" />
@@ -147,10 +138,9 @@ export const agents: Agent[] = [
     ),
   },
   {
-    name: 'Cost Saving Finder',
-    role: 'Financial Analyst • 24/7',
-    description:
-      'Discovers hidden savings in energy bills, waste management, and operations. Average client saves 18% in year one.',
+    name: t('agents.costSavingFinder.name'),
+    role: t('agents.costSavingFinder.role'),
+    description: t('agents.costSavingFinder.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="18" y="30" width="64" height="46" rx="10" fill="#facc15" />
@@ -164,10 +154,9 @@ export const agents: Agent[] = [
     ),
   },
   {
-    name: 'Predictive Maintenance',
-    role: 'Equipment Specialist • 24/7',
-    description:
-      'Predicts equipment failures weeks in advance. Schedules maintenance during optimal windows, preventing costly downtime.',
+    name: t('agents.predictiveMaintenance.name'),
+    role: t('agents.predictiveMaintenance.role'),
+    description: t('agents.predictiveMaintenance.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="28" width="60" height="44" rx="10" fill="#0ea5e9" />
@@ -182,10 +171,9 @@ export const agents: Agent[] = [
     ),
   },
   {
-    name: 'Autonomous Optimizer',
-    role: 'Performance Tuner • 24/7',
-    description:
-      'Continuously optimizes operations for maximum efficiency. Auto-adjusts systems based on patterns invisible to humans.',
+    name: t('agents.autonomousOptimizer.name'),
+    role: t('agents.autonomousOptimizer.role'),
+    description: t('agents.autonomousOptimizer.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="20" width="60" height="60" rx="12" fill="#6366f1" />
@@ -202,10 +190,9 @@ export const agents: Agent[] = [
     ),
   },
   {
-    name: 'Regulatory Foresight',
-    role: 'Future Predictor • 24/7',
-    description:
-      'Monitors regulatory changes globally. Prepares you for new requirements months before they take effect.',
+    name: t('agents.regulatoryForesight.name'),
+    role: t('agents.regulatoryForesight.role'),
+    description: t('agents.regulatoryForesight.description'),
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="18" y="28" width="64" height="44" rx="12" fill="#3b82f6" opacity="0.85" />
@@ -219,79 +206,76 @@ export const agents: Agent[] = [
   },
 ]
 
-export const assistantContent = {
-  title: 'blipee Assistant',
-  highlight: 'Assistant',
-  description:
-    'Conversational AI that orchestrates your 8-agent workforce. Ask anything, get summarized answers, and keep every stakeholder aligned.',
-}
+export const getAssistantContent = (t: (key: string) => string) => ({
+  title: t('assistant.title'),
+  highlight: t('assistant.titleHighlight'),
+  description: t('assistant.description'),
+})
 
-export const assistantFeatures = [
-  'Plain-language answers grounded in your ESG data',
-  'Routes every request to the right specialist automatically',
-  'Delivers proactive briefs, alerts, and next steps',
-  'Retains context across teams and past conversations',
+export const getAssistantFeatures = (t: (key: string) => string): string[] => [
+  t('assistant.features.plainLanguage'),
+  t('assistant.features.autoRouting'),
+  t('assistant.features.proactiveBriefs'),
+  t('assistant.features.retainsContext'),
 ]
 
-export const impactStats = [
-  { value: '18%', label: 'Average Cost Savings\nFirst Year' },
-  { value: '98.5%', label: 'Forecast Accuracy\n12 Months Ahead' },
-  { value: '24/7', label: 'Continuous Monitoring\nNever Sleeps' },
-  { value: '85%', label: 'Reduction in Manual\nReporting Time' },
+export const getImpactStats = (t: (key: string) => string) => [
+  { value: t('impact.costSavings.value'), label: t('impact.costSavings.label') },
+  { value: t('impact.forecastAccuracy.value'), label: t('impact.forecastAccuracy.label') },
+  { value: t('impact.continuousMonitoring.value'), label: t('impact.continuousMonitoring.label') },
+  { value: t('impact.reportingReduction.value'), label: t('impact.reportingReduction.label') },
 ]
 
-export const ctaContent = {
-  title: 'Your AI Workforce',
-  highlight: 'Starts Today',
-  description:
-    'No consultants. No months of setup. No learning curve. Your 8 AI agents are ready to start working the moment you sign up.',
-  primary: { label: 'Contact Sales', href: '/contact' },
-  secondary: { label: 'Learn More', href: '/about' },
-}
+export const getCtaContent = (t: (key: string) => string) => ({
+  title: t('cta.titlePrefix'),
+  highlight: t('cta.titleHighlight'),
+  description: t('cta.description'),
+  primary: { label: t('cta.primaryCta'), href: '/contact' },
+  secondary: { label: t('cta.secondaryCta'), href: '/about' },
+})
 
-export const footerSections = [
+export const getFooterSections = (t: (key: string) => string) => [
   {
-    title: 'Product',
+    title: t('footer.product.title'),
     links: [
-      { label: 'AI Workforce', href: '#agents' },
-      { label: 'Capabilities', href: '#features' },
-      { label: 'Pricing', href: '/pricing' },
-      { label: 'Updates', href: '/updates' },
+      { label: t('footer.product.aiWorkforce'), href: '#agents' },
+      { label: t('footer.product.capabilities'), href: '#features' },
+      { label: t('footer.product.pricing'), href: '/pricing' },
+      { label: t('footer.product.updates'), href: '/updates' },
     ],
   },
   {
-    title: 'Company',
+    title: t('footer.company.title'),
     links: [
-      { label: 'About Us', href: '/company' },
-      { label: 'Our Story', href: '/about' },
-      { label: 'Careers', href: '/careers' },
-      { label: 'Contact', href: '/contact' },
+      { label: t('footer.company.aboutUs'), href: '/company' },
+      { label: t('footer.company.ourStory'), href: '/about' },
+      { label: t('footer.company.careers'), href: '/careers' },
+      { label: t('footer.company.contact'), href: '/contact' },
     ],
   },
   {
-    title: 'Resources',
+    title: t('footer.resources.title'),
     links: [
-      { label: 'Documentation', href: '/documentation' },
-      { label: 'API', href: '/api' },
-      { label: 'FAQ', href: '/faq' },
-      { label: 'Support', href: '/support' },
-      { label: 'Status', href: '/status' },
+      { label: t('footer.resources.documentation'), href: '/documentation' },
+      { label: t('footer.resources.api'), href: '/api' },
+      { label: t('footer.resources.faq'), href: '/faq' },
+      { label: t('footer.resources.support'), href: '/support' },
+      { label: t('footer.resources.status'), href: '/status' },
     ],
   },
 ]
 
-export const footerSummary = {
-  brand: 'blipee',
-  description:
-    'AI-powered sustainability platform with 8 autonomous agents working 24/7 to optimise your operations.',
-  newsletterPlaceholder: 'Enter your email',
-  newsletterCta: 'Subscribe',
-  copyright: '© 2025 blipee. All rights reserved.',
-}
+export const getFooterSummary = (t: (key: string) => string) => ({
+  brand: t('footer.brand'),
+  description: t('footer.description'),
+  newsletterPlaceholder: t('footer.newsletterPlaceholder'),
+  newsletterCta: t('footer.newsletterCta'),
+  copyright: t('footer.copyright'),
+})
 
-export const footerSocial: { label: string; href: string; icon: ReactNode }[] = [
+export const getFooterSocial = (t: (key: string) => string): { label: string; href: string; icon: ReactNode }[] => [
   {
-    label: 'Twitter',
+    label: t('footer.socialTwitter'),
     href: 'https://twitter.com/blipee',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -300,7 +284,7 @@ export const footerSocial: { label: string; href: string; icon: ReactNode }[] = 
     ),
   },
   {
-    label: 'LinkedIn',
+    label: t('footer.socialLinkedIn'),
     href: 'https://linkedin.com/company/blipee',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -310,7 +294,7 @@ export const footerSocial: { label: string; href: string; icon: ReactNode }[] = 
     ),
   },
   {
-    label: 'GitHub',
+    label: t('footer.socialGitHub'),
     href: 'https://github.com/blipee',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

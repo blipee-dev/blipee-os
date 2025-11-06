@@ -1,29 +1,32 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import styles from '../landing.module.css'
-import { heroContent } from '../content/data'
+import { getHeroContent } from '../content/data'
 
 export function HeroSection() {
+  const t = useTranslations('landing')
+
   return (
     <section className={styles.hero}>
       <div className={styles.heroContent}>
         <div className={styles.heroBadge}>
           <span className={styles.heroBadgePulse} />
-          <span>{heroContent.badge}</span>
+          <span>{getHeroContent(t).badge}</span>
         </div>
         <h1 className={styles.heroTitle}>
           Stop Managing Sustainability.
           <br />
-          Start <span className={styles.gradientText}>{heroContent.highlight}</span>
+          Start <span className={styles.gradientText}>{getHeroContent(t).highlight}</span>
         </h1>
-        <p className={styles.heroSubtitle}>{heroContent.description}</p>
+        <p className={styles.heroSubtitle}>{getHeroContent(t).description}</p>
         <div className={styles.heroActions}>
-          <Link href={heroContent.primaryCta.href} className={`${styles.navButton} ${styles.primaryButton}`}>
-            {heroContent.primaryCta.label}
+          <Link href={getHeroContent(t).primaryCta.href} className={`${styles.navButton} ${styles.primaryButton}`}>
+            {getHeroContent(t).primaryCta.label}
           </Link>
-          <Link href={heroContent.secondaryCta.href} className={`${styles.navButton} ${styles.ghostButton}`}>
-            {heroContent.secondaryCta.label}
+          <Link href={getHeroContent(t).secondaryCta.href} className={`${styles.navButton} ${styles.ghostButton}`}>
+            {getHeroContent(t).secondaryCta.label}
           </Link>
         </div>
       </div>

@@ -1,10 +1,13 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import styles from '../landing.module.css'
-import { navLinks } from '../content/data'
+import { getNavLinks } from '../content/data'
 
 export function Navbar() {
+  const t = useTranslations('landing')
+
   return (
     <nav className={styles.nav}>
       <div className={styles.navContainer}>
@@ -37,7 +40,7 @@ export function Navbar() {
           <span className={styles.navLogoText}>blipee</span>
         </Link>
         <ul className={styles.navLinks}>
-          {navLinks.map(link => (
+          {getNavLinks(t).map(link => (
             <li key={link.href}>
               {link.prominent ? (
                 <Link href={link.href} className={`${styles.navButton} ${styles.primaryButton}`}>

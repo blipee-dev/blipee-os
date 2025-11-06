@@ -1,9 +1,12 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import styles from '../landing.module.css'
-import { impactStats } from '../content/data'
+import { getImpactStats } from '../content/data'
 
 export function ImpactSection() {
+  const t = useTranslations('landing')
+
   return (
     <section className={styles.impactSection} id="impact">
       <div className={styles.sectionHeader}>
@@ -15,7 +18,7 @@ export function ImpactSection() {
         </p>
       </div>
       <div className={styles.impactGrid}>
-        {impactStats.map(stat => (
+        {getImpactStats(t).map(stat => (
           <article key={stat.value} className={styles.impactItem}>
             <strong className={styles.impactValue}>{stat.value}</strong>
             <p className={styles.impactLabel}>{stat.label}</p>
