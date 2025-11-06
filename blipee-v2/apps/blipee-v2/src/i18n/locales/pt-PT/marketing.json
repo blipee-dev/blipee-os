@@ -437,5 +437,16 @@
     "titleHighlight": "Incrível",
     "titleSuffix": "Está a Chegar",
     "subtitle": "Estamos a preparar algo especial. Fique atento a atualizações emocionantes, novas funcionalidades e inovações que transformarão como gere a sustentabilidade."
+  },
+  "underConstruction": {
+    "status": "Em Construção",
+    "documentation": {
+      "title": "Documentação Brevemente",
+      "description": "Estamos a elaborar guias abrangentes, tutoriais e referências de API para o ajudar a tirar o máximo partido dos agentes de IA da blipee. Fique atento!"
+    },
+    "systemStatus": {
+      "title": "Estado do Sistema Brevemente",
+      "description": "Monitorização em tempo real de todos os serviços da blipee e agentes de IA. Estamos a construir um dashboard de estado abrangente para transparência total."
+    }
   }
 }

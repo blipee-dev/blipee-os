@@ -5,16 +5,17 @@ import { Footer } from '../landing/components/Footer'
 import { Background } from '../landing/components/Background'
 import { BlipeeAssistant } from '@/components/agents'
 import { useThemeToggle } from '../landing/hooks/useThemeToggle'
+import { useTranslations } from 'next-intl'
 import landingStyles from '../landing/landing.module.css'
 import styles from './under-construction.module.css'
 
 interface UnderConstructionProps {
-  title: string
-  description: string
+  translationKey: 'documentation' | 'systemStatus'
 }
 
-export default function UnderConstruction({ title, description }: UnderConstructionProps) {
+export default function UnderConstruction({ translationKey }: UnderConstructionProps) {
   const { mode: themeMode, setTheme } = useThemeToggle()
+  const t = useTranslations('marketing.underConstruction')
 
   return (
     <div className={landingStyles.landing}>
@@ -50,14 +51,14 @@ export default function UnderConstruction({ title, description }: UnderConstruct
             <div className={styles.cautionTape}></div>
             <BlipeeAssistant size={300} />
             <h1 className={styles.title}>
-              {title}
+              {t(`${translationKey}.title`)}
             </h1>
             <p className={styles.description}>
-              {description}
+              {t(`${translationKey}.description`)}
             </p>
             <div className={styles.status}>
               <div className={styles.statusIndicator}></div>
-              <span>Under Construction</span>
+              <span>{t('status')}</span>
             </div>
           </section>
         </main>

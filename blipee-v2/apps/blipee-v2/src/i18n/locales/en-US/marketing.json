@@ -437,5 +437,16 @@
     "titleHighlight": "Amazing",
     "titleSuffix": "is Coming",
     "subtitle": "We're cooking up something special. Stay tuned for exciting updates, new features, and innovations that will transform how you manage sustainability."
+  },
+  "underConstruction": {
+    "status": "Under Construction",
+    "documentation": {
+      "title": "Documentation Coming Soon",
+      "description": "We're crafting comprehensive guides, tutorials, and API references to help you get the most out of blipee's AI agents. Stay tuned!"
+    },
+    "systemStatus": {
+      "title": "System Status Coming Soon",
+      "description": "Real-time monitoring of all blipee services and AI agents. We're building a comprehensive status dashboard for complete transparency."
+    }
   }
 }
