@@ -73,7 +73,7 @@ export async function subscribeToNewsletter(
           subscribed_at: new Date().toISOString(),
           source: 'footer',
         },
-      ])
+      ] as any)
 
     if (dbError) {
       console.error('Database error:', dbError)

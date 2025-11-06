@@ -193,9 +193,8 @@ export default function AssistantPage() {
           <FormActions
             onCancel={handleCancel}
             isSaving={updating}
-            onSave={(e) => {
-              e?.preventDefault()
-              handleSubmit(e as any)
+            onSave={() => {
+              handleSubmit({} as any)
             }}
             isSubmitButton={false}
           />

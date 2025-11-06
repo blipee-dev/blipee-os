@@ -109,6 +109,44 @@ export function Sidebar({ currentPath = '/dashboard' }: SidebarProps) {
         </div>
 
         <div className={styles.sidebarSection}>
+          <div className={styles.sidebarSectionTitle}>GRI Standards</div>
+          <Link
+            href="/dashboard/gri"
+            className={`${styles.sidebarItem} ${currentPath.startsWith('/dashboard/gri') ? styles.active : ''}`}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+            <span className={styles.sidebarItemText}>GRI Overview</span>
+          </Link>
+          <Link href="/dashboard/gri/emissions" className={styles.sidebarItem}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+            </svg>
+            <span className={styles.sidebarItemText}>GRI 305 - Emissions</span>
+          </Link>
+          <Link href="/dashboard/gri/energy" className={styles.sidebarItem}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            <span className={styles.sidebarItemText}>GRI 302 - Energy</span>
+          </Link>
+          <Link href="/dashboard/gri/water" className={styles.sidebarItem}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+            </svg>
+            <span className={styles.sidebarItemText}>GRI 303 - Water</span>
+          </Link>
+          <Link href="/dashboard/gri/waste" className={styles.sidebarItem}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+            <span className={styles.sidebarItemText}>GRI 306 - Waste</span>
+          </Link>
+        </div>
+
+        <div className={styles.sidebarSection}>
           <div className={styles.sidebarSectionTitle}>Settings</div>
           <Link href="/dashboard/billing" className={styles.sidebarItem}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

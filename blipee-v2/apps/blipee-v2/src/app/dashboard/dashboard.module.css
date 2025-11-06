@@ -50,27 +50,46 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .filterSelect {
-  padding: 0.75rem 1rem;
+  width: 200px !important;
+  flex-shrink: 0;
+}
+
+/* Override CustomSelect's width: 100% when used in filters */
+.filterSelect > * {
+  width: 200px !important;
+}
+
+/* Ensure select button and dropdown have fixed width */
+.filterSelect > div > button {
+  white-space: nowrap;
+  width: 200px !important;
+  min-width: 200px !important;
+}
+
+.filterButton {
+  padding: 0.75rem 1.5rem;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   color: var(--text-primary);
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.filterSelect:hover {
+.filterButton:hover {
   border-color: var(--green);
+  background: rgba(16, 185, 129, 0.05);
 }
 
-.filterSelect:focus {
-  outline: none;
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+.filterButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* KPI Cards */
@@ -109,11 +128,30 @@
   font-weight: 500;
 }
 
+.kpiStandard {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.kpiUnit {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
 .kpiIcon {
   width: 24px;
   height: 24px;
   padding: 4px;
   border-radius: 8px;
+}
+
+.trendIcon {
+  font-size: 1rem;
 }
 
 .iconGreen {
@@ -277,4 +315,22 @@
   .dashboardTitle h1 {
     font-size: 1.5rem;
   }
+}
+
+/* Intensity Cards - Primary and Info variants */
+.kpiCardPrimary {
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+}
+
+.kpiCardInfo {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.kpiInfoText {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 1rem 0;
 }

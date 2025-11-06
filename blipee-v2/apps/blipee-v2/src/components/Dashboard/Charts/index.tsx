@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import styles from './Charts.module.css'
 
 export interface DonutSegment {
@@ -245,6 +246,8 @@ export function BarChart({ bars }: BarChartProps) {
     <div className={styles.barChart}>
       {bars.map((bar, index) => {
         const percentage = (bar.value / maxValue) * 100
+        // Show value inside bar if percentage > 15%, otherwise outside
+        const showValueInside = percentage > 15
 
         return (
           <div key={index} className={styles.barItem}>
@@ -257,8 +260,18 @@ export function BarChart({ bars }: BarChartProps) {
                   background: bar.gradient,
                 }}
               >
-                <span className={styles.barValue}>{bar.value}</span>
+                {showValueInside && (
+                  <span className={styles.barValue}>{bar.value}</span>
+                )}
               </div>
+              {!showValueInside && (
+                <span
+                  className={styles.barValueOutside}
+                  style={{ left: `calc(${percentage}% + 0.5rem)` }}
+                >
+                  {bar.value}
+                </span>
+              )}
             </div>
           </div>
         )
@@ -308,10 +321,12 @@ interface LineChartProps {
 }
 
 export function LineChart({ data }: LineChartProps) {
+  const [hoveredPoint, setHoveredPoint] = React.useState<number | null>(null)
+
   const maxValue = Math.max(...data.map((d) => d.value))
-  const minValue = Math.min(...data.map((d) => d.value))
-  const range = maxValue - minValue || 1
-  
+  const minValue = 0 // Always start Y-axis from 0 for proper scale
+  const range = maxValue || 1
+
   const width = 600
   const height = 260
   const padding = { top: 20, right: 30, bottom: 40, left: 50 }
@@ -325,11 +340,39 @@ export function LineChart({ data }: LineChartProps) {
   })
 
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-  
+
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - padding.bottom} L ${points[0].x} ${height - padding.bottom} Z`
 
   return (
-    <div className={styles.lineChart}>
+    <div className={styles.lineChart} style={{ position: 'relative' }}>
+      {/* HTML Tooltip - rendered outside SVG to avoid clipping */}
+      {hoveredPoint !== null && (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${(points[hoveredPoint].x / width) * 100}%`,
+            top: `${(points[hoveredPoint].y / height) * 100}%`,
+            transform: 'translate(-50%, -100%)',
+            marginTop: '-12px',
+            background: 'var(--glass-bg)',
+            border: '1px solid var(--glass-border)',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            pointerEvents: 'none',
+            zIndex: 10,
+            textAlign: 'center',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '2px', whiteSpace: 'nowrap' }}>
+            {points[hoveredPoint].label}
+          </div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
+            {points[hoveredPoint].value.toFixed(1)} tonnes
+          </div>
+        </div>
+      )}
       <svg viewBox={`0 0 ${width} ${height}`} className={styles.lineChartSvg}>
         <defs>
           <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -360,19 +403,32 @@ export function LineChart({ data }: LineChartProps) {
           strokeWidth="1"
         />
         
-        {/* Horizontal grid lines */}
-        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
-          <line
-            key={i}
-            x1={padding.left}
-            y1={padding.top + chartHeight * (1 - ratio)}
-            x2={width - padding.right}
-            y2={padding.top + chartHeight * (1 - ratio)}
-            stroke="var(--glass-border)"
-            strokeWidth="1"
-            opacity="0.3"
-          />
-        ))}
+        {/* Horizontal grid lines with Y-axis labels */}
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+          const yValue = minValue + range * ratio
+          return (
+            <g key={i}>
+              <line
+                x1={padding.left}
+                y1={padding.top + chartHeight * (1 - ratio)}
+                x2={width - padding.right}
+                y2={padding.top + chartHeight * (1 - ratio)}
+                stroke="var(--glass-border)"
+                strokeWidth="1"
+                opacity="0.3"
+              />
+              <text
+                x={padding.left - 8}
+                y={padding.top + chartHeight * (1 - ratio) + 4}
+                textAnchor="end"
+                fill="var(--text-tertiary)"
+                fontSize="11"
+              >
+                {yValue.toFixed(0)}
+              </text>
+            </g>
+          )
+        })}
 
         {/* Area under line */}
         <path d={areaPath} fill="url(#areaGradient)" />
@@ -387,15 +443,33 @@ export function LineChart({ data }: LineChartProps) {
           strokeLinejoin="round"
         />
 
-        {/* Data points */}
+        {/* Data points with hover */}
         {points.map((point, index) => (
-          <circle
-            key={index}
-            cx={point.x}
-            cy={point.y}
-            r="4"
-            fill={index < data.length / 2 ? '#10b981' : '#3b82f6'}
-          />
+          <g key={index}>
+            {/* Invisible larger circle for easier hover */}
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r="12"
+              fill="transparent"
+              style={{ cursor: 'pointer' }}
+              onMouseEnter={() => setHoveredPoint(index)}
+              onMouseLeave={() => setHoveredPoint(null)}
+            />
+            {/* Visible data point */}
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r={hoveredPoint === index ? 6 : 4}
+              fill={index < data.length / 2 ? '#10b981' : '#3b82f6'}
+              style={{
+                cursor: 'pointer',
+                transition: 'r 0.2s ease'
+              }}
+              onMouseEnter={() => setHoveredPoint(index)}
+              onMouseLeave={() => setHoveredPoint(null)}
+            />
+          </g>
         ))}
 
         {/* X-axis labels */}
@@ -456,18 +530,40 @@ export function DonutChartSimple({ segments }: DonutChartSimpleProps) {
         })}
         <circle cx="100" cy="100" r="50" fill="var(--glass-bg)" />
       </svg>
-      <div className={styles.donutLegendSimple}>
+      <div className={styles.donutLegendDetailed}>
         {segments.map((segment, index) => {
           const percentage = ((segment.value / total) * 100).toFixed(0)
           return (
-            <div key={index} className={styles.legendItemSimple}>
-              <div
-                className={styles.legendColor}
-                style={{ background: segment.color }}
-              />
-              <span style={{ color: 'var(--text-secondary)' }}>
-                {segment.label} {percentage}%
-              </span>
+            <div key={index} className={styles.legendItemDetailed}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                <div
+                  className={styles.legendColor}
+                  style={{ background: segment.color }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '4px' }}>
+                    {segment.label}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontWeight: 600, fontSize: '1.125rem', color: 'var(--text-primary)' }}>
+                      {segment.value.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                      tonnes
+                    </span>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      color: 'var(--text-tertiary)',
+                      marginLeft: 'auto'
+                    }}>
+                      {percentage}%
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )
         })}

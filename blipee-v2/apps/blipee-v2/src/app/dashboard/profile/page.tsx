@@ -99,8 +99,8 @@ export default function ProfilePage() {
       if (userProfile.preferences?.avatarSettings) {
         setAvatarSettings({
           type: userProfile.preferences.avatarSettings.type || 'initials',
-          gradient: userProfile.preferences.avatarSettings.gradient || 'blipee',
-          icon: userProfile.preferences.avatarSettings.icon || 'user',
+          gradient: (userProfile.preferences.avatarSettings.gradient || 'blipee') as GradientColor,
+          icon: (userProfile.preferences.avatarSettings.icon || 'user') as AvatarIcon,
         })
       }
     }
@@ -445,8 +445,8 @@ export default function ProfilePage() {
                 if (userProfile.preferences?.avatarSettings) {
                   setAvatarSettings({
                     type: userProfile.preferences.avatarSettings.type || 'initials',
-                    gradient: userProfile.preferences.avatarSettings.gradient || 'blipee',
-                    icon: userProfile.preferences.avatarSettings.icon || 'user',
+                    gradient: (userProfile.preferences.avatarSettings.gradient || 'blipee') as GradientColor,
+                    icon: (userProfile.preferences.avatarSettings.icon || 'user') as AvatarIcon,
                   })
                 }
               }

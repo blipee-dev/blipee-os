@@ -168,9 +168,8 @@ export default function PreferencesPage() {
         <FormActions
           onCancel={handleCancel}
           isSaving={updating}
-          onSave={(e) => {
-            e?.preventDefault()
-            handleSubmit(e as any)
+          onSave={() => {
+            handleSubmit({} as any)
           }}
           isSubmitButton={false}
         />

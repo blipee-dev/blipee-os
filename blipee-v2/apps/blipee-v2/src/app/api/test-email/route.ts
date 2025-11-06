@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail, testEmailConnection } from '@/lib/email/mailer'
-import { emailConfirmationTemplate } from '@/lib/email/templates'
+import { getEmailTemplate } from '@/lib/email/templates'
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +40,10 @@ export async function POST(request: NextRequest) {
           <p>This is a test email from Blipee authentication system.</p>
           <p>If you received this, the email system is working correctly!</p>
         `
-        : emailConfirmationTemplate('Test User', 'http://localhost:3005/test'),
+        : getEmailTemplate('email_confirmation', 'en-US', {
+            name: 'Test User',
+            confirmationUrl: 'http://localhost:3005/test',
+          }),
     })
 
     if (result.success) {

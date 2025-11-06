@@ -202,20 +202,58 @@ export default function OrganizationsPage() {
                 : `${t('descriptionYour')} (${filteredOrganizations.length} ${t('of')} ${organizations.length})`}
             </p>
           </div>
-          {isSuperAdmin && (
-            <span
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#8b5cf6',
-                color: 'white',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-              }}
-            >
-              {t('superAdminBadge')}
-            </span>
-          )}
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            {isSuperAdmin && (
+              <>
+                <button
+                  onClick={() => {
+                    setSelectedOrg(null) // null = create mode
+                    setIsModalOpen(true)
+                  }}
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    background: 'var(--green)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Add Organization
+                </button>
+                <span
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: '#8b5cf6',
+                    color: 'white',
+                    borderRadius: '8px',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  {t('superAdminBadge')}
+                </span>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Filters - Simple inline */}

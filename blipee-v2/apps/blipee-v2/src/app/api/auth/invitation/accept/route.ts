@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
           .update({
             invitation_status: 'accepted',
             joined_at: new Date().toISOString(),
-          })
+          } as any)
           .eq('user_id', verification.userId)
           .eq('organization_id', verification.metadata.organization_id)
 

@@ -44,7 +44,7 @@ export async function inviteUser(formData: InviteUserData) {
       .select('role, is_owner')
       .eq('user_id', user.id)
       .eq('organization_id', formData.organization_id)
-      .single()
+      .single() as { data: { is_owner: boolean; role: string } | null }
 
     const isSuperAdmin = user.user_metadata?.is_super_admin === true
     const isAdmin = currentMember?.is_owner || currentMember?.role === 'admin'
@@ -116,14 +116,14 @@ export async function inviteUser(formData: InviteUserData) {
       .from('user_profiles')
       .select('full_name')
       .eq('id', user.id)
-      .single()
+      .single() as { data: { full_name: string } | null }
 
     // Get organization name
     const { data: org } = await supabase
       .from('organizations')
       .select('name')
       .eq('id', formData.organization_id)
-      .single()
+      .single() as { data: { name: string } | null }
 
     const emailHtml = getEmailTemplate('user_invitation', locale, {
       inviterName: inviterProfile?.full_name || 'A team member',
@@ -158,7 +158,7 @@ export async function inviteUser(formData: InviteUserData) {
       department: formData.department,
       phone: formData.phone,
       mobile_phone: formData.mobile_phone,
-    })
+    } as any)
 
     if (profileError) {
       console.error('Profile error:', profileError)
@@ -177,7 +177,7 @@ export async function inviteUser(formData: InviteUserData) {
       invitation_status: 'pending',
       invited_by: user.id,
       invited_at: new Date().toISOString(),
-    })
+    } as any)
 
     if (memberError) {
       console.error('Member error:', memberError)
@@ -216,7 +216,7 @@ export async function updateUser(formData: UpdateUserData) {
       .select('role, is_owner')
       .eq('user_id', user.id)
       .eq('organization_id', formData.organization_id)
-      .single()
+      .single() as { data: { is_owner: boolean; role: string } | null }
 
     const isSuperAdmin = user.user_metadata?.is_super_admin === true
     const isAdmin = currentMember?.is_owner || currentMember?.role === 'admin'
@@ -226,7 +226,7 @@ export async function updateUser(formData: UpdateUserData) {
     }
 
     // 3. Update user_profile
-    const { error: profileError } = await supabase
+    const { error: profileError } = (await supabase
       .from('user_profiles')
       .update({
         full_name: formData.full_name,
@@ -235,7 +235,7 @@ export async function updateUser(formData: UpdateUserData) {
         phone: formData.phone,
         mobile_phone: formData.mobile_phone,
       })
-      .eq('id', formData.user_id)
+      .eq('id', formData.user_id)) as any
 
     if (profileError) {
       console.error('Profile update error:', profileError)
@@ -243,7 +243,7 @@ export async function updateUser(formData: UpdateUserData) {
     }
 
     // 4. Update organization membership
-    const { error: memberError } = await supabase
+    const { error: memberError } = (await supabase
       .from('organization_members')
       .update({
         role: formData.role as any,
@@ -251,7 +251,7 @@ export async function updateUser(formData: UpdateUserData) {
         facility_ids: formData.facility_ids || null,
       })
       .eq('user_id', formData.user_id)
-      .eq('organization_id', formData.organization_id)
+      .eq('organization_id', formData.organization_id)) as any
 
     if (memberError) {
       console.error('Member update error:', memberError)
@@ -297,11 +297,11 @@ export async function deleteUser(userId: string, organizationId: string) {
     }
 
     // 3. Soft delete organization membership
-    const { error: memberError } = await supabase
+    const { error: memberError } = (await supabase
       .from('organization_members')
       .update({ deleted_at: new Date().toISOString() })
       .eq('user_id', userId)
-      .eq('organization_id', organizationId)
+      .eq('organization_id', organizationId)) as any
 
     if (memberError) {
       console.error('Delete member error:', memberError)
@@ -323,7 +323,7 @@ export async function deleteUser(userId: string, organizationId: string) {
     if (!otherMemberships || otherMemberships.length === 0) {
       const { error: profileError } = await supabase
         .from('user_profiles')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted_at: new Date().toISOString() } as any)
         .eq('id', userId)
 
       if (profileError) {
@@ -365,7 +365,7 @@ export async function updateUserLocale(formData: FormData) {
     // Update in user_profiles (highest priority)
     const { error: profileError } = await supabase
       .from('user_profiles')
-      .update({ preferred_locale: locale })
+      .update({ preferred_locale: locale } as any)
       .eq('id', user.id)
 
     if (profileError) {
