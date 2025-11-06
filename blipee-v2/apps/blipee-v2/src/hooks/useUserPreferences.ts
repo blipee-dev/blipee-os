@@ -53,8 +53,14 @@ async function fetchUserPreferences(): Promise<UserPreferences> {
   const notificationSettings = (data?.notification_settings as any) || {}
   const preferences = (data?.preferences as any) || {}
 
+  // Map old locale codes to new ones for backward compatibility
+  let language = data?.preferred_language || 'pt-PT'
+  if (language === 'pt') language = 'pt-PT'
+  if (language === 'en') language = 'en-US'
+  if (language === 'es') language = 'es-ES'
+
   return {
-    language: data?.preferred_language || 'pt',
+    language,
     timezone: data?.timezone || 'Europe/Lisbon (WEST)',
     emailNotifications: notificationSettings.email ?? true,
     criticalAlerts: notificationSettings.critical ?? true,

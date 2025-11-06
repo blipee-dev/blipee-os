@@ -1,0 +1,83 @@
+{
+  "common": {
+    "welcome": "Bem-vindo",
+    "loading": "A carregar...",
+    "error": "Ocorreu um erro",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Voltar",
+    "close": "Fechar",
+    "open": "Abrir",
+    "remember": "Lembrar-me",
+    "emailLabel": "Email",
+    "passwordLabel": "Palavra-passe",
+    "orContinueWith": "Ou continuar com",
+    "signInWithSocialProviders": "Iniciar sess\u00e3o com redes sociais",
+    "signInWithGoogle": "Iniciar sess\u00e3o com Google",
+    "signInWithGitHub": "Iniciar sess\u00e3o com GitHub",
+    "dontHaveAccount": "N\u00e3o tem conta?",
+    "getYoursHere": "Solicite a sua aqui",
+    "alreadyHaveAccount": "J\u00e1 tem uma conta?",
+    "aiWorkforceAwaits": "A sua equipa de AI aguarda",
+    "accessPlatformDescription": "Aceda \u00e0 plataforma e comece a trabalhar com os seus agentes de AI para alcan\u00e7ar os seus objetivos de sustentabilidade.",
+    "chatWithAssistant": "Converse com o seu assistente de AI",
+    "workWithAgents": "Trabalhe com 8 agentes de AI 24/7",
+    "trackTargets": "Acompanhe os seus targets em tempo real",
+    "sustainabilityReports": "Gere reports de sustentabilidade"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Inicie sess\u00e3o para continuar a sua jornada de sustentabilidade",
+      "emailLabel": "Email",
+      "passwordLabel": "Palavra-passe",
+      "forgotPassword": "Esqueceu-se da palavra-passe?",
+      "submitButton": "Iniciar sess\u00e3o",
+      "hidePassword": "Ocultar palavra-passe",
+      "showPassword": "Mostrar palavra-passe"
+    },
+    "signUp": {
+      "title": "Crie a sua conta",
+      "subtitle": "Comece a sua jornada de sustentabilidade hoje",
+      "fullNameLabel": "Nome completo",
+      "fullNameOptional": "Nome completo (opcional)",
+      "emailLabel": "Email",
+      "passwordLabel": "Palavra-passe",
+      "confirmPasswordLabel": "Confirmar palavra-passe",
+      "passwordRequirement": "M\u00ednimo de 8 caracteres",
+      "submitButton": "Criar conta",
+      "termsAccept": "Ao criar conta, aceita os nossos Termos de Servi\u00e7o e Pol\u00edtica de Privacidade"
+    },
+    "resetPassword": {
+      "title": "Criar nova palavra-passe",
+      "subtitle": "Escolha uma palavra-passe segura para proteger a sua conta",
+      "newPasswordLabel": "Nova palavra-passe",
+      "confirmPasswordLabel": "Confirmar palavra-passe",
+      "newPasswordPlaceholder": "Introduza a sua nova palavra-passe (m\u00edn. 8 caracteres)",
+      "confirmPasswordPlaceholder": "Confirme a sua nova palavra-passe",
+      "submitButton": "Atualizar palavra-passe",
+      "returnToSignIn": "Voltar para",
+      "signInLink": "Iniciar sess\u00e3o",
+      "verifying": "A verificar a sua liga\u00e7\u00e3o de recupera\u00e7\u00e3o...",
+      "invalidLink": "Liga\u00e7\u00e3o inv\u00e1lida ou expirada. Por favor solicite uma nova.",
+      "hidePassword": "Ocultar palavra-passe",
+      "showPassword": "Mostrar palavra-passe",
+      "secureAccount": "Proteja a sua conta",
+      "secureAccountDescription": "Crie uma palavra-passe segura para proteger os seus dados de sustentabilidade e agentes de AI.",
+      "minCharacters": "M\u00ednimo de 8 caracteres necess\u00e1rios",
+      "encryptedStorage": "Armazenamento encriptado e seguro",
+      "instantAccess": "Acesso imediato ap\u00f3s atualiza\u00e7\u00e3o"
+    },
+    "forgotPassword": {
+      "title": "Recuperar palavra-passe",
+      "subtitle": "Introduza o seu email e enviaremos uma liga\u00e7\u00e3o de recupera\u00e7\u00e3o",
+      "emailLabel": "Email",
+      "submitButton": "Enviar liga\u00e7\u00e3o",
+      "backToSignIn": "Voltar para Iniciar sess\u00e3o",
+      "checkYourEmail": "Verifique o seu email",
+      "emailSent": "Envi\u00e1mos uma liga\u00e7\u00e3o de recupera\u00e7\u00e3o para o seu email"
+    }
+  }
+}

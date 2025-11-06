@@ -6,13 +6,60 @@
  */
 
 import { getRequestConfig } from 'next-intl/server'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 import { defaultLocale, locales, type Locale } from './config'
 
 /**
- * Get the locale from the request headers or default
+ * Get the locale from user preferences, request headers, or default
  */
 async function getLocale(): Promise<Locale> {
+  // 1. Try to get locale from authenticated user's preferences
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll() {
+            // No-op in request config
+          },
+        },
+      }
+    )
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('preferred_language')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.preferred_language) {
+        let locale = data.preferred_language as string
+
+        // Map old locale codes to new ones for backward compatibility
+        if (locale === 'pt') locale = 'pt-PT'
+        if (locale === 'en') locale = 'en-US'
+        if (locale === 'es') locale = 'es-ES'
+
+        if (locales.includes(locale as Locale)) {
+          return locale as Locale
+        }
+      }
+    }
+  } catch (error) {
+    // Silently fail and fall back to browser language
+    console.log('[i18n] Could not get user language preference, using browser default')
+  }
+
+  // 2. Fall back to Accept-Language header
   const headersList = await headers()
   const acceptLanguage = headersList.get('accept-language') || ''
 

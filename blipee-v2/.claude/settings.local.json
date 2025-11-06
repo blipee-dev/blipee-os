@@ -57,7 +57,9 @@
       "Bash(git pull:*)",
       "Bash(gh auth status:*)",
       "Bash(git merge:*)",
-      "Bash(git stash push:*)"
+      "Bash(git stash push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash drop:*)"
     ]
   },
   "enabledMcpjsonServers": [

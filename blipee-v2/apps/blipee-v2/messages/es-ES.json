@@ -1,0 +1,83 @@
+{
+  "common": {
+    "welcome": "Bienvenido",
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Volver",
+    "close": "Cerrar",
+    "open": "Abrir",
+    "remember": "Recordarme",
+    "emailLabel": "Correo electr\u00f3nico",
+    "passwordLabel": "Contrase\u00f1a",
+    "orContinueWith": "O continuar con",
+    "signInWithSocialProviders": "Iniciar sesi\u00f3n con redes sociales",
+    "signInWithGoogle": "Iniciar sesi\u00f3n con Google",
+    "signInWithGitHub": "Iniciar sesi\u00f3n con GitHub",
+    "dontHaveAccount": "\u00bfNo tienes cuenta?",
+    "getYoursHere": "Solicita la tuya aqu\u00ed",
+    "alreadyHaveAccount": "\u00bfYa tienes una cuenta?",
+    "aiWorkforceAwaits": "Tu equipo de AI te espera",
+    "accessPlatformDescription": "Accede a la plataforma y empieza a trabajar con tus agentes de AI para alcanzar tus objetivos de sostenibilidad.",
+    "chatWithAssistant": "Chatea con tu asistente de AI",
+    "workWithAgents": "Trabaja con 8 agentes de AI 24/7",
+    "trackTargets": "Sigue tus targets en tiempo real",
+    "sustainabilityReports": "Genera reportes de sostenibilidad"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesi\u00f3n para continuar tu trayecto de sostenibilidad",
+      "emailLabel": "Email",
+      "passwordLabel": "Contrase\u00f1a",
+      "forgotPassword": "\u00bfOlvidaste tu contrase\u00f1a?",
+      "submitButton": "Iniciar sesi\u00f3n",
+      "hidePassword": "Ocultar contrase\u00f1a",
+      "showPassword": "Mostrar contrase\u00f1a"
+    },
+    "signUp": {
+      "title": "Crea tu cuenta",
+      "subtitle": "Comienza tu trayecto de sostenibilidad hoy",
+      "fullNameLabel": "Nombre completo",
+      "fullNameOptional": "Nombre completo (opcional)",
+      "emailLabel": "Correo electr\u00f3nico",
+      "passwordLabel": "Contrase\u00f1a",
+      "confirmPasswordLabel": "Confirmar contrase\u00f1a",
+      "passwordRequirement": "M\u00ednimo 8 caracteres",
+      "submitButton": "Registrarse",
+      "termsAccept": "Al registrarte, aceptas nuestros T\u00e9rminos de Servicio y Pol\u00edtica de Privacidad"
+    },
+    "resetPassword": {
+      "title": "Crear nueva contrase\u00f1a",
+      "subtitle": "Elige una contrase\u00f1a segura para proteger tu cuenta",
+      "newPasswordLabel": "Nueva contrase\u00f1a",
+      "confirmPasswordLabel": "Confirmar contrase\u00f1a",
+      "newPasswordPlaceholder": "Introduce tu nueva contrase\u00f1a (m\u00edn. 8 caracteres)",
+      "confirmPasswordPlaceholder": "Confirma tu nueva contrase\u00f1a",
+      "submitButton": "Actualizar contrase\u00f1a",
+      "returnToSignIn": "Volver a",
+      "signInLink": "Iniciar sesi\u00f3n",
+      "verifying": "Verificando tu enlace de restablecimiento...",
+      "invalidLink": "Enlace inv\u00e1lido o caducado. Por favor solicita uno nuevo.",
+      "hidePassword": "Ocultar contrase\u00f1a",
+      "showPassword": "Mostrar contrase\u00f1a",
+      "secureAccount": "Protege tu cuenta",
+      "secureAccountDescription": "Crea una contrase\u00f1a segura para proteger tus datos de sostenibilidad y tus agentes de AI.",
+      "minCharacters": "M\u00ednimo 8 caracteres requeridos",
+      "encryptedStorage": "Almacenamiento cifrado y seguro",
+      "instantAccess": "Acceso inmediato despu\u00e9s de actualizar"
+    },
+    "forgotPassword": {
+      "title": "Restablecer contrase\u00f1a",
+      "subtitle": "Introduce tu correo y te enviaremos un enlace de restablecimiento",
+      "emailLabel": "Correo electr\u00f3nico",
+      "submitButton": "Enviar enlace",
+      "backToSignIn": "Volver a Iniciar sesi\u00f3n",
+      "checkYourEmail": "Revisa tu correo",
+      "emailSent": "Hemos enviado un enlace de restablecimiento a tu correo"
+    }
+  }
+}

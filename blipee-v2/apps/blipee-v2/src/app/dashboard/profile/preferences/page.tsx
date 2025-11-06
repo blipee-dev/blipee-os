@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { useToast } from '@/components/Toast'
@@ -10,12 +11,13 @@ import CustomSelect from '@/components/CustomSelect'
 import CustomCheckbox from '@/components/CustomCheckbox'
 
 export default function PreferencesPage() {
+  const router = useRouter()
   const t = useTranslations('profile.profile.preferences')
   const { preferences: userPreferences, loading, updating, updatePreferencesAsync } = useUserPreferences()
   const toast = useToast()
 
   const [formData, setFormData] = useState({
-    language: 'pt',
+    language: 'pt-PT',
     timezone: 'Europe/Lisbon (WEST)',
     emailNotifications: true,
     criticalAlerts: true,
@@ -32,9 +34,18 @@ export default function PreferencesPage() {
   }, [userPreferences])
 
   async function handleSave() {
+    const languageChanged = userPreferences?.language !== formData.language
+
     try {
       await updatePreferencesAsync(formData)
       toast.showSuccess(t('updateSuccess'))
+
+      // If language changed, reload the page to apply new locale
+      if (languageChanged) {
+        setTimeout(() => {
+          router.refresh()
+        }, 500)
+      }
     } catch (error) {
       console.error('Error updating preferences:', error)
       toast.showError(t('updateError'))
@@ -71,10 +82,9 @@ export default function PreferencesPage() {
             value={formData.language}
             onChange={(value) => setFormData({ ...formData, language: value })}
             options={[
-              { value: 'pt', label: 'Português' },
-              { value: 'en', label: 'English' },
-              { value: 'es', label: 'Español' },
-              { value: 'fr', label: 'Français' },
+              { value: 'pt-PT', label: '🇵🇹 Português' },
+              { value: 'en-US', label: '🇺🇸 English' },
+              { value: 'es-ES', label: '🇪🇸 Español' },
             ]}
           />
         </div>

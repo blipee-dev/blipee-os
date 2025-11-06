@@ -1,0 +1,57 @@
+<svg width="340" height="340" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blobGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="purplePinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f472b6;stop-opacity:1" />
+    </linearGradient>
+    <filter id="blobShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="20"/>
+      <feOffset dx="0" dy="30" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.45"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Blob background -->
+  <path d="M 170,20
+           C 220,10 280,30 310,80
+           C 340,130 330,190 310,240
+           C 290,290 240,320 180,325
+           C 120,330 60,310 35,260
+           C 10,210 5,150 30,100
+           C 55,50 120,30 170,20 Z"
+        fill="url(#blobGradient)"
+        opacity="0.3"
+        filter="url(#blobShadow)"/>
+
+  <!-- Robot (centered and scaled) -->
+  <g transform="translate(60, 60) scale(1.833)">
+    <rect x="28" y="36" width="64" height="64" rx="20" fill="url(#purplePinkGradient)" />
+    <circle cx="44" cy="60" r="10" fill="#fff" />
+    <circle cx="76" cy="60" r="10" fill="#fff" />
+    <circle cx="44" cy="60" r="4" fill="#6b21a8" />
+    <circle cx="76" cy="60" r="4" fill="#6b21a8" />
+    <path d="M50 84c6 6 18 6 24 0" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+    <rect x="50" y="22" width="20" height="18" rx="9" fill="url(#lightGradient)" />
+    <path d="M60 18v6" stroke="#a855f7" stroke-width="4" stroke-linecap="round" />
+    <circle cx="60" cy="14" r="5" fill="#f9a8d4" />
+    <rect x="31" y="46" width="26" height="28" rx="13" stroke="#f9a8d4" stroke-width="3.5" fill="none" />
+    <rect x="63" y="46" width="26" height="28" rx="13" stroke="#f9a8d4" stroke-width="3.5" fill="none" />
+    <rect x="55" y="60" width="10" height="8" rx="4" fill="#f9a8d4" />
+    <circle cx="32" cy="92" r="6" fill="#a855f7" opacity="0.7" />
+    <circle cx="88" cy="92" r="6" fill="#a855f7" opacity="0.7" />
+  </g>
+</svg>
