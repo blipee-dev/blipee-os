@@ -1,0 +1,94 @@
+import { Suspense } from 'react'
+import { notFound } from 'next/navigation'
+import { getWasteDashboardData, getUserOrganizationId, getUserSites } from '@/lib/data/gri'
+import styles from '../../dashboard.module.css'
+import { WasteMetricsCards } from './WasteMetricsCards'
+import { WasteChartsSection } from './WasteChartsSection'
+import { WasteSiteTable } from './WasteSiteTable'
+import { GRIFilters } from '../GRIFilters'
+
+export const dynamic = 'force-dynamic'
+
+/**
+ * GRI 306 Waste Dashboard Page (Server Component)
+ *
+ * Modern Next.js 14/15 pattern:
+ * - Fetches data directly in Server Component
+ * - No API routes needed
+ * - Automatic request deduplication
+ */
+
+// Types for search params
+interface WastePageProps {
+  searchParams: {
+    site?: string
+    year?: string
+  }
+}
+
+export default async function WasteDashboardPage({ searchParams }: WastePageProps) {
+  // Get current user's organization
+  const organizationId = await getUserOrganizationId()
+
+  if (!organizationId) {
+    notFound()
+  }
+
+  // Fetch user sites for the filter
+  const userSites = await getUserSites(organizationId)
+
+  // Get available years (from database we know data exists from 2022-2025)
+  const currentYear = new Date().getFullYear()
+  const availableYears = Array.from({ length: currentYear - 2021 }, (_, i) => 2022 + i)
+
+  // Get selected year from search params, default to current year
+  const selectedYear = searchParams.year ? parseInt(searchParams.year, 10) : currentYear
+
+  // Calculate date range for the selected year
+  const startDate = `${selectedYear}-01-01`
+  const endDate = `${selectedYear}-12-31`
+
+  // Fetch waste data
+  const wasteData = await getWasteDashboardData(organizationId, {
+    startDate,
+    endDate,
+    siteId: searchParams.site,
+  })
+
+  return (
+    <>
+      {/* Dashboard Header */}
+      <div className={styles.dashboardHeader}>
+        <div>
+          <div className={styles.dashboardTitle}>
+            <svg className={styles.carbonIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+              <path d="M9 9h.01" />
+              <path d="M15 9h.01" />
+            </svg>
+            <h1>GRI 306 - Waste</h1>
+          </div>
+          <p className={styles.subtitle}>Monitor waste generation, diversion, and disposal across all facilities</p>
+        </div>
+
+        <GRIFilters sites={userSites} availableYears={availableYears} />
+      </div>
+
+      {/* KPI Cards - Fast to render */}
+      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>Loading metrics...</div></div>}>
+        <WasteMetricsCards data={wasteData} />
+      </Suspense>
+
+      {/* Charts Section - Includes intensity metrics */}
+      <Suspense fallback={<div className={styles.chartsLoading}>Loading charts...</div>}>
+        <WasteChartsSection data={wasteData} />
+      </Suspense>
+
+      {/* Data Table */}
+      <Suspense fallback={<div className={styles.tableLoading}>Loading table...</div>}>
+        <WasteSiteTable data={wasteData} />
+      </Suspense>
+    </>
+  )
+}

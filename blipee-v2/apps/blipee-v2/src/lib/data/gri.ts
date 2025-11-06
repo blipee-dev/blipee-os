@@ -1398,3 +1398,829 @@ export async function getEnergyDashboardDataGRI(
     renewablePercentageYoY,
   }
 }
+
+/**
+ * GRI 303 Water Dashboard Data Types
+ */
+export interface WaterMonthlyTrend {
+  month: string // 'YYYY-MM'
+  withdrawal: number
+  consumption: number
+  discharge: number
+}
+
+export interface WaterBySource {
+  source: string
+  value: number
+  percentage: number
+}
+
+export interface WaterBySite {
+  site_id: string
+  site_name: string
+  withdrawal: number
+  consumption: number
+  discharge: number
+  recycled: number
+  // YoY percentage changes
+  withdrawalYoY: number | null
+}
+
+export interface WaterIntensityMetrics {
+  perEmployee: number | null
+  perRevenueMillion: number | null
+  perFloorAreaM2: number | null
+  employeeCount: number | null
+  revenue: number | null
+  floorArea: number | null
+  // YoY percentage changes
+  perEmployeeYoY: number | null
+  perRevenueMillionYoY: number | null
+  perFloorAreaM2YoY: number | null
+}
+
+export interface WaterDashboardData {
+  totalWithdrawal: number
+  totalConsumption: number
+  totalDischarge: number
+  totalRecycled: number
+  monthlyTrend: WaterMonthlyTrend[]
+  bySite: WaterBySite[]
+  bySource: WaterBySource[]
+  year: number
+  intensity: WaterIntensityMetrics
+  // YoY percentage changes
+  totalWithdrawalYoY: number | null
+  totalConsumptionYoY: number | null
+  totalDischargeYoY: number | null
+  totalRecycledYoY: number | null
+}
+
+/**
+ * Get GRI 303 Water Dashboard Data
+ */
+export async function getWaterDashboardData(
+  organizationId: string,
+  options: {
+    startDate: string
+    endDate: string
+    siteId?: string
+  }
+): Promise<WaterDashboardData> {
+  const supabase = await createClient()
+
+  // Build query for GRI 303 metrics
+  let query = supabase
+    .from('metrics_data')
+    .select(
+      `
+      id,
+      value,
+      unit,
+      period_start,
+      period_end,
+      metadata,
+      site:sites(id, name),
+      metric:metrics_catalog(
+        id,
+        code,
+        name,
+        category
+      )
+    `
+    )
+    .eq('organization_id', organizationId)
+    .gte('period_start', options.startDate)
+    .lte('period_end', options.endDate)
+
+  if (options.siteId) {
+    query = query.eq('site_id', options.siteId)
+  }
+
+  const { data: metricsData } = await query
+
+  if (!metricsData || metricsData.length === 0) {
+    return {
+      totalWithdrawal: 0,
+      totalConsumption: 0,
+      totalDischarge: 0,
+      totalRecycled: 0,
+      monthlyTrend: [],
+      bySite: [],
+      bySource: [],
+      year: new Date(options.startDate).getFullYear(),
+      intensity: {
+        perEmployee: null,
+        perRevenueMillion: null,
+        perFloorAreaM2: null,
+        employeeCount: null,
+        revenue: null,
+        floorArea: null,
+        perEmployeeYoY: null,
+        perRevenueMillionYoY: null,
+        perFloorAreaM2YoY: null,
+      },
+      totalWithdrawalYoY: null,
+      totalConsumptionYoY: null,
+      totalDischargeYoY: null,
+      totalRecycledYoY: null,
+    }
+  }
+
+  // Filter GRI 303 water metrics
+  const waterData = metricsData.filter((m: any) => {
+    const code = m.metric?.code || ''
+    return code.startsWith('gri_303') || code.includes('water')
+  })
+
+  // Calculate totals
+  let totalWithdrawal = 0
+  let totalConsumption = 0
+  let totalDischarge = 0
+  let totalRecycled = 0
+
+  // Monthly trend map
+  const monthlyTrendMap = new Map<string, { withdrawal: number; consumption: number; discharge: number }>()
+
+  // Site breakdown map
+  const siteMap = new Map<
+    string,
+    { site_name: string; withdrawal: number; consumption: number; discharge: number; recycled: number }
+  >()
+
+  // Source breakdown map
+  const sourceMap = new Map<string, number>()
+
+  waterData.forEach((metric: any) => {
+    const metricCode = metric.metric?.code || ''
+    const value = metric.value || 0
+    const month = metric.period_start?.substring(0, 7) // 'YYYY-MM'
+    const siteName = metric.site?.name || 'Unknown Site'
+    const siteId = metric.site?.id || 'unknown'
+
+    // Determine water type based on GRI 303 sub-categories
+    if (metricCode.includes('gri_303_3') || metricCode.includes('withdrawal')) {
+      totalWithdrawal += value
+      if (month) {
+        if (!monthlyTrendMap.has(month)) {
+          monthlyTrendMap.set(month, { withdrawal: 0, consumption: 0, discharge: 0 })
+        }
+        monthlyTrendMap.get(month)!.withdrawal += value
+      }
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
+      }
+      siteMap.get(siteId)!.withdrawal += value
+    } else if (metricCode.includes('gri_303_5') || metricCode.includes('consumption')) {
+      totalConsumption += value
+      if (month) {
+        if (!monthlyTrendMap.has(month)) {
+          monthlyTrendMap.set(month, { withdrawal: 0, consumption: 0, discharge: 0 })
+        }
+        monthlyTrendMap.get(month)!.consumption += value
+      }
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
+      }
+      siteMap.get(siteId)!.consumption += value
+    } else if (metricCode.includes('gri_303_4') || metricCode.includes('discharge')) {
+      totalDischarge += value
+      if (month) {
+        if (!monthlyTrendMap.has(month)) {
+          monthlyTrendMap.set(month, { withdrawal: 0, consumption: 0, discharge: 0 })
+        }
+        monthlyTrendMap.get(month)!.discharge += value
+      }
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
+      }
+      siteMap.get(siteId)!.discharge += value
+    } else if (metricCode.includes('recycled') || metricCode.includes('reused')) {
+      totalRecycled += value
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
+      }
+      siteMap.get(siteId)!.recycled += value
+    }
+
+    // Source breakdown
+    const source = metric.metadata?.water_source || 'Other'
+    sourceMap.set(source, (sourceMap.get(source) || 0) + value)
+  })
+
+  // Build monthly trend array
+  const monthlyTrend: WaterMonthlyTrend[] = Array.from(monthlyTrendMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, data]) => ({
+      month,
+      withdrawal: Math.round(data.withdrawal),
+      consumption: Math.round(data.consumption),
+      discharge: Math.round(data.discharge),
+    }))
+
+  // Build source breakdown
+  const bySource: WaterBySource[] = Array.from(sourceMap.entries())
+    .map(([source, value]) => ({
+      source,
+      value: Math.round(value),
+      percentage: totalWithdrawal > 0 ? Math.round((value / totalWithdrawal) * 100) : 0,
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10)
+
+  // Fetch organization revenue
+  const { data: orgData } = await supabase
+    .from('organizations')
+    .select('annual_revenue')
+    .eq('id', organizationId)
+    .single()
+
+  // Fetch site data for employee count and floor area
+  let sitesQuery = supabase
+    .from('sites')
+    .select('total_employees, total_area_sqm')
+    .eq('organization_id', organizationId)
+    .eq('status', 'active')
+
+  if (options.siteId) {
+    sitesQuery = sitesQuery.eq('id', options.siteId)
+  }
+
+  const { data: sitesData } = await sitesQuery
+
+  const totalEmployees = sitesData?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0
+  const totalFloorArea = sitesData?.reduce((sum, site) => sum + (site.total_area_sqm || 0), 0) || 0
+
+  // Calculate previous year for YoY
+  const startDate = new Date(options.startDate)
+  const endDate = new Date(options.endDate)
+  const prevYearStart = new Date(startDate)
+  prevYearStart.setFullYear(startDate.getFullYear() - 1)
+  const prevYearEnd = new Date(endDate)
+  prevYearEnd.setFullYear(endDate.getFullYear() - 1)
+
+  let prevYearQuery = supabase
+    .from('metrics_data')
+    .select('value, site_id, metric:metrics_catalog(code)')
+    .eq('organization_id', organizationId)
+    .gte('period_start', prevYearStart.toISOString().split('T')[0])
+    .lte('period_end', prevYearEnd.toISOString().split('T')[0])
+
+  if (options.siteId) {
+    prevYearQuery = prevYearQuery.eq('site_id', options.siteId)
+  }
+
+  const { data: prevYearMetrics } = await prevYearQuery
+
+  let prevYearWithdrawal = 0
+  let prevYearConsumption = 0
+  let prevYearDischarge = 0
+  let prevYearRecycled = 0
+  const prevYearSiteMap = new Map<string, number>()
+
+  prevYearMetrics?.forEach((metric: any) => {
+    const metricCode = metric.metric?.code || ''
+    const value = metric.value || 0
+    const siteId = metric.site_id
+
+    if (metricCode.includes('gri_303_3') || metricCode.includes('withdrawal')) {
+      prevYearWithdrawal += value
+      if (siteId) {
+        prevYearSiteMap.set(siteId, (prevYearSiteMap.get(siteId) || 0) + value)
+      }
+    } else if (metricCode.includes('gri_303_5') || metricCode.includes('consumption')) {
+      prevYearConsumption += value
+    } else if (metricCode.includes('gri_303_4') || metricCode.includes('discharge')) {
+      prevYearDischarge += value
+    } else if (metricCode.includes('recycled') || metricCode.includes('reused')) {
+      prevYearRecycled += value
+    }
+  })
+
+  // Build site breakdown with YoY
+  const bySite: WaterBySite[] = Array.from(siteMap.entries())
+    .map(([site_id, data]) => {
+      const prevYearTotal = prevYearSiteMap.get(site_id) || 0
+      const withdrawalYoY = prevYearTotal > 0
+        ? Math.round(((data.withdrawal - prevYearTotal) / prevYearTotal) * 10000) / 100
+        : null
+
+      return {
+        site_id,
+        site_name: data.site_name,
+        withdrawal: Math.round(data.withdrawal),
+        consumption: Math.round(data.consumption),
+        discharge: Math.round(data.discharge),
+        recycled: Math.round(data.recycled),
+        withdrawalYoY,
+      }
+    })
+    .sort((a, b) => b.withdrawal - a.withdrawal)
+
+  // Calculate intensity metrics
+  const intensity: WaterIntensityMetrics = {
+    perEmployee: null,
+    perRevenueMillion: null,
+    perFloorAreaM2: null,
+    employeeCount: totalEmployees > 0 ? totalEmployees : null,
+    revenue: orgData?.annual_revenue || null,
+    floorArea: totalFloorArea > 0 ? totalFloorArea : null,
+    perEmployeeYoY: null,
+    perRevenueMillionYoY: null,
+    perFloorAreaM2YoY: null,
+  }
+
+  let prevPerEmployee: number | null = null
+  let prevPerRevenueMillion: number | null = null
+  let prevPerFloorAreaM2: number | null = null
+
+  if (prevYearWithdrawal > 0) {
+    if (totalEmployees > 0) {
+      prevPerEmployee = Math.round((prevYearWithdrawal / totalEmployees) * 100) / 100
+    }
+    if (orgData?.annual_revenue && orgData.annual_revenue > 0) {
+      const revenueMillion = orgData.annual_revenue / 1000000
+      prevPerRevenueMillion = Math.round((prevYearWithdrawal / revenueMillion) * 100) / 100
+    }
+    if (totalFloorArea > 0) {
+      prevPerFloorAreaM2 = Math.round((prevYearWithdrawal / totalFloorArea) * 100) / 100
+    }
+  }
+
+  if (totalWithdrawal > 0) {
+    if (totalEmployees > 0) {
+      intensity.perEmployee = Math.round((totalWithdrawal / totalEmployees) * 100) / 100
+      if (prevPerEmployee !== null && prevPerEmployee > 0) {
+        intensity.perEmployeeYoY = Math.round(((intensity.perEmployee - prevPerEmployee) / prevPerEmployee) * 10000) / 100
+      }
+    }
+    if (orgData?.annual_revenue && orgData.annual_revenue > 0) {
+      const revenueMillion = orgData.annual_revenue / 1000000
+      intensity.perRevenueMillion = Math.round((totalWithdrawal / revenueMillion) * 100) / 100
+      if (prevPerRevenueMillion !== null && prevPerRevenueMillion > 0) {
+        intensity.perRevenueMillionYoY = Math.round(((intensity.perRevenueMillion - prevPerRevenueMillion) / prevPerRevenueMillion) * 10000) / 100
+      }
+    }
+    if (totalFloorArea > 0) {
+      intensity.perFloorAreaM2 = Math.round((totalWithdrawal / totalFloorArea) * 100) / 100
+      if (prevPerFloorAreaM2 !== null && prevPerFloorAreaM2 > 0) {
+        intensity.perFloorAreaM2YoY = Math.round(((intensity.perFloorAreaM2 - prevPerFloorAreaM2) / prevPerFloorAreaM2) * 10000) / 100
+      }
+    }
+  }
+
+  const totalWithdrawalYoY = prevYearWithdrawal > 0
+    ? Math.round(((totalWithdrawal - prevYearWithdrawal) / prevYearWithdrawal) * 10000) / 100
+    : null
+  const totalConsumptionYoY = prevYearConsumption > 0
+    ? Math.round(((totalConsumption - prevYearConsumption) / prevYearConsumption) * 10000) / 100
+    : null
+  const totalDischargeYoY = prevYearDischarge > 0
+    ? Math.round(((totalDischarge - prevYearDischarge) / prevYearDischarge) * 10000) / 100
+    : null
+  const totalRecycledYoY = prevYearRecycled > 0
+    ? Math.round(((totalRecycled - prevYearRecycled) / prevYearRecycled) * 10000) / 100
+    : null
+
+  return {
+    totalWithdrawal: Math.round(totalWithdrawal),
+    totalConsumption: Math.round(totalConsumption),
+    totalDischarge: Math.round(totalDischarge),
+    totalRecycled: Math.round(totalRecycled),
+    monthlyTrend,
+    bySite,
+    bySource,
+    year: new Date(options.startDate).getFullYear(),
+    intensity,
+    totalWithdrawalYoY,
+    totalConsumptionYoY,
+    totalDischargeYoY,
+    totalRecycledYoY,
+  }
+}
+
+/**
+ * GRI 306 Waste Dashboard Data Types
+ */
+export interface WasteMonthlyTrend {
+  month: string // 'YYYY-MM'
+  generated: number
+  diverted: number
+  disposed: number
+}
+
+export interface WasteByType {
+  type: string
+  value: number
+  percentage: number
+  hazardous: boolean
+}
+
+export interface WasteBySite {
+  site_id: string
+  site_name: string
+  generated: number
+  diverted: number
+  disposed: number
+  recyclingRate: number
+  // YoY percentage change
+  generatedYoY: number | null
+}
+
+export interface WasteByTreatment {
+  treatment: string
+  value: number
+  percentage: number
+}
+
+export interface WasteIntensityMetrics {
+  perEmployee: number | null
+  perRevenueMillion: number | null
+  perFloorAreaM2: number | null
+  employeeCount: number | null
+  revenue: number | null
+  floorArea: number | null
+  // YoY percentage changes
+  perEmployeeYoY: number | null
+  perRevenueMillionYoY: number | null
+  perFloorAreaM2YoY: number | null
+}
+
+export interface WasteDashboardData {
+  totalGenerated: number
+  totalDiverted: number
+  totalDisposed: number
+  recyclingRate: number
+  monthlyTrend: WasteMonthlyTrend[]
+  byType: WasteByType[]
+  bySite: WasteBySite[]
+  byTreatment: WasteByTreatment[]
+  year: number
+  intensity: WasteIntensityMetrics
+  // YoY percentage changes
+  totalGeneratedYoY: number | null
+  totalDivertedYoY: number | null
+  totalDisposedYoY: number | null
+  recyclingRateYoY: number | null // Percentage point change
+}
+
+/**
+ * Get GRI 306 Waste Dashboard Data
+ */
+export async function getWasteDashboardData(
+  organizationId: string,
+  options: {
+    startDate: string
+    endDate: string
+    siteId?: string
+  }
+): Promise<WasteDashboardData> {
+  const supabase = await createClient()
+
+  // Build query for GRI 306 metrics
+  let query = supabase
+    .from('metrics_data')
+    .select(
+      `
+      id,
+      value,
+      unit,
+      period_start,
+      period_end,
+      metadata,
+      site:sites(id, name),
+      metric:metrics_catalog(
+        id,
+        code,
+        name,
+        category
+      )
+    `
+    )
+    .eq('organization_id', organizationId)
+    .gte('period_start', options.startDate)
+    .lte('period_end', options.endDate)
+
+  if (options.siteId) {
+    query = query.eq('site_id', options.siteId)
+  }
+
+  const { data: metricsData } = await query
+
+  if (!metricsData || metricsData.length === 0) {
+    return {
+      totalGenerated: 0,
+      totalDiverted: 0,
+      totalDisposed: 0,
+      recyclingRate: 0,
+      monthlyTrend: [],
+      byType: [],
+      bySite: [],
+      byTreatment: [],
+      year: new Date(options.startDate).getFullYear(),
+      intensity: {
+        perEmployee: null,
+        perRevenueMillion: null,
+        perFloorAreaM2: null,
+        employeeCount: null,
+        revenue: null,
+        floorArea: null,
+        perEmployeeYoY: null,
+        perRevenueMillionYoY: null,
+        perFloorAreaM2YoY: null,
+      },
+      totalGeneratedYoY: null,
+      totalDivertedYoY: null,
+      totalDisposedYoY: null,
+      recyclingRateYoY: null,
+    }
+  }
+
+  // Filter GRI 306 waste metrics
+  const wasteData = metricsData.filter((m: any) => {
+    const code = m.metric?.code || ''
+    return code.startsWith('gri_306') || code.includes('waste')
+  })
+
+  // Calculate totals
+  let totalGenerated = 0
+  let totalDiverted = 0
+  let totalDisposed = 0
+
+  // Monthly trend map
+  const monthlyTrendMap = new Map<string, { generated: number; diverted: number; disposed: number }>()
+
+  // Site breakdown map
+  const siteMap = new Map<
+    string,
+    { site_name: string; generated: number; diverted: number; disposed: number }
+  >()
+
+  // Type breakdown map
+  const typeMap = new Map<string, { value: number; hazardous: boolean }>()
+
+  // Treatment breakdown map
+  const treatmentMap = new Map<string, number>()
+
+  wasteData.forEach((metric: any) => {
+    const metricCode = metric.metric?.code || ''
+    const value = metric.value || 0
+    const month = metric.period_start?.substring(0, 7) // 'YYYY-MM'
+    const siteName = metric.site?.name || 'Unknown Site'
+    const siteId = metric.site?.id || 'unknown'
+
+    // Determine waste category based on GRI 306 sub-categories
+    if (metricCode.includes('gri_306_3') || metricCode.includes('generated')) {
+      totalGenerated += value
+      if (month) {
+        if (!monthlyTrendMap.has(month)) {
+          monthlyTrendMap.set(month, { generated: 0, diverted: 0, disposed: 0 })
+        }
+        monthlyTrendMap.get(month)!.generated += value
+      }
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { site_name: siteName, generated: 0, diverted: 0, disposed: 0 })
+      }
+      siteMap.get(siteId)!.generated += value
+    } else if (metricCode.includes('gri_306_4') || metricCode.includes('diverted')) {
+      totalDiverted += value
+      if (month) {
+        if (!monthlyTrendMap.has(month)) {
+          monthlyTrendMap.set(month, { generated: 0, diverted: 0, disposed: 0 })
+        }
+        monthlyTrendMap.get(month)!.diverted += value
+      }
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { site_name: siteName, generated: 0, diverted: 0, disposed: 0 })
+      }
+      siteMap.get(siteId)!.diverted += value
+    } else if (metricCode.includes('gri_306_5') || metricCode.includes('disposed')) {
+      totalDisposed += value
+      if (month) {
+        if (!monthlyTrendMap.has(month)) {
+          monthlyTrendMap.set(month, { generated: 0, diverted: 0, disposed: 0 })
+        }
+        monthlyTrendMap.get(month)!.disposed += value
+      }
+      if (!siteMap.has(siteId)) {
+        siteMap.set(siteId, { site_name: siteName, generated: 0, diverted: 0, disposed: 0 })
+      }
+      siteMap.get(siteId)!.disposed += value
+    }
+
+    // Type breakdown (hazardous vs non-hazardous)
+    const wasteType = metric.metadata?.waste_type || 'Other'
+    const isHazardous = metric.metadata?.hazardous === true || metricCode.includes('hazardous')
+    if (!typeMap.has(wasteType)) {
+      typeMap.set(wasteType, { value: 0, hazardous: isHazardous })
+    }
+    typeMap.get(wasteType)!.value += value
+
+    // Treatment breakdown
+    const treatment = metric.metadata?.treatment_method || 'Other'
+    treatmentMap.set(treatment, (treatmentMap.get(treatment) || 0) + value)
+  })
+
+  const recyclingRate = totalGenerated > 0 ? (totalDiverted / totalGenerated) * 100 : 0
+
+  // Build monthly trend array
+  const monthlyTrend: WasteMonthlyTrend[] = Array.from(monthlyTrendMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, data]) => ({
+      month,
+      generated: Math.round(data.generated),
+      diverted: Math.round(data.diverted),
+      disposed: Math.round(data.disposed),
+    }))
+
+  // Build type breakdown
+  const byType: WasteByType[] = Array.from(typeMap.entries())
+    .map(([type, data]) => ({
+      type,
+      value: Math.round(data.value),
+      percentage: totalGenerated > 0 ? Math.round((data.value / totalGenerated) * 100) : 0,
+      hazardous: data.hazardous,
+    }))
+    .sort((a, b) => b.value - a.value)
+
+  // Build treatment breakdown
+  const byTreatment: WasteByTreatment[] = Array.from(treatmentMap.entries())
+    .map(([treatment, value]) => ({
+      treatment,
+      value: Math.round(value),
+      percentage: totalGenerated > 0 ? Math.round((value / totalGenerated) * 100) : 0,
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10)
+
+  // Fetch organization revenue
+  const { data: orgData } = await supabase
+    .from('organizations')
+    .select('annual_revenue')
+    .eq('id', organizationId)
+    .single()
+
+  // Fetch site data for employee count and floor area
+  let sitesQuery = supabase
+    .from('sites')
+    .select('total_employees, total_area_sqm')
+    .eq('organization_id', organizationId)
+    .eq('status', 'active')
+
+  if (options.siteId) {
+    sitesQuery = sitesQuery.eq('id', options.siteId)
+  }
+
+  const { data: sitesData } = await sitesQuery
+
+  const totalEmployees = sitesData?.reduce((sum, site) => sum + (site.total_employees || 0), 0) || 0
+  const totalFloorArea = sitesData?.reduce((sum, site) => sum + (site.total_area_sqm || 0), 0) || 0
+
+  // Calculate previous year for YoY
+  const startDate = new Date(options.startDate)
+  const endDate = new Date(options.endDate)
+  const prevYearStart = new Date(startDate)
+  prevYearStart.setFullYear(startDate.getFullYear() - 1)
+  const prevYearEnd = new Date(endDate)
+  prevYearEnd.setFullYear(endDate.getFullYear() - 1)
+
+  let prevYearQuery = supabase
+    .from('metrics_data')
+    .select('value, site_id, metric:metrics_catalog(code)')
+    .eq('organization_id', organizationId)
+    .gte('period_start', prevYearStart.toISOString().split('T')[0])
+    .lte('period_end', prevYearEnd.toISOString().split('T')[0])
+
+  if (options.siteId) {
+    prevYearQuery = prevYearQuery.eq('site_id', options.siteId)
+  }
+
+  const { data: prevYearMetrics } = await prevYearQuery
+
+  let prevYearGenerated = 0
+  let prevYearDiverted = 0
+  let prevYearDisposed = 0
+  const prevYearSiteMap = new Map<string, number>()
+
+  prevYearMetrics?.forEach((metric: any) => {
+    const metricCode = metric.metric?.code || ''
+    const value = metric.value || 0
+    const siteId = metric.site_id
+
+    if (metricCode.includes('gri_306_3') || metricCode.includes('generated')) {
+      prevYearGenerated += value
+      if (siteId) {
+        prevYearSiteMap.set(siteId, (prevYearSiteMap.get(siteId) || 0) + value)
+      }
+    } else if (metricCode.includes('gri_306_4') || metricCode.includes('diverted')) {
+      prevYearDiverted += value
+    } else if (metricCode.includes('gri_306_5') || metricCode.includes('disposed')) {
+      prevYearDisposed += value
+    }
+  })
+
+  const prevYearRecyclingRate = prevYearGenerated > 0 ? (prevYearDiverted / prevYearGenerated) * 100 : 0
+
+  // Build site breakdown with YoY
+  const bySite: WasteBySite[] = Array.from(siteMap.entries())
+    .map(([site_id, data]) => {
+      const prevYearTotal = prevYearSiteMap.get(site_id) || 0
+      const generatedYoY = prevYearTotal > 0
+        ? Math.round(((data.generated - prevYearTotal) / prevYearTotal) * 10000) / 100
+        : null
+      const siteRecyclingRate = data.generated > 0 ? (data.diverted / data.generated) * 100 : 0
+
+      return {
+        site_id,
+        site_name: data.site_name,
+        generated: Math.round(data.generated),
+        diverted: Math.round(data.diverted),
+        disposed: Math.round(data.disposed),
+        recyclingRate: Math.round(siteRecyclingRate * 10) / 10,
+        generatedYoY,
+      }
+    })
+    .sort((a, b) => b.generated - a.generated)
+
+  // Calculate intensity metrics
+  const intensity: WasteIntensityMetrics = {
+    perEmployee: null,
+    perRevenueMillion: null,
+    perFloorAreaM2: null,
+    employeeCount: totalEmployees > 0 ? totalEmployees : null,
+    revenue: orgData?.annual_revenue || null,
+    floorArea: totalFloorArea > 0 ? totalFloorArea : null,
+    perEmployeeYoY: null,
+    perRevenueMillionYoY: null,
+    perFloorAreaM2YoY: null,
+  }
+
+  let prevPerEmployee: number | null = null
+  let prevPerRevenueMillion: number | null = null
+  let prevPerFloorAreaM2: number | null = null
+
+  if (prevYearGenerated > 0) {
+    if (totalEmployees > 0) {
+      prevPerEmployee = Math.round((prevYearGenerated / totalEmployees) * 100) / 100
+    }
+    if (orgData?.annual_revenue && orgData.annual_revenue > 0) {
+      const revenueMillion = orgData.annual_revenue / 1000000
+      prevPerRevenueMillion = Math.round((prevYearGenerated / revenueMillion) * 100) / 100
+    }
+    if (totalFloorArea > 0) {
+      prevPerFloorAreaM2 = Math.round((prevYearGenerated / totalFloorArea) * 100) / 100
+    }
+  }
+
+  if (totalGenerated > 0) {
+    if (totalEmployees > 0) {
+      intensity.perEmployee = Math.round((totalGenerated / totalEmployees) * 100) / 100
+      if (prevPerEmployee !== null && prevPerEmployee > 0) {
+        intensity.perEmployeeYoY = Math.round(((intensity.perEmployee - prevPerEmployee) / prevPerEmployee) * 10000) / 100
+      }
+    }
+    if (orgData?.annual_revenue && orgData.annual_revenue > 0) {
+      const revenueMillion = orgData.annual_revenue / 1000000
+      intensity.perRevenueMillion = Math.round((totalGenerated / revenueMillion) * 100) / 100
+      if (prevPerRevenueMillion !== null && prevPerRevenueMillion > 0) {
+        intensity.perRevenueMillionYoY = Math.round(((intensity.perRevenueMillion - prevPerRevenueMillion) / prevPerRevenueMillion) * 10000) / 100
+      }
+    }
+    if (totalFloorArea > 0) {
+      intensity.perFloorAreaM2 = Math.round((totalGenerated / totalFloorArea) * 100) / 100
+      if (prevPerFloorAreaM2 !== null && prevPerFloorAreaM2 > 0) {
+        intensity.perFloorAreaM2YoY = Math.round(((intensity.perFloorAreaM2 - prevPerFloorAreaM2) / prevPerFloorAreaM2) * 10000) / 100
+      }
+    }
+  }
+
+  const totalGeneratedYoY = prevYearGenerated > 0
+    ? Math.round(((totalGenerated - prevYearGenerated) / prevYearGenerated) * 10000) / 100
+    : null
+  const totalDivertedYoY = prevYearDiverted > 0
+    ? Math.round(((totalDiverted - prevYearDiverted) / prevYearDiverted) * 10000) / 100
+    : null
+  const totalDisposedYoY = prevYearDisposed > 0
+    ? Math.round(((totalDisposed - prevYearDisposed) / prevYearDisposed) * 10000) / 100
+    : null
+  const recyclingRateYoY = prevYearRecyclingRate > 0
+    ? Math.round((recyclingRate - prevYearRecyclingRate) * 10) / 10
+    : null
+
+  return {
+    totalGenerated: Math.round(totalGenerated),
+    totalDiverted: Math.round(totalDiverted),
+    totalDisposed: Math.round(totalDisposed),
+    recyclingRate: Math.round(recyclingRate * 10) / 10,
+    monthlyTrend,
+    byType,
+    bySite,
+    byTreatment,
+    year: new Date(options.startDate).getFullYear(),
+    intensity,
+    totalGeneratedYoY,
+    totalDivertedYoY,
+    totalDisposedYoY,
+    recyclingRateYoY,
+  }
+}

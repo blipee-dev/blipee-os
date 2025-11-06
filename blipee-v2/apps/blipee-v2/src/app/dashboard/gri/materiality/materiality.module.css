@@ -1,0 +1,488 @@
+/* Glass morphism card design pattern for GRI Materiality */
+
+.container {
+  width: 100%;
+  padding: 0;
+}
+
+/* KPI Cards Grid */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpiCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+}
+
+.kpiCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.kpiHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.kpiLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpiIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgba(16, 185, 129, 0.7);
+}
+
+.kpiValue {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.kpiSubtext {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Section Cards */
+.sectionCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  backdrop-filter: blur(20px);
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.sectionCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.sectionDescription {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.tabButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.tabButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tabButtonActive {
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  border-color: transparent;
+  color: white;
+}
+
+.tabButtonActive:hover {
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+}
+
+/* Export Button */
+.exportButton {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exportButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+}
+
+/* GRI Standard Cards */
+.standardCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  backdrop-filter: blur(20px);
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.standardCard:hover {
+  transform: translateY(-2px);
+}
+
+.standardCardMaterial {
+  border-left: 4px solid #10b981;
+}
+
+.standardCardMaterial:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  border-left-color: #10b981;
+}
+
+.standardCardNotMaterial {
+  opacity: 0.6;
+  border-left: 4px solid rgba(255, 255, 255, 0.2);
+}
+
+.standardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.standardTitleSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.standardIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #10b981;
+}
+
+.standardIconNotMaterial {
+  opacity: 0.4;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.standardTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.standardMeta {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.standardMetaMaterial {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.standardPercentage {
+  text-align: right;
+}
+
+.percentageValue {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.percentageLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Standard Details */
+.standardDetails {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.disclosuresSection {
+  margin-bottom: 1rem;
+}
+
+.disclosuresLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.disclosuresList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.disclosureBadge {
+  padding: 0.375rem 0.875rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  color: #10b981;
+}
+
+.peerInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.peerIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Progress Bar */
+.progressBar {
+  width: 100%;
+  height: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(to right, #10b981, #0ea5e9);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* Not Material Reason */
+.notMaterialReason {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Process Section */
+.processContent {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.processContent p {
+  margin-bottom: 1rem;
+}
+
+.processContent h4 {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.processContent ol {
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
+.processContent li {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.processContent li strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.statCard {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.statValue {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.statSubtext {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Management Section */
+.managementContent {
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.managementSection {
+  margin-bottom: 1.5rem;
+}
+
+.managementLabel {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.managementGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+}
+
+.managementMetric {
+  display: flex;
+  flex-direction: column;
+}
+
+.managementMetricLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.25rem;
+}
+
+.managementMetricValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.managementList {
+  padding-left: 1.5rem;
+  list-style-type: disc;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.managementList li {
+  margin-bottom: 0.25rem;
+}
+
+.alertBox {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+}
+
+.alertWarning {
+  background: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.alertSuccess {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@media (max-width: 768px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .standardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .standardPercentage {
+    text-align: left;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .managementGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabNavigation {
+    flex-direction: column;
+  }
+
+  .tabButton {
+    width: 100%;
+  }
+}

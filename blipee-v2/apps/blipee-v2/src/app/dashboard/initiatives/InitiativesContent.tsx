@@ -18,17 +18,11 @@ import {
 } from 'lucide-react'
 import type { DismissedMetric, DismissedBreakdown } from '@/lib/data/initiatives'
 
-interface InitiativesClientProps {
+interface InitiativesContentProps {
   dismissedMetrics: {
     not_material: DismissedMetric[]
     can_reactivate: DismissedMetric[]
     all: DismissedMetric[]
-  }
-  stats: {
-    total_dismissed: number
-    can_reactivate: number
-    permanently_dismissed: number
-    affects_materiality: number
   }
   breakdown: DismissedBreakdown[]
   organizationId: string
@@ -68,12 +62,11 @@ const getCategoryColor = (category: string) => {
   }
 }
 
-export function InitiativesClient({
+export function InitiativesContent({
   dismissedMetrics,
-  stats,
   breakdown,
   organizationId,
-}: InitiativesClientProps) {
+}: InitiativesContentProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'dismissed' | 'materiality'>('dismissed')
   const [reactivating, setReactivating] = useState<string | null>(null)
@@ -89,6 +82,14 @@ export function InitiativesClient({
     metricName: '',
     currentCategory: '',
   })
+
+  // Calculate stats from dismissedMetrics
+  const stats = {
+    total_dismissed: dismissedMetrics.all.length,
+    can_reactivate: dismissedMetrics.can_reactivate.length,
+    permanently_dismissed: dismissedMetrics.not_material.length,
+    affects_materiality: dismissedMetrics.all.filter(m => m.affects_materiality).length,
+  }
 
   const handleReactivate = async (recommendationId: string) => {
     const reason = prompt('Why are you reactivating this metric?')
@@ -168,57 +169,6 @@ export function InitiativesClient({
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Initiatives & Materiality</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Track dismissed metrics and review your materiality assessment
-        </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Total Dismissed</span>
-            <Activity className="w-4 h-4 text-gray-400" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {stats.total_dismissed}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Can Reactivate</span>
-            <Clock className="w-4 h-4 text-yellow-500" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {stats.can_reactivate}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Not Material</span>
-            <XCircle className="w-4 h-4 text-red-500" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {stats.permanently_dismissed}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Affects Materiality</span>
-            <TrendingUp className="w-4 h-4 text-purple-500" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {stats.affects_materiality}
-          </div>
-        </div>
-      </div>
-
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <div className="flex gap-4">

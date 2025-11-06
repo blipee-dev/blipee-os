@@ -69,6 +69,11 @@ export function Navbar({ user }: NavbarProps) {
   })
   const [fullName, setFullName] = useState('')
 
+  const toggleMobileSidebar = () => {
+    // Dispatch custom event to toggle sidebar
+    window.dispatchEvent(new CustomEvent('toggleMobileSidebar'))
+  }
+
   useEffect(() => {
     loadAvatarSettings()
     
@@ -175,6 +180,19 @@ export function Navbar({ user }: NavbarProps) {
 
       <nav className={styles.nav}>
         <div className={styles.navContainer}>
+        {/* Mobile Menu Button */}
+        <button
+          className={styles.mobileMenuBtn}
+          onClick={toggleMobileSidebar}
+          aria-label="Toggle menu"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+
         {/* Logo with Assistant */}
         <Link href="/" className={styles.navLogoContainer}>
           <div className={styles.navAssistantContainer}>

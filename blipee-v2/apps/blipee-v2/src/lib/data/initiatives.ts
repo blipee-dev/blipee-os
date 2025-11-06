@@ -8,7 +8,6 @@ export interface DismissedMetric {
   category: string
   recommendation_reason: string
   dismissed_at: string
-  dismissed_by: string
   dismissed_category:
     | 'not_material'
     | 'not_priority'
@@ -19,9 +18,6 @@ export interface DismissedMetric {
   dismissed_notes: string | null
   is_reactivatable: boolean
   affects_materiality: boolean
-  peer_adoption_percent: number | null
-  gri_disclosure: string | null
-  required_for_frameworks: string[] | null
 }
 
 export interface DismissedBreakdown {
@@ -65,14 +61,10 @@ export async function getDismissedMetrics(
       metric_catalog_id,
       recommendation_reason,
       dismissed_at,
-      dismissed_by,
       dismissed_category,
       dismissed_notes,
       is_reactivatable,
       affects_materiality,
-      peer_adoption_percent,
-      gri_disclosure,
-      required_for_frameworks,
       metric:metrics_catalog(
         id,
         name,
@@ -98,14 +90,10 @@ export async function getDismissedMetrics(
     category: rec.metric?.category || '',
     recommendation_reason: rec.recommendation_reason,
     dismissed_at: rec.dismissed_at,
-    dismissed_by: rec.dismissed_by || 'Unknown',
     dismissed_category: rec.dismissed_category,
     dismissed_notes: rec.dismissed_notes,
     is_reactivatable: rec.is_reactivatable,
     affects_materiality: rec.affects_materiality,
-    peer_adoption_percent: rec.peer_adoption_percent,
-    gri_disclosure: rec.gri_disclosure,
-    required_for_frameworks: rec.required_for_frameworks,
   }))
 
   return {

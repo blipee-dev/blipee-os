@@ -15,6 +15,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
   const pathname = usePathname()
   const activePath = currentPath || pathname
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   const toggleSidebar = () => {
     const newState = !isCollapsed
@@ -42,11 +43,22 @@ export function Sidebar({ currentPath }: SidebarProps) {
         mainContent.classList.add(styles.sidebarCollapsed)
       }
     }
+
+    // Listen for mobile sidebar toggle event from navbar
+    const handleMobileSidebarToggle = () => {
+      setIsMobileOpen(prev => !prev)
+    }
+
+    window.addEventListener('toggleMobileSidebar', handleMobileSidebarToggle)
+
+    return () => {
+      window.removeEventListener('toggleMobileSidebar', handleMobileSidebarToggle)
+    }
   }, [])
 
   return (
     <>
-      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''} ${isMobileOpen ? styles.mobileOpen : ''}`}>
         <div className={styles.sidebarSection}>
           <div className={styles.sidebarSectionTitle}>{t('overview')}</div>
           <div className={styles.sidebarItemWrapper} data-tooltip={t('dashboard')}>
@@ -247,6 +259,14 @@ export function Sidebar({ currentPath }: SidebarProps) {
           <div className={styles.footerCopyright}>© 2025 blipee. {t('allRightsReserved')}.</div>
         </div>
       </aside>
+
+      {/* Mobile Backdrop */}
+      {isMobileOpen && (
+        <div
+          className={styles.mobileBackdrop}
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
     </>
   )
 }
