@@ -61,33 +61,28 @@
 }
 
 /* Tooltip for collapsed sidebar */
-.sidebar.collapsed .sidebarItem::after {
+.sidebar.collapsed .sidebarItem[data-tooltip]::before {
   content: attr(data-tooltip);
-  position: absolute;
-  left: 100%;
-  top: 50%;
+  position: fixed;
+  left: calc(80px + 0.75rem);
   transform: translateY(-50%);
-  margin-left: 0.75rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(30, 30, 30, 0.95);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: #1a1a1a;
+  border: 2px solid #10b981;
   border-radius: 8px;
   color: #ffffff;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   opacity: 0;
-  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.15s ease;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-.sidebar.collapsed .sidebarItem:hover::after {
+.sidebar.collapsed .sidebarItem[data-tooltip]:hover::before {
   opacity: 1;
-  visibility: visible;
 }
 
 .sidebarItem:hover {
