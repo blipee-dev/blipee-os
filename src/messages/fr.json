@@ -1,0 +1,1235 @@
+{
+  "marketing": {
+    "about": {
+      "hero": {
+        "title": "Construire les Entreprises Durables",
+        "titleHighlight": "de Demain Aujourd'hui",
+        "subtitle": "Notre mission est de rendre la durabilité rentable, mesurable et accessible à chaque entreprise grâce à l'innovation en IA."
+      },
+      "story": {
+        "title": "Notre",
+        "titleHighlight": "Histoire",
+        "paragraph1": "blipee est née d'une observation simple mais puissante : les entreprises veulent être durables, mais manquent de temps, d'expertise et de ressources pour le faire efficacement. Le conseil en durabilité traditionnel est coûteux et chronophage. Nous savions qu'il devait y avoir une meilleure approche.",
+        "paragraph2": "Nos fondateurs – un mélange unique de chercheurs en IA, de scientifiques environnementaux et de stratèges d'affaires – se sont réunis pour construire quelque chose sans précédent : une main-d'œuvre IA autonome entièrement dédiée à la durabilité. Chacun de nos 8 agents est entraîné avec des millions de points de données, travaillant 24/7 pour optimiser chaque aspect de vos opérations.",
+        "paragraph3": "Aujourd'hui, blipee représente la convergence entre l'intelligence artificielle de pointe et l'action environnementale urgente. Nous ne sommes pas simplement une plateforme logicielle – nous sommes votre équipe de durabilité, évolutive à l'infini et toujours disponible."
+      },
+      "stats": {
+        "title": "En",
+        "titleHighlight": "Chiffres",
+        "aiAgents": {
+          "number": "8",
+          "label": "Agents IA"
+        },
+        "uptime": {
+          "number": "24/7",
+          "label": "Disponibilité"
+        },
+        "accuracy": {
+          "number": "98.5%",
+          "label": "Précision"
+        },
+        "costReduction": {
+          "number": "18%",
+          "label": "Réduction Moyenne des Coûts"
+        }
+      },
+      "timeline": {
+        "title": "Notre",
+        "titleHighlight": "Parcours",
+        "vision": {
+          "year": "2023",
+          "title": "La Vision",
+          "description": "Fondée par une équipe de chercheurs en IA et d'experts en durabilité qui croyaient que les entreprises pouvaient être une force pour le bien environnemental."
+        },
+        "firstAgents": {
+          "year": "2024",
+          "title": "Premiers Agents Déployés",
+          "description": "Nous avons lancé nos 3 premiers agents IA axés sur la compliance ESG, le suivi carbone et l'optimisation de la chaîne d'approvisionnement."
+        },
+        "completeWorkforce": {
+          "year": "2025",
+          "title": "Main-d'Œuvre IA Complète",
+          "description": "Nous avons élargi à 8 agents spécialisés couvrant tous les aspects des opérations durables, de la maintenance à la compliance réglementaire."
+        }
+      },
+      "cta": {
+        "title": "Rejoignez Notre",
+        "titleHighlight": "Mission",
+        "text": "Faites partie de l'équipe qui redéfinit comment les entreprises abordent la durabilité.",
+        "button": "Explorer les Carrières"
+      }
+    },
+    "company": {
+      "hero": {
+        "title": "Pionniers du Futur de",
+        "titleHighlight": "l'Entreprise Durable",
+        "subtitle": "Nous construisons la main-d'œuvre IA la plus avancée au monde dédiée à la durabilité et l'excellence opérationnelle."
+      },
+      "mission": {
+        "title": "Notre",
+        "titleHighlight": "Mission",
+        "paragraph1": "Chez blipee, nous croyons que chaque entreprise peut être une force pour le bien. Notre mission est de rendre la durabilité accessible, mesurable et rentable pour les entreprises de toutes tailles grâce au pouvoir des agents IA autonomes.",
+        "paragraph2": "Nous réunissons 8 agents IA spécialisés qui travaillent 24/7, chacun expert dans un aspect critique des opérations durables. De la compliance ESG au suivi carbone, de l'optimisation de la chaîne d'approvisionnement aux économies de coûts – nous couvrons tout avec une précision et une intelligence sans précédent."
+      },
+      "values": {
+        "title": "Nos",
+        "titleHighlight": "Valeurs",
+        "innovation": {
+          "title": "Innovation",
+          "description": "Nous exploitons l'IA de pointe pour résoudre les défis de durabilité qui comptent."
+        },
+        "commitment": {
+          "title": "Engagement 24/7",
+          "description": "Nos agents IA travaillent sans interruption, garantissant que vos objectifs de durabilité ne dorment jamais."
+        },
+        "trust": {
+          "title": "Confiance et Transparence",
+          "description": "Nous construisons la confiance grâce à des processus transparents et des résultats vérifiables."
+        },
+        "impact": {
+          "title": "Impact",
+          "description": "Chaque action que nous prenons est mesurée par son impact environnemental et commercial dans le monde réel."
+        }
+      },
+      "cta": {
+        "title": "Rejoignez Notre",
+        "titleHighlight": "Aventure",
+        "text": "Nous recherchons toujours des personnes talentueuses qui partagent notre passion pour la durabilité et l'innovation.",
+        "button": "Voir les Postes Ouverts"
+      }
+    },
+    "careers": {
+      "hero": {
+        "title": "Construisez le Futur de",
+        "titleHighlight": "l'Entreprise Durable",
+        "subtitle": "Rejoignez une équipe d'innovateurs travaillant à rendre la durabilité accessible, mesurable et rentable pour chaque entreprise."
+      },
+      "benefits": {
+        "title": "Pourquoi",
+        "titleHighlight": "blipee",
+        "cuttingEdge": {
+          "title": "IA de Pointe",
+          "description": "Travaillez avec des modèles d'IA de dernière génération et contribuez à des solutions de durabilité révolutionnaires."
+        },
+        "realImpact": {
+          "title": "Impact Réel",
+          "description": "Chaque ligne de code que vous écrivez aide les entreprises à réduire leur empreinte environnementale."
+        },
+        "remoteFirst": {
+          "title": "Télétravail Prioritaire",
+          "description": "Travaillez de n'importe où dans le monde. Nous valorisons les résultats plutôt que la localisation."
+        },
+        "growth": {
+          "title": "Croissance et Apprentissage",
+          "description": "Budget d'apprentissage continu, conférences et programmes de mentorat."
+        },
+        "compensation": {
+          "title": "Package Compétitif",
+          "description": "Salaire de premier plan, options d'equity et avantages complets."
+        },
+        "wellness": {
+          "title": "Soutien au Bien-Être",
+          "description": "Assurance santé, programmes de bien-être mental et congés illimités."
+        }
+      },
+      "jobs": {
+        "title": "Postes",
+        "titleHighlight": "Ouverts",
+        "seniorAI": {
+          "title": "Ingénieur IA Senior",
+          "location": "Télétravail",
+          "type": "Temps Plein",
+          "department": "Ingénierie",
+          "description": "Dirigez le développement de nos agents IA autonomes. Concevez et implémentez des modèles de machine learning qui génèrent des insights de durabilité.",
+          "tags": [
+            "Python",
+            "TensorFlow",
+            "LLMs",
+            "MLOps"
+          ]
+        },
+        "fullStack": {
+          "title": "Ingénieur Full-Stack",
+          "location": "Télétravail",
+          "type": "Temps Plein",
+          "department": "Ingénierie",
+          "description": "Construisez des interfaces élégantes et performantes qui rendent les données de durabilité exploitables. Travaillez sur notre frontend Next.js et backend Node.js.",
+          "tags": [
+            "React",
+            "Next.js",
+            "TypeScript",
+            "Node.js"
+          ]
+        },
+        "productDesigner": {
+          "title": "Designer Produit",
+          "location": "Télétravail",
+          "type": "Temps Plein",
+          "department": "Design",
+          "description": "Créez des expériences intuitives qui rendent les métriques de durabilité complexes compréhensibles. Gérez l'ensemble du design system.",
+          "tags": [
+            "Figma",
+            "UI/UX",
+            "Design Systems",
+            "User Research"
+          ]
+        },
+        "sustainability": {
+          "title": "Spécialiste en Durabilité",
+          "location": "Télétravail",
+          "type": "Temps Plein",
+          "department": "Produit",
+          "description": "Faites le pont entre les capacités de l'IA et les pratiques de durabilité du monde réel. Aidez à façonner l'expérience de nos agents.",
+          "tags": [
+            "ESG",
+            "Carbon Accounting",
+            "Supply Chain",
+            "Compliance"
+          ]
+        },
+        "applyButton": "Postuler Maintenant",
+        "applyAlert": "Démo : Formulaire de candidature"
+      },
+      "cta": {
+        "title": "Vous Ne Voyez Pas Votre",
+        "titleHighlight": "Fonction?",
+        "text": "Nous recherchons toujours des talents exceptionnels. Envoyez-nous votre CV et dites-nous comment vous pouvez aider à construire le futur de l'entreprise durable.",
+        "button": "Nous Contacter"
+      }
+    },
+    "contact": {
+      "hero": {
+        "title": "Entrez en",
+        "titleHighlight": "Contact",
+        "subtitle": "Vous avez des questions ? Nous serions ravis de vous entendre. Envoyez-nous un message et nous vous répondrons dans les plus brefs délais."
+      },
+      "info": {
+        "title": "Parlons-en",
+        "description": "Que vous soyez intéressé par notre main-d'œuvre IA, que vous ayez des questions sur la durabilité ou que vous souhaitiez explorer un partenariat, nous sommes là pour vous aider."
+      },
+      "contactItems": {
+        "meeting": {
+          "title": "Planifier une Réunion",
+          "description": "Réservez un créneau qui vous convient"
+        },
+        "email": {
+          "title": "Email",
+          "description": "info@blipee.com"
+        },
+        "phone": {
+          "title": "Téléphone",
+          "description": "+351 934 866 155"
+        },
+        "office": {
+          "title": "Bureau",
+          "description": "Lisbonne, PT"
+        }
+      },
+      "form": {
+        "labelName": "Nom Complet",
+        "placeholderName": "Jean Dupont",
+        "labelEmail": "Email",
+        "placeholderEmail": "jean@entreprise.com",
+        "labelCompany": "Entreprise",
+        "placeholderCompany": "Votre Entreprise",
+        "labelSubject": "Sujet",
+        "placeholderSubject": "Sélectionnez un sujet",
+        "subjectDemo": "Demander une Démo",
+        "subjectPricing": "Question sur les Tarifs",
+        "subjectPartnership": "Opportunité de Partenariat",
+        "subjectSupport": "Support Technique",
+        "subjectOther": "Autre",
+        "labelMessage": "Message",
+        "placeholderMessage": "Parlez-nous de vos besoins...",
+        "buttonSending": "Envoi en cours...",
+        "buttonSend": "Envoyer le Message"
+      }
+    }
+  },
+  "landing": {
+    "nav": {
+      "company": "Entreprise",
+      "about": "À propos",
+      "careers": "Carrières",
+      "signIn": "Se connecter"
+    },
+    "hero": {
+      "badge": "8 Agents IA Travaillant 24h/24 et 7j/7 pour Vos Objectifs de Durabilité",
+      "title": "Arrêtez de Gérer la Durabilité.",
+      "titleHighlight": "Commencez à la Vivre",
+      "description": "Pendant que vos concurrents engagent des consultants et créent des feuilles de calcul, vous disposez d'une main-d'œuvre IA complète qui ne dort jamais. 8 agents autonomes analysant les données, prédisant les risques, trouvant des économies et garantissant la compliance — automatiquement.",
+      "primaryCta": "Commencer",
+      "secondaryCta": "Découvrez Notre Différence"
+    },
+    "problem": {
+      "titlePrefix": "Le Défi de la Durabilité est",
+      "titleHighlight": "Impossible",
+      "titleSuffix": "à Gérer Manuellement",
+      "description": "Vous vous noyez dans les données de plus de 15 catégories d'émissions. Les frameworks de compliance changent mensuellement. Les modèles énergétiques se cachent dans des milliers de points de données. Les fournisseurs ne sont pas surveillés. Quand vous détectez un problème, il vous a déjà coûté des milliers — ou pire, votre réputation."
+    },
+    "aiFeatures": {
+      "autonomousOps": {
+        "title": "Opérations IA Autonomes",
+        "description": "Chaque workflow orchestré par des agents ajustés pour l'ESG. Ils priorisent les initiatives et tiennent la direction informée sans effort manuel."
+      },
+      "realTimeVision": {
+        "title": "Vision de Durabilité en Temps Réel",
+        "description": "La computer vision sur les installations et actifs identifie les anomalies instantanément, ancrant les insights dans les comportements du monde réel."
+      },
+      "predictiveIntelligence": {
+        "title": "Intelligence Prédictive Partout",
+        "description": "Prévoit les impacts énergétiques, hydriques, de déchets et de carbone 12 mois à l'avance avec 98,5% de précision. Les agents agissent avant que les problèmes n'escaladent."
+      }
+    },
+    "agents": {
+      "chiefOfStaff": {
+        "name": "Directeur Général ESG",
+        "role": "Leadership Exécutif • 24/7",
+        "description": "Supervision stratégique de toutes les opérations de durabilité. Coordonne les activités des agents, priorise les initiatives et livre des insights prêts pour le conseil d'administration."
+      },
+      "complianceGuardian": {
+        "name": "Gardien de la Compliance",
+        "role": "Expert Réglementaire • 24/7",
+        "description": "Surveille plus de 7 frameworks (GHG, GRI, ESRS, TCFD). Génère automatiquement des reports, signale les risques avant les audits et vous maintient perpétuellement en conformité."
+      },
+      "carbonHunter": {
+        "name": "Chasseur de Carbone",
+        "role": "Spécialiste des Émissions • 24/7",
+        "description": "Recherche les opportunités de réduction carbone dans tous les périmètres. Identifie les quick wins, suit la progression et optimise l'utilisation énergétique en temps réel."
+      },
+      "supplyChainInvestigator": {
+        "name": "Investigateur de la Chaîne d'Approvisionnement",
+        "role": "Analyste de Risques • 24/7",
+        "description": "Due diligence continue des fournisseurs et évaluation des risques. Signale les violations ESG avant qu'elles ne deviennent des responsabilités."
+      },
+      "costSavingFinder": {
+        "name": "Détecteur d'Économies",
+        "role": "Analyste Financier • 24/7",
+        "description": "Découvre les économies cachées dans les factures énergétiques, la gestion des déchets et les opérations. Le client moyen économise 18% la première année."
+      },
+      "predictiveMaintenance": {
+        "name": "Maintenance Prédictive",
+        "role": "Spécialiste en Équipements • 24/7",
+        "description": "Prévoit les défaillances d'équipements des semaines à l'avance. Planifie la maintenance pendant les fenêtres optimales, évitant les arrêts coûteux."
+      },
+      "autonomousOptimizer": {
+        "name": "Optimiseur Autonome",
+        "role": "Ajusteur de Performance • 24/7",
+        "description": "Optimise continuellement les opérations pour une efficacité maximale. Auto-ajuste les systèmes en se basant sur des modèles invisibles aux humains."
+      },
+      "regulatoryForesight": {
+        "name": "Prospection Réglementaire",
+        "role": "Prédicteur d'Avenir • 24/7",
+        "description": "Surveille les changements réglementaires mondialement. Vous prépare aux nouvelles exigences des mois avant leur entrée en vigueur."
+      }
+    },
+    "assistant": {
+      "title": "blipee",
+      "titleHighlight": "Assistant",
+      "description": "IA conversationnelle qui orchestre votre équipe de 8 agents. Posez n'importe quelle question, obtenez des réponses résumées et gardez chaque stakeholder aligné.",
+      "features": {
+        "plainLanguage": "Réponses en langage naturel basées sur vos données ESG",
+        "autoRouting": "Dirige automatiquement chaque demande vers le bon spécialiste",
+        "proactiveBriefs": "Livre des briefings proactifs, des alertes et les prochaines étapes",
+        "retainsContext": "Conserve le contexte entre les équipes et les conversations passées"
+      }
+    },
+    "impact": {
+      "costSavings": {
+        "value": "18%",
+        "label": "Économie Moyenne de Coûts\nPremière Année"
+      },
+      "forecastAccuracy": {
+        "value": "98.5%",
+        "label": "Précision du Forecast\n12 Mois à l'Avance"
+      },
+      "continuousMonitoring": {
+        "value": "24/7",
+        "label": "Surveillance Continue\nNe Dort Jamais"
+      },
+      "reportingReduction": {
+        "value": "85%",
+        "label": "Réduction du Temps de\nReporting Manuel"
+      }
+    },
+    "cta": {
+      "titlePrefix": "Votre Main-d'Œuvre IA",
+      "titleHighlight": "Commence Aujourd'hui",
+      "description": "Pas de consultants. Pas de mois de configuration. Pas de courbe d'apprentissage. Vos 8 agents IA sont prêts à commencer à travailler dès votre inscription.",
+      "primaryCta": "Contacter les Ventes",
+      "secondaryCta": "En Savoir Plus"
+    },
+    "footer": {
+      "product": {
+        "title": "Produit",
+        "aiWorkforce": "Main-d'Œuvre IA",
+        "capabilities": "Capacités",
+        "pricing": "Tarifs",
+        "updates": "Mises à Jour"
+      },
+      "company": {
+        "title": "Entreprise",
+        "aboutUs": "À Propos de Nous",
+        "ourStory": "Notre Histoire",
+        "careers": "Carrières",
+        "contact": "Contact"
+      },
+      "resources": {
+        "title": "Ressources",
+        "documentation": "Documentation",
+        "api": "API",
+        "faq": "FAQ",
+        "support": "Support",
+        "status": "État"
+      },
+      "brand": "blipee",
+      "description": "Plateforme de durabilité propulsée par IA avec 8 agents autonomes travaillant 24/7 pour optimiser vos opérations.",
+      "newsletterPlaceholder": "Entrez votre email",
+      "newsletterCta": "S'abonner",
+      "copyright": "© 2025 blipee. Tous droits réservés.",
+      "socialTwitter": "Twitter",
+      "socialLinkedIn": "LinkedIn",
+      "socialGitHub": "GitHub"
+    }
+  },
+  "common": {
+    "navigation": {
+      "home": "Accueil",
+      "about": "À Propos",
+      "pricing": "Tarifs",
+      "documentation": "Documentation",
+      "dashboard": "Dashboard",
+      "profile": "Profil",
+      "settings": "Paramètres",
+      "signIn": "Se Connecter",
+      "signUp": "S'Inscrire",
+      "signOut": "Se Déconnecter"
+    },
+    "actions": {
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "create": "Créer",
+      "update": "Mettre à Jour",
+      "close": "Fermer",
+      "confirm": "Confirmer",
+      "back": "Retour",
+      "next": "Suivant",
+      "submit": "Envoyer",
+      "reset": "Réinitialiser",
+      "search": "Rechercher",
+      "filter": "Filtrer",
+      "export": "Exporter",
+      "import": "Importer",
+      "download": "Télécharger",
+      "upload": "Charger",
+      "view": "Voir",
+      "add": "Ajouter",
+      "remove": "Retirer"
+    },
+    "status": {
+      "loading": "Chargement...",
+      "saving": "Enregistrement...",
+      "saved": "Enregistré",
+      "error": "Erreur",
+      "success": "Succès",
+      "pending": "En Attente",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "messages": {
+      "saveSuccess": "Modifications enregistrées avec succès",
+      "saveError": "Erreur lors de l'enregistrement des modifications",
+      "deleteSuccess": "Supprimé avec succès",
+      "deleteError": "Erreur lors de la suppression",
+      "createSuccess": "Créé avec succès",
+      "createError": "Erreur lors de la création",
+      "updateSuccess": "Mis à jour avec succès",
+      "updateError": "Erreur lors de la mise à jour",
+      "loadError": "Erreur lors du chargement des données",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer ceci ?",
+      "noData": "Aucune donnée disponible",
+      "comingSoon": "Bientôt Disponible"
+    },
+    "forms": {
+      "required": "Obligatoire",
+      "optional": "Facultatif",
+      "select": "Sélectionner...",
+      "selectAll": "Tout sélectionner",
+      "deselectAll": "Tout désélectionner",
+      "clear": "Effacer"
+    },
+    "time": {
+      "seconds": "secondes",
+      "minutes": "minutes",
+      "hours": "heures",
+      "days": "jours",
+      "weeks": "semaines",
+      "months": "mois",
+      "years": "années",
+      "ago": "il y a",
+      "justNow": "à l'instant"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page",
+      "of": "sur",
+      "showing": "Affichage de",
+      "to": "à",
+      "results": "résultats"
+    },
+    "sidebar": {
+      "overview": "Vue d'Ensemble",
+      "dashboard": "Dashboard",
+      "analytics": "Analyses",
+      "reports": "Rapports",
+      "energy": "Énergie",
+      "consumption": "Consommation",
+      "costAnalysis": "Analyse des Coûts",
+      "efficiency": "Efficacité",
+      "goals": "Objectifs",
+      "griStandards": "Normes GRI",
+      "griOverview": "Aperçu GRI",
+      "gri305Emissions": "GRI 305 - Émissions",
+      "gri302Energy": "GRI 302 - Énergie",
+      "gri303Water": "GRI 303 - Eau",
+      "gri306Waste": "GRI 306 - Déchets",
+      "settings": "Paramètres",
+      "billing": "Facturation",
+      "integrations": "Intégrations",
+      "version": "Version",
+      "poweredBy": "Propulsé par",
+      "allRightsReserved": "Tous droits réservés"
+    },
+    "navbar": {
+      "energy": "Énergie",
+      "water": "Eau",
+      "carbon": "Carbone",
+      "waste": "Déchets",
+      "notifications": "Notifications",
+      "settings": "Paramètres",
+      "userMenu": "Menu Utilisateur",
+      "darkMode": "Mode Sombre",
+      "lightMode": "Mode Clair",
+      "language": "Langue",
+      "myProfile": "Mon Profil",
+      "logout": "Déconnexion",
+      "user": "Utilisateur"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Bienvenue",
+      "titleHighlight": "de Retour",
+      "subtitle": "Connectez-vous pour accéder à votre dashboard",
+      "emailLabel": "Adresse Email",
+      "emailPlaceholder": "vous@entreprise.com",
+      "passwordLabel": "Mot de Passe",
+      "passwordPlaceholder": "Entrez votre mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se Connecter",
+      "divider": "Ou continuez avec",
+      "googleButton": "Google",
+      "githubButton": "GitHub",
+      "noAccount": "Pas de compte ?",
+      "getAccount": "Créez le vôtre ici",
+      "backToHome": "Retour à l'Accueil",
+      "rightTitle": "Votre Équipe IA",
+      "rightTitleHighlight": "Autonome",
+      "rightTitleSuffix": "Vous Attend",
+      "rightSubtitle": "Accédez à votre plateforme de durabilité autonome avec 8 agents spécialisés travaillant 24 heures sur 24.",
+      "features": {
+        "chat": "Conversez avec l'Assistant blipee",
+        "agents": "Travaillez avec nos Agents Autonomes",
+        "track": "Suivez vos Targets avec Prévisions ML",
+        "reports": "Rapports de Durabilité en Un Clic"
+      }
+    },
+    "signup": {
+      "title": "Créez votre compte",
+      "nameLabel": "Nom complet",
+      "nameOptional": "(facultatif)",
+      "emailLabel": "Adresse email",
+      "passwordLabel": "Mot de passe",
+      "passwordHint": "Minimum 8 caractères",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "submitButton": "S'Inscrire",
+      "divider": "Ou continuez avec",
+      "googleButton": "Google",
+      "githubButton": "GitHub",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter"
+    },
+    "forgotPassword": {
+      "title": "Réinitialisez votre",
+      "titleHighlight": "Mot de Passe",
+      "subtitle": "Entrez votre email et nous vous enverrons un lien",
+      "emailLabel": "Adresse Email",
+      "emailPlaceholder": "vous@entreprise.com",
+      "submitButton": "Envoyer le Lien",
+      "submitButtonSending": "Envoi en cours...",
+      "backToSignIn": "Retour à la Connexion",
+      "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+      "signIn": "Se connecter",
+      "rightTitle": "Réinitialisation",
+      "rightTitleHighlight": "Sécurisée",
+      "rightSubtitle": "Nous vous enverrons un lien sécurisé pour réinitialiser votre mot de passe et reprendre la gestion de vos objectifs de durabilité.",
+      "features": {
+        "secure": "Lien chiffré et sécurisé",
+        "expires": "Le lien expire dans 1 heure",
+        "checkEmail": "Vérifiez votre boîte de réception"
+      }
+    },
+    "resetPassword": {
+      "title": "Créez un Nouveau",
+      "titleHighlight": "Mot de Passe",
+      "subtitle": "Choisissez un mot de passe fort pour protéger votre compte",
+      "passwordLabel": "Nouveau Mot de Passe",
+      "passwordPlaceholder": "Entrez nouveau mot de passe (min. 8 caractères)",
+      "confirmPasswordLabel": "Confirmer le Mot de Passe",
+      "confirmPasswordPlaceholder": "Confirmez votre nouveau mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "submitButton": "Mettre à Jour le Mot de Passe",
+      "backToSignIn": "Retour à la Connexion",
+      "returnTo": "Retour à",
+      "signIn": "Se connecter",
+      "verifying": "Vérification de votre lien de réinitialisation...",
+      "invalidLink": "Lien invalide ou expiré. Veuillez en demander un nouveau.",
+      "rightTitle": "Protégez votre",
+      "rightTitleHighlight": "Compte",
+      "rightSubtitle": "Créez un mot de passe fort pour protéger vos données de durabilité et agents IA.",
+      "features": {
+        "minimum": "Minimum 8 caractères requis",
+        "encrypted": "Stockage chiffré et sécurisé",
+        "instant": "Accès instantané après mise à jour"
+      }
+    },
+    "messages": {
+      "invalidEmail": "Email invalide",
+      "passwordRequired": "Le mot de passe est obligatoire",
+      "passwordMin": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordsDontMatch": "Les mots de passe ne correspondent pas",
+      "nameMin": "Le nom doit contenir au moins 2 caractères",
+      "tooManyAttempts": "Trop de tentatives de connexion. Réessayez dans {time}.",
+      "invalidCredentials": "Email ou mot de passe incorrect",
+      "welcomeBack": "Bon retour !",
+      "unexpectedError": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+      "checkEmail": "Vérifiez votre email pour confirmer votre compte",
+      "accountCreated": "Compte créé avec succès !",
+      "passwordResetSent": "Email de réinitialisation envoyé",
+      "passwordResetSuccess": "Votre mot de passe a été réinitialisé avec succès",
+      "invalidResetToken": "Token de réinitialisation invalide ou expiré"
+    },
+    "validation": {
+      "required": "Ce champ est obligatoire",
+      "email": "Veuillez entrer un email valide",
+      "minLength": "Doit contenir au moins {count} caractères",
+      "maxLength": "Doit contenir au maximum {count} caractères",
+      "match": "Les champs doivent correspondre"
+    }
+  },
+  "dashboard": {
+    "carbonDashboard": {
+      "title": "Dashboard Carbone",
+      "subtitle": "Suivez et réduisez les émissions de carbone dans votre organisation",
+      "filters": {
+        "allSites": "Tous les Sites",
+        "headquarters": "Siège Social",
+        "manufacturingPlantA": "Usine de Production A",
+        "warehouseB": "Entrepôt B",
+        "currentYear": "Année en Cours",
+        "last12Months": "12 Derniers Mois",
+        "lastQuarter": "Dernier Trimestre",
+        "lastMonth": "Dernier Mois"
+      },
+      "kpis": {
+        "totalEmissions": "Émissions Totales",
+        "scope1Emissions": "Émissions Scope 1",
+        "scope2Emissions": "Émissions Scope 2",
+        "targetAchievement": "Atteinte des Objectifs",
+        "vsLastYear": "vs année précédente",
+        "vsTarget": "vs objectif"
+      },
+      "charts": {
+        "emissionsByScope": "Émissions par Scope",
+        "emissionsByScopeDesc": "Répartition par catégories d'émission",
+        "reductionProgress": "Progrès de Réduction",
+        "reductionProgressDesc": "Atteinte des objectifs par catégorie d'émission",
+        "annualTarget": "Atteinte de l'Objectif Annuel",
+        "annualTargetDesc": "Progrès par rapport aux objectifs de réduction 2024",
+        "ofAnnualTarget": "de l'objectif annuel",
+        "emissionsDistribution": "Distribution des Émissions",
+        "emissionsDistributionDesc": "Par source et catégorie",
+        "monthlyEmissions": "Émissions Mensuelles",
+        "monthlyEmissionsDesc": "Émissions de carbone par mois (tCO₂)",
+        "emissionIntensity": "Intensité d'Émission",
+        "emissionIntensityDesc": "Modèles horaires pendant la semaine"
+      },
+      "categories": {
+        "transportation": "Transport",
+        "electricity": "Électricité",
+        "heating": "Chauffage",
+        "cooling": "Refroidissement",
+        "manufacturing": "Fabrication",
+        "supplyChain": "Chaîne d'Approvisionnement",
+        "transport": "Transport",
+        "energy": "Énergie",
+        "supply": "Approvisionnement"
+      },
+      "scopes": {
+        "scope1": "Scope 1",
+        "scope2": "Scope 2",
+        "scope3": "Scope 3"
+      },
+      "table": {
+        "title": "Émissions par Catégorie",
+        "description": "Analyse détaillée des émissions de carbone",
+        "category": "Catégorie",
+        "emissions": "Émissions (tCO₂)",
+        "percentOfTotal": "% du Total",
+        "trend": "Tendance",
+        "status": "Statut",
+        "onTrack": "Sur la Bonne Voie",
+        "atRisk": "À Risque"
+      },
+      "months": {
+        "jan": "Jan",
+        "feb": "Fév",
+        "mar": "Mar",
+        "apr": "Avr",
+        "may": "Mai",
+        "jun": "Juin",
+        "jul": "Juil",
+        "aug": "Août",
+        "sep": "Sep",
+        "oct": "Oct",
+        "nov": "Nov",
+        "dec": "Déc"
+      }
+    }
+  },
+  "profile": {
+    "avatarCustomization": {
+      "title": "Personnalisation de l'Avatar",
+      "description": "Choisissez comment votre avatar apparaît dans la barre de navigation",
+      "previewLabel": "Aperçu :",
+      "displayTypeLabel": "Type d'Affichage",
+      "displayTypeIcon": "Icône",
+      "displayTypeInitials": "Initiales",
+      "displayTypeHelpText": "Choisissez comment votre avatar apparaît dans la barre de navigation",
+      "chooseIconLabel": "Choisir une Icône",
+      "chooseIconHelpText": "Sélectionnez une icône pour votre avatar",
+      "gradientColorLabel": "Couleur de Dégradé",
+      "gradientColorHelpText": "Sélectionnez un dégradé de couleur pour l'arrière-plan de votre avatar"
+    },
+    "personalInformation": {
+      "title": "Informations Personnelles",
+      "description": "Gérez vos données personnelles et de contact",
+      "fullNameLabel": "Nom Complet",
+      "displayNameLabel": "Nom d'Affichage",
+      "displayNameHelpText": "Comment vous préférez être appelé",
+      "emailLabel": "Adresse Email",
+      "emailHelpText": "L'email ne peut pas être modifié",
+      "employeeIdLabel": "ID d'Employé",
+      "jobTitleLabel": "Poste",
+      "departmentLabel": "Département",
+      "phoneLabel": "Téléphone",
+      "mobilePhoneLabel": "Téléphone Portable",
+      "organizationLabel": "Organisation",
+      "accessLevelLabel": "Niveau d'Accès",
+      "accessLevelOwner": "Propriétaire",
+      "memberSinceLabel": "Membre Depuis",
+      "lastAccessLabel": "Dernier Accès",
+      "required": "*",
+      "updateSuccess": "Profil mis à jour avec succès !",
+      "updateError": "Erreur lors de la mise à jour du profil. Veuillez réessayer.",
+      "loading": "Chargement..."
+    },
+    "preferences": {
+      "languageTitle": "Langue",
+      "languageDescription": "Choisissez votre langue d'interface préférée",
+      "languageLabel": "Langue",
+      "timezoneTitle": "Fuseau Horaire",
+      "timezoneDescription": "Configurez votre fuseau horaire pour un affichage précis de l'heure",
+      "timezoneLabel": "Fuseau Horaire",
+      "notificationsTitle": "Notifications",
+      "notificationsDescription": "Configurez comment vous recevez les alertes et mises à jour",
+      "emailNotificationsLabel": "Notifications par email",
+      "emailNotificationsDescription": "Recevoir des notifications par email",
+      "alertTypesLabel": "Types d'alertes à recevoir :",
+      "criticalAlertsLabel": "Alertes critiques (pannes système, capteur hors ligne)",
+      "warningAlertsLabel": "Alertes d'avertissement (seuils dépassés)",
+      "infoAlertsLabel": "Alertes informatives (résumés quotidiens)",
+      "dashboardPreferencesTitle": "Préférences du Dashboard",
+      "dashboardPreferencesDescription": "Personnalisez votre expérience du dashboard",
+      "defaultDateRangeLabel": "Plage de dates par défaut",
+      "dateRangeThisMonth": "Ce mois-ci",
+      "dateRangeLastMonth": "Mois dernier",
+      "dateRangeLast3Months": "3 derniers mois",
+      "dateRangeLast6Months": "6 derniers mois",
+      "dateRangeYTD": "Année en cours (YTD)",
+      "dateRangeLast12Months": "12 derniers mois",
+      "updateSuccess": "Préférences mises à jour avec succès !",
+      "updateError": "Erreur lors de la mise à jour des préférences.",
+      "loading": "Chargement des préférences..."
+    },
+    "assistant": {
+      "personalityTitle": "Personnalité de l'IA",
+      "personalityDescription": "Personnalisez comment l'Assistant IA blipee interagit avec vous",
+      "communicationToneLabel": "Ton de Communication",
+      "communicationToneHelpText": "Comment l'IA doit communiquer avec vous",
+      "toneProfessional": "Professionnel",
+      "toneFriendly": "Amical",
+      "toneCasual": "Décontracté",
+      "toneFormal": "Formel",
+      "proactivityLabel": "Niveau de Proactivité",
+      "proactivityHelpText": "À quel point l'IA doit être proactive en offrant de l'aide",
+      "proactivityLow": "Faible - Attendre mes demandes",
+      "proactivityMedium": "Moyen - Approche équilibrée",
+      "proactivityHigh": "Élevé - Suggestions proactives",
+      "detailLevelLabel": "Niveau de Détail",
+      "detailLevelHelpText": "Niveau de détail dans les réponses de l'IA",
+      "detailConcise": "Concis - Bref et direct",
+      "detailBalanced": "Équilibré - Détail modéré",
+      "detailDetailed": "Détaillé - Explications complètes",
+      "responsePreferencesTitle": "Préférences de Réponse",
+      "responsePreferencesDescription": "Configurez comment vous souhaitez recevoir les informations de l'IA",
+      "responseFormatLabel": "Format de Réponse",
+      "responseFormatHelpText": "Format préféré pour les réponses de l'IA",
+      "formatBullets": "Points - Facile à analyser",
+      "formatParagraphs": "Paragraphes - Format narratif",
+      "formatMixed": "Mixte - Combinaison des deux",
+      "includeExamplesLabel": "Inclure des Exemples",
+      "includeExamplesDescription": "Inclure des exemples pratiques dans les réponses",
+      "showTechnicalDetailsLabel": "Afficher les Détails Techniques",
+      "showTechnicalDetailsDescription": "Inclure les détails d'implémentation technique",
+      "suggestImprovementsLabel": "Suggérer des Améliorations",
+      "suggestImprovementsDescription": "L'IA peut suggérer des améliorations de manière proactive",
+      "updateSuccess": "Paramètres de l'Assistant IA mis à jour avec succès !",
+      "updateError": "Erreur lors de la mise à jour des paramètres de l'IA.",
+      "loading": "Chargement des paramètres de l'IA..."
+    },
+    "security": {
+      "changePasswordTitle": "Changer le Mot de Passe",
+      "changePasswordDescription": "Mettez à jour régulièrement votre mot de passe pour sécuriser votre compte",
+      "currentPasswordLabel": "Mot de Passe Actuel",
+      "newPasswordLabel": "Nouveau Mot de Passe",
+      "newPasswordHelpText": "Minimum 8 caractères",
+      "confirmPasswordLabel": "Confirmer le Nouveau Mot de Passe",
+      "changePasswordButton": "Changer le Mot de Passe",
+      "changePasswordConfirm": "Êtes-vous sûr de vouloir changer votre mot de passe ?",
+      "passwordChangeSuccess": "Mot de passe changé avec succès !",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas.",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+      "passwordChangeError": "Erreur lors du changement du mot de passe.",
+      "twoFactorTitle": "Authentification à Deux Facteurs (2FA)",
+      "twoFactorDescription": "Ajoutez une couche de sécurité supplémentaire à votre compte",
+      "twoFactorStatusLabel": "Statut :",
+      "twoFactorStatusDisabled": "Désactivé",
+      "twoFactorStatusEnabled": "Activé",
+      "twoFactorProtectionText": "Protégez votre compte avec l'authentification à deux facteurs via une application d'authentification",
+      "enable2FAButton": "Activer 2FA",
+      "disable2FAButton": "Désactiver 2FA",
+      "activeSessionsTitle": "Sessions Actives",
+      "activeSessionsDescription": "Gérez les appareils ayant accès à votre compte",
+      "deviceHeader": "Appareil",
+      "locationHeader": "Localisation",
+      "lastAccessHeader": "Dernier Accès",
+      "actionsHeader": "Actions",
+      "currentSession": "Session actuelle",
+      "inactive": "Inactif",
+      "thisSession": "Cette session",
+      "now": "Maintenant",
+      "revokeButton": "Révoquer",
+      "endAllSessionsButton": "Terminer Toutes les Autres Sessions"
+    }
+  },
+  "settings": {
+    "organizations": {
+      "loadingTitle": "Chargement des Organisations",
+      "loadingDescription": "Récupération des données de vos organisations...",
+      "noOrganizationsTitle": "Aucune Organisation",
+      "noOrganizationsDescription": "Vous n'êtes associé à aucune organisation.",
+      "superAdminNote": "💡 En tant que super administrateur, vous devriez voir toutes les organisations. Si cette liste est vide, aucune organisation n'a encore été créée dans le système.",
+      "titleAll": "Toutes les Organisations",
+      "titleYour": "Vos Organisations",
+      "descriptionAll": "Gérez toutes les organisations du système",
+      "descriptionYour": "Organisations dont vous êtes membre",
+      "superAdminBadge": "🔐 Super Admin",
+      "searchPlaceholder": "Rechercher par nom...",
+      "allIndustries": "Toutes les Industries",
+      "allSizes": "Toutes les Tailles",
+      "allStatuses": "Tous les Statuts",
+      "statusActive": "Actif",
+      "statusSetup": "Configuration Requise",
+      "statusInactive": "Inactif",
+      "clearFilters": "Effacer",
+      "noOrganizationsFound": "Aucune organisation trouvée",
+      "adjustFilters": "Essayez d'ajuster les filtres",
+      "tableHeaderOrganization": "Organisation",
+      "tableHeaderPrimaryIndustry": "Industrie Principale",
+      "tableHeaderSize": "Taille",
+      "tableHeaderStatus": "Statut",
+      "tableHeaderAccessLevel": "Niveau d'Accès",
+      "tableHeaderYourRole": "Votre Rôle",
+      "tableHeaderCreated": "Créé",
+      "statusBadgeActive": "● Actif",
+      "statusBadgeSetup": "⚙ Config",
+      "statusBadgeInactive": "✖ Inactif",
+      "roleSuperAdmin": "Super Admin",
+      "roleOwnerStar": "⭐",
+      "clickRowHint": "💡 Cliquez sur n'importe quelle ligne pour voir les détails et gérer l'organisation",
+      "of": "sur"
+    },
+    "sites": {
+      "loadingTitle": "Chargement des Sites",
+      "loadingDescription": "Récupération des données de vos sites...",
+      "noOrganization": "Aucune Organisation",
+      "noOrganizationDescription": "Vous n'êtes associé à aucune organisation.",
+      "noSitesTitle": "Aucun Site",
+      "noSitesDescriptionUser": "Votre organisation n'a pas encore enregistré de site.",
+      "noSitesDescriptionAdmin": "Aucun site n'a encore été créé dans le système.",
+      "superAdminNote": "💡 En tant que super administrateur, vous devriez voir tous les sites. Si cette liste est vide, aucun site n'a encore été créé dans le système.",
+      "titleAll": "Tous les Sites",
+      "titleYour": "Vos Sites",
+      "descriptionAll": "Gérez tous les sites du système",
+      "descriptionYour": "Sites et installations de votre organisation",
+      "addSiteButton": "Ajouter un Site",
+      "superAdminBadge": "🔐 Super Admin",
+      "searchPlaceholder": "Rechercher par nom ou localisation...",
+      "allTypes": "Tous les Types",
+      "allLocations": "Toutes les Localisations",
+      "allStatuses": "Tous les Statuts",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "clearFilters": "Effacer",
+      "noSitesFound": "Aucun site trouvé",
+      "adjustFilters": "Essayez d'ajuster les filtres",
+      "tableHeaderSiteName": "Nom du Site",
+      "tableHeaderOrganization": "Organisation",
+      "tableHeaderType": "Type",
+      "tableHeaderLocation": "Localisation",
+      "tableHeaderEmployees": "Employés",
+      "tableHeaderStatus": "Statut",
+      "tableHeaderCreated": "Créé",
+      "statusBadgeActive": "● Actif",
+      "statusBadgeInactive": "✖ Inactif",
+      "clickRowHint": "💡 Cliquez sur n'importe quelle ligne pour voir les détails",
+      "of": "sur"
+    },
+    "users": {
+      "loadingTitle": "Chargement des Utilisateurs",
+      "loadingDescription": "Récupération des données des utilisateurs...",
+      "noOrganization": "Aucune Organisation",
+      "noOrganizationDescription": "Vous n'êtes associé à aucune organisation.",
+      "noUsersTitle": "Aucun Utilisateur",
+      "noUsersDescription": "Votre organisation n'a pas encore de membres.",
+      "superAdminNote": "💡 En tant que super administrateur, vous devriez voir tous les membres. Si cette liste est vide, aucun membre n'a encore été ajouté.",
+      "title": "Utilisateurs de l'Organisation",
+      "description": "Membres de",
+      "addUserButton": "Ajouter un Utilisateur",
+      "superAdminBadge": "🔐 Super Admin",
+      "searchPlaceholder": "Rechercher par nom, email...",
+      "allRoles": "Tous les Rôles",
+      "allDepartments": "Tous les Départements",
+      "clearFilters": "Effacer",
+      "noUsersFound": "Aucun utilisateur trouvé",
+      "adjustFilters": "Essayez d'ajuster les filtres",
+      "tableHeaderName": "Nom",
+      "tableHeaderEmail": "Email",
+      "tableHeaderDepartment": "Département",
+      "tableHeaderRole": "Rôle",
+      "tableHeaderJoined": "Rejoint",
+      "roleBadgeOwner": "● Propriétaire",
+      "roleBadgeAdmin": "● Admin",
+      "roleBadgeMember": "● Membre",
+      "ownerCrown": "👑",
+      "clickRowHint": "💡 Cliquez sur n'importe quelle ligne pour voir les détails",
+      "of": "sur",
+      "titleOrganizationUsers": "Utilisateurs de l'Organisation",
+      "descriptionMembers": "Membres de"
+    },
+    "modals": {
+      "organizationDetails": {
+        "titleEdit": "Modifier l'Organisation",
+        "titleView": "Détails de l'Organisation",
+        "statusBadgeActive": "● Actif",
+        "statusBadgeSetup": "⚙ Configuration",
+        "statusBadgeInactive": "✖ Inactif",
+        "superAdminAccess": "Accès Super Admin",
+        "ownerIndicator": " • Propriétaire",
+        "sectionBasic": "Informations de Base",
+        "labelOrgName": "Nom de l'Organisation",
+        "labelLegalName": "Nom Légal",
+        "labelRegion": "Région",
+        "labelWebsite": "Site Web",
+        "placeholderLegalName": "Nom légal officiel",
+        "placeholderWebsite": "https://exemple.com",
+        "selectRegion": "Sélectionner la région",
+        "regionNorthAmerica": "Amérique du Nord",
+        "regionSouthAmerica": "Amérique du Sud",
+        "regionEurope": "Europe",
+        "regionAsia": "Asie",
+        "regionAfrica": "Afrique",
+        "regionOceania": "Océanie",
+        "notSpecified": "Non spécifié",
+        "sectionIndustry": "Industrie et Classification",
+        "labelPrimaryIndustry": "Industrie Principale",
+        "labelSecondaryIndustry": "Industrie Secondaire",
+        "labelStandard": "Standard",
+        "placeholderPrimaryIndustry": "Sélectionner l'industrie principale",
+        "placeholderSecondaryIndustry": "Aucune (facultatif)",
+        "placeholderStandard": "ex., GRI 11",
+        "helpStandard": "Rempli automatiquement à partir de la sélection de l'industrie principale",
+        "sectionSize": "Taille de l'Organisation",
+        "labelEmployees": "Nombre d'Employés",
+        "labelCompanySize": "Taille de l'Entreprise",
+        "calculating": "Calcul en cours...",
+        "calculatedFromSites": "(calculé à partir des sites)",
+        "autoCalculated": "(calculé automatiquement)",
+        "sectionContact": "Informations de Contact",
+        "labelContactEmail": "Email de Contact Principal",
+        "labelContactPhone": "Téléphone de Contact Principal",
+        "placeholderContactEmail": "contact@exemple.com",
+        "placeholderContactPhone": "+33 1 23 45 67 89",
+        "sectionReporting": "Configuration des Rapports",
+        "labelBaseYear": "Année de Base",
+        "labelConsolidation": "Approche de Consolidation",
+        "labelOperatingHours": "Heures d'Exploitation Annuelles",
+        "placeholderBaseYear": "2024",
+        "placeholderOperatingHours": "8760",
+        "selectConsolidation": "Sélectionner l'approche",
+        "consolidationOperational": "Contrôle Opérationnel",
+        "consolidationFinancial": "Contrôle Financier",
+        "consolidationEquity": "Participation au Capital",
+        "helpBaseYear": "Utilisé pour les calculs des émissions de base et des objectifs de réduction",
+        "helpOperatingHours": "Par défaut : 8 760 heures (24h × 365 jours). Ajuster selon l'horaire d'exploitation réel.",
+        "sectionFinancial": "Informations Financières",
+        "labelRevenue": "Chiffre d'Affaires Annuel",
+        "labelCustomers": "Clients Annuels",
+        "labelPublicCompany": "Entreprise Publique",
+        "labelStockTicker": "Symbole Boursier",
+        "placeholderRevenue": "Revenu en USD",
+        "placeholderCustomers": "Nombre de clients",
+        "placeholderStockTicker": "ex., AAPL",
+        "checkboxPubliclyTraded": "Cotée en bourse",
+        "yes": "Oui",
+        "no": "Non",
+        "sectionStatus": "Gestion du Statut",
+        "sectionStatusSubtitle": "(Super Admin Uniquement)",
+        "labelStatus": "Statut de l'Organisation",
+        "statusActive": "Actif",
+        "statusSetup": "Configuration Requise",
+        "statusInactive": "Inactif (Désactivé Manuellement)",
+        "helpStatus": "Le statut est calculé automatiquement : Actif = a un propriétaire + des sites. Ne définir comme Inactif manuellement que si nécessaire.",
+        "toastUpdateSuccess": "Organisation mise à jour avec succès !",
+        "toastUpdateError": "Erreur lors de la mise à jour de l'organisation",
+        "toastDeleteSuccess": "Organisation supprimée avec succès !",
+        "toastDeleteError": "Erreur lors de la suppression de l'organisation",
+        "buttonSave": "Enregistrer",
+        "buttonEdit": "Modifier",
+        "buttonDelete": "Supprimer",
+        "buttonDeleting": "Suppression...",
+        "buttonCancel": "Annuler",
+        "dialogDeleteTitle": "Supprimer l'Organisation",
+        "dialogDeleteMessage": "Êtes-vous sûr de vouloir supprimer \"{name}\" ? Cette action ne peut pas être annulée.",
+        "dialogDeleteConfirm": "Oui, Supprimer",
+        "dialogDeleteCancel": "Annuler",
+        "dialogDeleteConfirmText": "delete_organization",
+        "noticeViewOnly": "ℹ️ Vous pouvez visualiser cette organisation mais pas la modifier."
+      },
+      "siteDetails": {
+        "titleCreate": "Créer un Nouveau Site",
+        "titleEdit": "Modifier le Site",
+        "titleView": "Détails du Site",
+        "statusBadgeActive": "● Actif",
+        "statusBadgeInactive": "✖ Inactif",
+        "superAdminAccess": "Accès Super Admin",
+        "step1Title": "Informations de Base et Adresse",
+        "step1Icon": "📍",
+        "step2Title": "Taille et Structure",
+        "step2Icon": "📐",
+        "step3Title": "Statut",
+        "step3Icon": "⚙️",
+        "sectionBasic": "Informations de Base",
+        "labelSiteName": "Nom du Site",
+        "labelType": "Type",
+        "placeholderSiteName": "Entrer le nom du site",
+        "selectType": "Sélectionner le type",
+        "typeOffice": "Bureau",
+        "typeFactory": "Usine",
+        "typeWarehouse": "Entrepôt",
+        "typeRetail": "Commerce",
+        "typeDataCenter": "Data Center",
+        "typeOther": "Autre",
+        "notSpecified": "Non spécifié",
+        "sectionAddress": "Adresse",
+        "labelStreet": "Rue",
+        "labelNumber": "Numéro",
+        "labelPostalCode": "Code Postal",
+        "labelCity": "Ville",
+        "labelCountry": "Pays",
+        "labelLatitude": "Latitude",
+        "labelLongitude": "Longitude",
+        "labelTimezone": "Fuseau Horaire",
+        "helpCitySearch": "(tapez pour rechercher - remplira automatiquement l'adresse)",
+        "placeholderStreet": "ex. Avenue des Champs-Élysées",
+        "placeholderNumber": "Nº",
+        "placeholderPostalCode": "ex. 75008",
+        "placeholderCity": "Nom de la ville",
+        "placeholderCountry": "Nom du pays",
+        "placeholderLatitude": "ex., 48.8566",
+        "placeholderLongitude": "ex., 2.3522",
+        "placeholderTimezone": "ex., Europe/Paris",
+        "unknownStreet": "Rue inconnue",
+        "sectionSize": "Taille et Structure",
+        "labelTotalArea": "Surface Totale (m²)",
+        "labelTotalEmployees": "Total Employés",
+        "labelFloors": "Nombre d'Étages",
+        "labelOperatingHours": "Horaires d'Ouverture",
+        "labelFacilityDetails": "Détails des Installations",
+        "placeholderArea": "Mètres carrés",
+        "placeholderEmployees": "Nombre d'employés",
+        "placeholderFloors": "Nombre d'étages",
+        "helpFacilityDetails": "(Étages, Espaces, Départements)",
+        "operatingHoursClosedAll": "Fermé toute la semaine",
+        "operatingHoursAllDays": "(Tous les jours)",
+        "operatingHoursMonFri": "Lun-Ven",
+        "operatingHoursDaysOpen": "{count} jours ouvert",
+        "operatingHoursTooltipTitle": "⏰ Analyse des Horaires d'Ouverture",
+        "operatingHoursTooltipDescWithEmployees": "Calcule les heures d'ouverture totales et les heures-employé en fonction de l'horaire.",
+        "operatingHoursTooltipDescNoEmployees": "Calcule les heures d'ouverture totales. Ajoutez des employés pour voir les calculs d'heures-employé.",
+        "operatingHoursWeekly": "Heures d'Ouverture Hebdomadaires",
+        "operatingHoursDaysWeek": "jours/semaine",
+        "operatingHoursAnnual": "Heures d'Ouverture Annuelles",
+        "operatingHoursDaysYear": "jours/an",
+        "operatingHoursWeeklyEmployee": "Heures-Employé Hebdomadaires",
+        "operatingHoursEmployees": "employés",
+        "operatingHoursAnnualEmployee": "Heures-Employé Annuelles",
+        "operatingHoursHolidays": "Ajusté pour {count} jours fériés",
+        "operatingHoursInfo": "• Heures-employé = Heures d'ouverture × Employés",
+        "operatingHoursHolidayInfo": "• Les calculs annuels prennent en compte {count} jours fériés",
+        "facilityButtonAdd": "Ajouter un Espace",
+        "facilityEmptyTitle": "Aucun espace ajouté pour le moment",
+        "facilityEmptyDescription": "Cliquez sur \"Ajouter un Espace\" pour créer des étages, départements ou espaces personnalisés",
+        "facilityFieldName": "Nom (Étage, Espace, Département)",
+        "facilityFieldArea": "Surface (m²)",
+        "facilityFieldEmployees": "Employés",
+        "facilityPlaceholderName": "ex., Rez-de-chaussée, Dép. Marketing",
+        "facilityPlaceholder": "0",
+        "facilityButtonRemove": "Retirer l'espace",
+        "facilityFloorDisplay": "Étage {number}",
+        "sectionStatus": "Statut (Super Admin Uniquement)",
+        "labelStatus": "Statut du Site",
+        "statusActive": "Actif",
+        "statusInactive": "Inactif",
+        "helpStatus": "Définir le statut du site pour contrôler la visibilité et l'état opérationnel.",
+        "operatingHoursModalTitle": "⏰ Horaires d'Ouverture",
+        "operatingHoursButtonCopyAll": "📋 Copier Lundi pour Tous",
+        "operatingHoursButtonCopyWeekdays": "💼 Copier Lundi pour Jours Ouvrables",
+        "dayMonday": "Lundi",
+        "dayTuesday": "Mardi",
+        "dayWednesday": "Mercredi",
+        "dayThursday": "Jeudi",
+        "dayFriday": "Vendredi",
+        "daySaturday": "Samedi",
+        "daySunday": "Dimanche",
+        "checkboxClosed": "Fermé",
+        "buttonDone": "Terminé",
+        "toastAddressFound": "Adresse trouvée !",
+        "toastCityFound": "Ville trouvée ! Veuillez vérifier l'adresse.",
+        "toastStreetSelected": "Rue sélectionnée ! Ajoutez le numéro du bâtiment.",
+        "toastCreateSuccess": "Site créé avec succès !",
+        "toastUpdateSuccess": "Site mis à jour avec succès !",
+        "toastDeleteSuccess": "Site supprimé avec succès !",
+        "toastErrorName": "Veuillez entrer un nom de site",
+        "toastErrorOrg": "Organisation non trouvée",
+        "toastErrorAddress": "Aucune adresse trouvée pour ce code postal. Essayez d'entrer l'adresse complète.",
+        "toastErrorFetch": "Erreur lors de la récupération de l'adresse",
+        "toastCreateError": "Erreur lors de la création du site",
+        "toastUpdateError": "Erreur lors de la mise à jour du site",
+        "toastDeleteError": "Erreur lors de la suppression du site",
+        "buttonPrevious": "← Précédent",
+        "buttonNext": "Suivant →",
+        "buttonCancel": "Annuler",
+        "buttonEdit": "Modifier",
+        "buttonDelete": "Supprimer",
+        "buttonDeleting": "Suppression...",
+        "buttonSaving": "Enregistrement...",
+        "buttonSaveChanges": "✓ Enregistrer les Modifications",
+        "dialogDeleteTitle": "Supprimer le Site",
+        "dialogDeleteMessage": "Êtes-vous sûr de vouloir supprimer \"{name}\" ? Cette action ne peut pas être annulée.",
+        "dialogDeleteConfirm": "Oui, Supprimer",
+        "dialogDeleteCancel": "Annuler",
+        "dialogDeleteConfirmText": "delete_site",
+        "noticeViewOnly": "ℹ️ Vous pouvez visualiser ce site mais pas le modifier."
+      },
+      "userDetails": {
+        "titleInvite": "Inviter un Nouvel Utilisateur",
+        "titleEdit": "Modifier l'Utilisateur",
+        "titleView": "Détails de l'Utilisateur",
+        "badgeOwner": "👑 Propriétaire",
+        "superAdminAccess": "Accès Super Admin",
+        "step1Title": "Informations de Base",
+        "step1Icon": "👤",
+        "step2Title": "Rôle et Accès",
+        "step2Icon": "🔐",
+        "labelFullName": "Nom Complet *",
+        "labelEmail": "Email *",
+        "labelJobTitle": "Poste",
+        "labelDepartment": "Département",
+        "labelPhone": "Téléphone",
+        "labelMobilePhone": "Téléphone Portable",
+        "placeholderFullName": "Entrer le nom complet",
+        "placeholderEmail": "email@exemple.com",
+        "placeholderJobTitle": "ex., Responsable Énergie",
+        "placeholderDepartment": "ex., Opérations",
+        "placeholderPhone": "+33 1 23 45 67 89",
+        "placeholderMobilePhone": "+33 6 12 34 56 78",
+        "notSpecified": "Non spécifié",
+        "labelRole": "Rôle",
+        "labelFacilityAccess": "Accès aux Installations",
+        "labelStatus": "Statut",
+        "labelJoined": "Rejoint",
+        "labelLastActive": "Dernière Activité",
+        "roleMember": "Membre",
+        "roleAdmin": "Admin",
+        "roleOwnerIndicator": " (Propriétaire)",
+        "accessAll": "Accès à Toutes les Installations",
+        "accessSpecific": "Installations Spécifiques Uniquement",
+        "accessAllDisplay": "Toutes les Installations",
+        "accessSpecificDisplay": "Installations Spécifiques",
+        "statusPending": "en attente",
+        "statusAccepted": "accepté",
+        "dateNotYet": "Pas encore",
+        "dateNever": "Jamais",
+        "toastErrorEmail": "Veuillez entrer une adresse email",
+        "toastErrorName": "Veuillez entrer un nom complet",
+        "toastErrorOrg": "Organisation non trouvée",
+        "toastInviteSuccess": "Utilisateur invité avec succès ! Il recevra un email pour configurer son compte.",
+        "toastUpdateSuccess": "Utilisateur mis à jour avec succès !",
+        "toastRemoveSuccess": "Utilisateur retiré de l'organisation !",
+        "toastInviteError": "Erreur lors de l'invitation de l'utilisateur",
+        "toastUpdateError": "Erreur lors de la mise à jour de l'utilisateur",
+        "toastRemoveError": "Erreur lors du retrait de l'utilisateur",
+        "buttonSendInvitation": "Envoyer l'Invitation",
+        "buttonSaveChanges": "✓ Enregistrer les Modifications",
+        "buttonDelete": "Supprimer",
+        "buttonCancel": "Annuler",
+        "dialogRemoveTitle": "Retirer l'Utilisateur",
+        "dialogRemoveMessage": "Êtes-vous sûr de vouloir retirer \"{name}\" de l'organisation ? Cette action ne peut pas être annulée.",
+        "dialogRemoveConfirm": "Oui, Retirer",
+        "dialogRemoveCancel": "Annuler",
+        "dialogRemoveConfirmText": "remove_user"
+      }
+    }
+  }
+}

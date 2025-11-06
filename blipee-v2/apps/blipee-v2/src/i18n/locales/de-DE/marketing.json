@@ -1,0 +1,227 @@
+{
+  "about": {
+    "hero": {
+      "title": "Die nachhaltigen Unternehmen",
+      "titleHighlight": "von morgen heute aufbauen",
+      "subtitle": "Unsere Mission ist es, Nachhaltigkeit für jedes Unternehmen durch KI-Innovation rentabel, messbar und zugänglich zu machen."
+    },
+    "story": {
+      "title": "Unsere",
+      "titleHighlight": "Geschichte",
+      "paragraph1": "blipee entstand aus einer einfachen, aber wirkungsvollen Beobachtung: Unternehmen wollen nachhaltig sein, aber es fehlt ihnen an Zeit, Fachwissen und Ressourcen, um dies effektiv zu tun. Traditionelle Nachhaltigkeitsberatung ist teuer und zeitaufwändig. Wir wussten, dass es einen besseren Weg geben muss.",
+      "paragraph2": "Unsere Gründer – eine einzigartige Mischung aus KI-Forschern, Umweltwissenschaftlern und Geschäftsstrategen – schlossen sich zusammen, um etwas Beispielloses aufzubauen: eine autonome KI-Belegschaft, die sich vollständig der Nachhaltigkeit widmet. Jeder unserer 8 Agenten ist mit Millionen von Datenpunkten trainiert und arbeitet 24/7, um jeden Aspekt Ihrer Operationen zu optimieren.",
+      "paragraph3": "Heute repräsentiert blipee die Konvergenz von modernster künstlicher Intelligenz und dringendem Umwelthandeln. Wir sind nicht nur eine Softwareplattform – wir sind Ihr Nachhaltigkeitsteam, unendlich skalierbar und immer verfügbar."
+    },
+    "stats": {
+      "title": "In",
+      "titleHighlight": "Zahlen",
+      "aiAgents": {
+        "number": "8",
+        "label": "KI-Agenten"
+      },
+      "uptime": {
+        "number": "24/7",
+        "label": "Verfügbarkeit"
+      },
+      "accuracy": {
+        "number": "98.5%",
+        "label": "Genauigkeit"
+      },
+      "costReduction": {
+        "number": "18%",
+        "label": "Durchschnittliche Kostenreduktion"
+      }
+    },
+    "timeline": {
+      "title": "Unsere",
+      "titleHighlight": "Reise",
+      "vision": {
+        "year": "2023",
+        "title": "Die Vision",
+        "description": "Gegründet von einem Team aus KI-Forschern und Nachhaltigkeitsexperten, die glaubten, dass Unternehmen eine Kraft für das Umweltwohl sein können."
+      },
+      "firstAgents": {
+        "year": "2024",
+        "title": "Erste Agenten im Einsatz",
+        "description": "Wir haben unsere ersten 3 KI-Agenten mit Fokus auf ESG-Compliance, Kohlenstoff-Tracking und Supply-Chain-Optimierung gestartet."
+      },
+      "completeWorkforce": {
+        "year": "2025",
+        "title": "Vollständige KI-Belegschaft",
+        "description": "Wir haben auf 8 spezialisierte Agenten erweitert, die alle Aspekte nachhaltiger Operationen abdecken, von Wartung bis zur regulatorischen Compliance."
+      }
+    },
+    "cta": {
+      "title": "Schließen Sie sich unserer",
+      "titleHighlight": "Mission an",
+      "text": "Werden Sie Teil des Teams, das neu definiert, wie Unternehmen Nachhaltigkeit angehen.",
+      "button": "Karriere erkunden"
+    }
+  },
+  "company": {
+    "hero": {
+      "title": "Pioniere der Zukunft des",
+      "titleHighlight": "nachhaltigen Unternehmens",
+      "subtitle": "Wir bauen die fortschrittlichste KI-Belegschaft der Welt auf, die sich der Nachhaltigkeit und operativen Exzellenz widmet."
+    },
+    "mission": {
+      "title": "Unsere",
+      "titleHighlight": "Mission",
+      "paragraph1": "Bei blipee glauben wir, dass jedes Unternehmen eine Kraft für das Gute sein kann. Unsere Mission ist es, Nachhaltigkeit für Unternehmen jeder Größe durch die Kraft autonomer KI-Agenten zugänglich, messbar und rentabel zu machen.",
+      "paragraph2": "Wir vereinen 8 spezialisierte KI-Agenten, die 24/7 arbeiten, jeder ein Experte in einem kritischen Aspekt nachhaltiger Operationen. Von ESG-Compliance bis Kohlenstoff-Tracking, von Supply-Chain-Optimierung bis Kosteneinsparung – wir decken alles mit beispielloser Präzision und Intelligenz ab."
+    },
+    "values": {
+      "title": "Unsere",
+      "titleHighlight": "Werte",
+      "innovation": {
+        "title": "Innovation",
+        "description": "Wir nutzen modernste KI, um Nachhaltigkeitsherausforderungen zu lösen, die wirklich wichtig sind."
+      },
+      "commitment": {
+        "title": "24/7-Engagement",
+        "description": "Unsere KI-Agenten arbeiten unermüdlich und stellen sicher, dass Ihre Nachhaltigkeitsziele niemals schlafen."
+      },
+      "trust": {
+        "title": "Vertrauen und Transparenz",
+        "description": "Wir schaffen Vertrauen durch transparente Prozesse und überprüfbare Ergebnisse."
+      },
+      "impact": {
+        "title": "Wirkung",
+        "description": "Jede Maßnahme, die wir ergreifen, wird an ihrer realen Umwelt- und Geschäftswirkung gemessen."
+      }
+    },
+    "cta": {
+      "title": "Begleiten Sie unsere",
+      "titleHighlight": "Reise",
+      "text": "Wir suchen immer nach talentierten Menschen, die unsere Leidenschaft für Nachhaltigkeit und Innovation teilen.",
+      "button": "Offene Stellen ansehen"
+    }
+  },
+  "careers": {
+    "hero": {
+      "title": "Bauen Sie die Zukunft des",
+      "titleHighlight": "nachhaltigen Unternehmens",
+      "subtitle": "Schließen Sie sich einem Team von Innovatoren an, die daran arbeiten, Nachhaltigkeit für jedes Unternehmen zugänglich, messbar und rentabel zu machen."
+    },
+    "benefits": {
+      "title": "Warum",
+      "titleHighlight": "blipee",
+      "cuttingEdge": {
+        "title": "Modernste KI",
+        "description": "Arbeiten Sie mit hochmodernen KI-Modellen und tragen Sie zu bahnbrechenden Nachhaltigkeitslösungen bei."
+      },
+      "realImpact": {
+        "title": "Echte Wirkung",
+        "description": "Jede Codezeile, die Sie schreiben, hilft Unternehmen, ihren ökologischen Fußabdruck zu reduzieren."
+      },
+      "remoteFirst": {
+        "title": "Remote-First",
+        "description": "Arbeiten Sie von überall auf der Welt. Wir schätzen Ergebnisse über Standort."
+      },
+      "growth": {
+        "title": "Wachstum und Lernen",
+        "description": "Kontinuierliches Lernbudget, Konferenzen und Mentoring-Programme."
+      },
+      "compensation": {
+        "title": "Wettbewerbsfähiges Paket",
+        "description": "Erstklassiges Gehalt, Equity-Optionen und umfassende Benefits."
+      },
+      "wellness": {
+        "title": "Wellness-Unterstützung",
+        "description": "Krankenversicherung, Programme für mentales Wohlbefinden und unbegrenzter Urlaub."
+      }
+    },
+    "jobs": {
+      "title": "Offene",
+      "titleHighlight": "Stellen",
+      "seniorAI": {
+        "title": "Senior KI-Ingenieur",
+        "location": "Remote",
+        "type": "Vollzeit",
+        "department": "Engineering",
+        "description": "Leiten Sie die Entwicklung unserer autonomen KI-Agenten. Entwerfen und implementieren Sie Machine-Learning-Modelle, die Nachhaltigkeits-Insights vorantreiben.",
+        "tags": ["Python", "TensorFlow", "LLMs", "MLOps"]
+      },
+      "fullStack": {
+        "title": "Full-Stack-Ingenieur",
+        "location": "Remote",
+        "type": "Vollzeit",
+        "department": "Engineering",
+        "description": "Erstellen Sie elegante und leistungsstarke Interfaces, die Nachhaltigkeitsdaten umsetzbar machen. Arbeiten Sie an unserem Next.js-Frontend und Node.js-Backend.",
+        "tags": ["React", "Next.js", "TypeScript", "Node.js"]
+      },
+      "productDesigner": {
+        "title": "Product Designer",
+        "location": "Remote",
+        "type": "Vollzeit",
+        "department": "Design",
+        "description": "Schaffen Sie intuitive Erfahrungen, die komplexe Nachhaltigkeitsmetriken verständlich machen. Verwalten Sie das gesamte Design System.",
+        "tags": ["Figma", "UI/UX", "Design Systems", "User Research"]
+      },
+      "sustainability": {
+        "title": "Nachhaltigkeitsspezialist",
+        "location": "Remote",
+        "type": "Vollzeit",
+        "department": "Produkt",
+        "description": "Verbinden Sie KI-Fähigkeiten mit realen Nachhaltigkeitspraktiken. Helfen Sie, die Erfahrung unserer Agenten zu gestalten.",
+        "tags": ["ESG", "Carbon Accounting", "Supply Chain", "Compliance"]
+      },
+      "applyButton": "Jetzt bewerben",
+      "applyAlert": "Demo: Bewerbungsformular"
+    },
+    "cta": {
+      "title": "Sehen Sie Ihre",
+      "titleHighlight": "Rolle nicht?",
+      "text": "Wir suchen immer nach außergewöhnlichen Talenten. Senden Sie uns Ihren Lebenslauf und erzählen Sie uns, wie Sie helfen können, die Zukunft des nachhaltigen Unternehmens aufzubauen.",
+      "button": "Kontakt aufnehmen"
+    }
+  },
+  "contact": {
+    "hero": {
+      "title": "Kontakt",
+      "titleHighlight": "aufnehmen",
+      "subtitle": "Haben Sie Fragen? Wir würden gerne von Ihnen hören. Senden Sie uns eine Nachricht und wir antworten so schnell wie möglich."
+    },
+    "info": {
+      "title": "Lass uns sprechen",
+      "description": "Ob Sie an unserer KI-Belegschaft interessiert sind, Fragen zur Nachhaltigkeit haben oder eine Partnerschaft erkunden möchten, wir sind hier, um zu helfen."
+    },
+    "contactItems": {
+      "meeting": {
+        "title": "Meeting vereinbaren",
+        "description": "Buchen Sie eine Zeit, die für Sie passt"
+      },
+      "email": {
+        "title": "E-Mail",
+        "description": "info@blipee.com"
+      },
+      "phone": {
+        "title": "Telefon",
+        "description": "+351 934 866 155"
+      },
+      "office": {
+        "title": "Büro",
+        "description": "Lissabon, PT"
+      }
+    },
+    "form": {
+      "labelName": "Vollständiger Name",
+      "placeholderName": "Max Mustermann",
+      "labelEmail": "E-Mail",
+      "placeholderEmail": "max@unternehmen.de",
+      "labelCompany": "Unternehmen",
+      "placeholderCompany": "Ihr Unternehmen",
+      "labelSubject": "Betreff",
+      "placeholderSubject": "Betreff auswählen",
+      "subjectDemo": "Demo anfordern",
+      "subjectPricing": "Preis-Anfrage",
+      "subjectPartnership": "Partnerschaftsmöglichkeit",
+      "subjectSupport": "Technischer Support",
+      "subjectOther": "Sonstiges",
+      "labelMessage": "Nachricht",
+      "placeholderMessage": "Erzählen Sie uns von Ihren Bedürfnissen...",
+      "buttonSending": "Wird gesendet...",
+      "buttonSend": "Nachricht senden"
+    }
+  }
+}

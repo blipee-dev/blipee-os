@@ -1,0 +1,227 @@
+{
+  "about": {
+    "hero": {
+      "title": "Construire les Entreprises Durables",
+      "titleHighlight": "de Demain Aujourd'hui",
+      "subtitle": "Notre mission est de rendre la durabilité rentable, mesurable et accessible à chaque entreprise grâce à l'innovation en IA."
+    },
+    "story": {
+      "title": "Notre",
+      "titleHighlight": "Histoire",
+      "paragraph1": "blipee est née d'une observation simple mais puissante : les entreprises veulent être durables, mais manquent de temps, d'expertise et de ressources pour le faire efficacement. Le conseil en durabilité traditionnel est coûteux et chronophage. Nous savions qu'il devait y avoir une meilleure approche.",
+      "paragraph2": "Nos fondateurs – un mélange unique de chercheurs en IA, de scientifiques environnementaux et de stratèges d'affaires – se sont réunis pour construire quelque chose sans précédent : une main-d'œuvre IA autonome entièrement dédiée à la durabilité. Chacun de nos 8 agents est entraîné avec des millions de points de données, travaillant 24/7 pour optimiser chaque aspect de vos opérations.",
+      "paragraph3": "Aujourd'hui, blipee représente la convergence entre l'intelligence artificielle de pointe et l'action environnementale urgente. Nous ne sommes pas simplement une plateforme logicielle – nous sommes votre équipe de durabilité, évolutive à l'infini et toujours disponible."
+    },
+    "stats": {
+      "title": "En",
+      "titleHighlight": "Chiffres",
+      "aiAgents": {
+        "number": "8",
+        "label": "Agents IA"
+      },
+      "uptime": {
+        "number": "24/7",
+        "label": "Disponibilité"
+      },
+      "accuracy": {
+        "number": "98.5%",
+        "label": "Précision"
+      },
+      "costReduction": {
+        "number": "18%",
+        "label": "Réduction Moyenne des Coûts"
+      }
+    },
+    "timeline": {
+      "title": "Notre",
+      "titleHighlight": "Parcours",
+      "vision": {
+        "year": "2023",
+        "title": "La Vision",
+        "description": "Fondée par une équipe de chercheurs en IA et d'experts en durabilité qui croyaient que les entreprises pouvaient être une force pour le bien environnemental."
+      },
+      "firstAgents": {
+        "year": "2024",
+        "title": "Premiers Agents Déployés",
+        "description": "Nous avons lancé nos 3 premiers agents IA axés sur la compliance ESG, le suivi carbone et l'optimisation de la chaîne d'approvisionnement."
+      },
+      "completeWorkforce": {
+        "year": "2025",
+        "title": "Main-d'Œuvre IA Complète",
+        "description": "Nous avons élargi à 8 agents spécialisés couvrant tous les aspects des opérations durables, de la maintenance à la compliance réglementaire."
+      }
+    },
+    "cta": {
+      "title": "Rejoignez Notre",
+      "titleHighlight": "Mission",
+      "text": "Faites partie de l'équipe qui redéfinit comment les entreprises abordent la durabilité.",
+      "button": "Explorer les Carrières"
+    }
+  },
+  "company": {
+    "hero": {
+      "title": "Pionniers du Futur de",
+      "titleHighlight": "l'Entreprise Durable",
+      "subtitle": "Nous construisons la main-d'œuvre IA la plus avancée au monde dédiée à la durabilité et l'excellence opérationnelle."
+    },
+    "mission": {
+      "title": "Notre",
+      "titleHighlight": "Mission",
+      "paragraph1": "Chez blipee, nous croyons que chaque entreprise peut être une force pour le bien. Notre mission est de rendre la durabilité accessible, mesurable et rentable pour les entreprises de toutes tailles grâce au pouvoir des agents IA autonomes.",
+      "paragraph2": "Nous réunissons 8 agents IA spécialisés qui travaillent 24/7, chacun expert dans un aspect critique des opérations durables. De la compliance ESG au suivi carbone, de l'optimisation de la chaîne d'approvisionnement aux économies de coûts – nous couvrons tout avec une précision et une intelligence sans précédent."
+    },
+    "values": {
+      "title": "Nos",
+      "titleHighlight": "Valeurs",
+      "innovation": {
+        "title": "Innovation",
+        "description": "Nous exploitons l'IA de pointe pour résoudre les défis de durabilité qui comptent."
+      },
+      "commitment": {
+        "title": "Engagement 24/7",
+        "description": "Nos agents IA travaillent sans interruption, garantissant que vos objectifs de durabilité ne dorment jamais."
+      },
+      "trust": {
+        "title": "Confiance et Transparence",
+        "description": "Nous construisons la confiance grâce à des processus transparents et des résultats vérifiables."
+      },
+      "impact": {
+        "title": "Impact",
+        "description": "Chaque action que nous prenons est mesurée par son impact environnemental et commercial dans le monde réel."
+      }
+    },
+    "cta": {
+      "title": "Rejoignez Notre",
+      "titleHighlight": "Aventure",
+      "text": "Nous recherchons toujours des personnes talentueuses qui partagent notre passion pour la durabilité et l'innovation.",
+      "button": "Voir les Postes Ouverts"
+    }
+  },
+  "careers": {
+    "hero": {
+      "title": "Construisez le Futur de",
+      "titleHighlight": "l'Entreprise Durable",
+      "subtitle": "Rejoignez une équipe d'innovateurs travaillant à rendre la durabilité accessible, mesurable et rentable pour chaque entreprise."
+    },
+    "benefits": {
+      "title": "Pourquoi",
+      "titleHighlight": "blipee",
+      "cuttingEdge": {
+        "title": "IA de Pointe",
+        "description": "Travaillez avec des modèles d'IA de dernière génération et contribuez à des solutions de durabilité révolutionnaires."
+      },
+      "realImpact": {
+        "title": "Impact Réel",
+        "description": "Chaque ligne de code que vous écrivez aide les entreprises à réduire leur empreinte environnementale."
+      },
+      "remoteFirst": {
+        "title": "Télétravail Prioritaire",
+        "description": "Travaillez de n'importe où dans le monde. Nous valorisons les résultats plutôt que la localisation."
+      },
+      "growth": {
+        "title": "Croissance et Apprentissage",
+        "description": "Budget d'apprentissage continu, conférences et programmes de mentorat."
+      },
+      "compensation": {
+        "title": "Package Compétitif",
+        "description": "Salaire de premier plan, options d'equity et avantages complets."
+      },
+      "wellness": {
+        "title": "Soutien au Bien-Être",
+        "description": "Assurance santé, programmes de bien-être mental et congés illimités."
+      }
+    },
+    "jobs": {
+      "title": "Postes",
+      "titleHighlight": "Ouverts",
+      "seniorAI": {
+        "title": "Ingénieur IA Senior",
+        "location": "Télétravail",
+        "type": "Temps Plein",
+        "department": "Ingénierie",
+        "description": "Dirigez le développement de nos agents IA autonomes. Concevez et implémentez des modèles de machine learning qui génèrent des insights de durabilité.",
+        "tags": ["Python", "TensorFlow", "LLMs", "MLOps"]
+      },
+      "fullStack": {
+        "title": "Ingénieur Full-Stack",
+        "location": "Télétravail",
+        "type": "Temps Plein",
+        "department": "Ingénierie",
+        "description": "Construisez des interfaces élégantes et performantes qui rendent les données de durabilité exploitables. Travaillez sur notre frontend Next.js et backend Node.js.",
+        "tags": ["React", "Next.js", "TypeScript", "Node.js"]
+      },
+      "productDesigner": {
+        "title": "Designer Produit",
+        "location": "Télétravail",
+        "type": "Temps Plein",
+        "department": "Design",
+        "description": "Créez des expériences intuitives qui rendent les métriques de durabilité complexes compréhensibles. Gérez l'ensemble du design system.",
+        "tags": ["Figma", "UI/UX", "Design Systems", "User Research"]
+      },
+      "sustainability": {
+        "title": "Spécialiste en Durabilité",
+        "location": "Télétravail",
+        "type": "Temps Plein",
+        "department": "Produit",
+        "description": "Faites le pont entre les capacités de l'IA et les pratiques de durabilité du monde réel. Aidez à façonner l'expérience de nos agents.",
+        "tags": ["ESG", "Carbon Accounting", "Supply Chain", "Compliance"]
+      },
+      "applyButton": "Postuler Maintenant",
+      "applyAlert": "Démo : Formulaire de candidature"
+    },
+    "cta": {
+      "title": "Vous Ne Voyez Pas Votre",
+      "titleHighlight": "Fonction?",
+      "text": "Nous recherchons toujours des talents exceptionnels. Envoyez-nous votre CV et dites-nous comment vous pouvez aider à construire le futur de l'entreprise durable.",
+      "button": "Nous Contacter"
+    }
+  },
+  "contact": {
+    "hero": {
+      "title": "Entrez en",
+      "titleHighlight": "Contact",
+      "subtitle": "Vous avez des questions ? Nous serions ravis de vous entendre. Envoyez-nous un message et nous vous répondrons dans les plus brefs délais."
+    },
+    "info": {
+      "title": "Parlons-en",
+      "description": "Que vous soyez intéressé par notre main-d'œuvre IA, que vous ayez des questions sur la durabilité ou que vous souhaitiez explorer un partenariat, nous sommes là pour vous aider."
+    },
+    "contactItems": {
+      "meeting": {
+        "title": "Planifier une Réunion",
+        "description": "Réservez un créneau qui vous convient"
+      },
+      "email": {
+        "title": "Email",
+        "description": "info@blipee.com"
+      },
+      "phone": {
+        "title": "Téléphone",
+        "description": "+351 934 866 155"
+      },
+      "office": {
+        "title": "Bureau",
+        "description": "Lisbonne, PT"
+      }
+    },
+    "form": {
+      "labelName": "Nom Complet",
+      "placeholderName": "Jean Dupont",
+      "labelEmail": "Email",
+      "placeholderEmail": "jean@entreprise.com",
+      "labelCompany": "Entreprise",
+      "placeholderCompany": "Votre Entreprise",
+      "labelSubject": "Sujet",
+      "placeholderSubject": "Sélectionnez un sujet",
+      "subjectDemo": "Demander une Démo",
+      "subjectPricing": "Question sur les Tarifs",
+      "subjectPartnership": "Opportunité de Partenariat",
+      "subjectSupport": "Support Technique",
+      "subjectOther": "Autre",
+      "labelMessage": "Message",
+      "placeholderMessage": "Parlez-nous de vos besoins...",
+      "buttonSending": "Envoi en cours...",
+      "buttonSend": "Envoyer le Message"
+    }
+  }
+}

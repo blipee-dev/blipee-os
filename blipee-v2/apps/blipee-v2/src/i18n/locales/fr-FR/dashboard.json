@@ -1,0 +1,80 @@
+{
+  "carbonDashboard": {
+    "title": "Dashboard Carbone",
+    "subtitle": "Suivez et réduisez les émissions de carbone dans votre organisation",
+    "filters": {
+      "allSites": "Tous les Sites",
+      "headquarters": "Siège Social",
+      "manufacturingPlantA": "Usine de Production A",
+      "warehouseB": "Entrepôt B",
+      "currentYear": "Année en Cours",
+      "last12Months": "12 Derniers Mois",
+      "lastQuarter": "Dernier Trimestre",
+      "lastMonth": "Dernier Mois"
+    },
+    "kpis": {
+      "totalEmissions": "Émissions Totales",
+      "scope1Emissions": "Émissions Scope 1",
+      "scope2Emissions": "Émissions Scope 2",
+      "targetAchievement": "Atteinte des Objectifs",
+      "vsLastYear": "vs année précédente",
+      "vsTarget": "vs objectif"
+    },
+    "charts": {
+      "emissionsByScope": "Émissions par Scope",
+      "emissionsByScopeDesc": "Répartition par catégories d'émission",
+      "reductionProgress": "Progrès de Réduction",
+      "reductionProgressDesc": "Atteinte des objectifs par catégorie d'émission",
+      "annualTarget": "Atteinte de l'Objectif Annuel",
+      "annualTargetDesc": "Progrès par rapport aux objectifs de réduction 2024",
+      "ofAnnualTarget": "de l'objectif annuel",
+      "emissionsDistribution": "Distribution des Émissions",
+      "emissionsDistributionDesc": "Par source et catégorie",
+      "monthlyEmissions": "Émissions Mensuelles",
+      "monthlyEmissionsDesc": "Émissions de carbone par mois (tCO₂)",
+      "emissionIntensity": "Intensité d'Émission",
+      "emissionIntensityDesc": "Modèles horaires pendant la semaine"
+    },
+    "categories": {
+      "transportation": "Transport",
+      "electricity": "Électricité",
+      "heating": "Chauffage",
+      "cooling": "Refroidissement",
+      "manufacturing": "Fabrication",
+      "supplyChain": "Chaîne d'Approvisionnement",
+      "transport": "Transport",
+      "energy": "Énergie",
+      "supply": "Approvisionnement"
+    },
+    "scopes": {
+      "scope1": "Scope 1",
+      "scope2": "Scope 2",
+      "scope3": "Scope 3"
+    },
+    "table": {
+      "title": "Émissions par Catégorie",
+      "description": "Analyse détaillée des émissions de carbone",
+      "category": "Catégorie",
+      "emissions": "Émissions (tCO₂)",
+      "percentOfTotal": "% du Total",
+      "trend": "Tendance",
+      "status": "Statut",
+      "onTrack": "Sur la Bonne Voie",
+      "atRisk": "À Risque"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fév",
+      "mar": "Mar",
+      "apr": "Avr",
+      "may": "Mai",
+      "jun": "Juin",
+      "jul": "Juil",
+      "aug": "Août",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Déc"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "carbonDashboard": {
+    "title": "Kohlenstoff-Dashboard",
+    "subtitle": "Verfolgen und reduzieren Sie Kohlenstoffemissionen in Ihrer Organisation",
+    "filters": {
+      "allSites": "Alle Standorte",
+      "headquarters": "Hauptsitz",
+      "manufacturingPlantA": "Produktionsstätte A",
+      "warehouseB": "Lagerhaus B",
+      "currentYear": "Aktuelles Jahr",
+      "last12Months": "Letzte 12 Monate",
+      "lastQuarter": "Letztes Quartal",
+      "lastMonth": "Letzter Monat"
+    },
+    "kpis": {
+      "totalEmissions": "Gesamtemissionen",
+      "scope1Emissions": "Scope-1-Emissionen",
+      "scope2Emissions": "Scope-2-Emissionen",
+      "targetAchievement": "Zielerreichung",
+      "vsLastYear": "vs. Vorjahr",
+      "vsTarget": "vs. Ziel"
+    },
+    "charts": {
+      "emissionsByScope": "Emissionen nach Scope",
+      "emissionsByScopeDesc": "Verteilung nach Emissionskategorien",
+      "reductionProgress": "Reduktionsfortschritt",
+      "reductionProgressDesc": "Zielerreichung nach Emissionskategorie",
+      "annualTarget": "Jährliche Zielerreichung",
+      "annualTargetDesc": "Fortschritt gegenüber Reduktionszielen 2024",
+      "ofAnnualTarget": "des Jahresziels",
+      "emissionsDistribution": "Emissionsverteilung",
+      "emissionsDistributionDesc": "Nach Quelle und Kategorie",
+      "monthlyEmissions": "Monatliche Emissionen",
+      "monthlyEmissionsDesc": "Kohlenstoffemissionen pro Monat (tCO₂)",
+      "emissionIntensity": "Emissionsintensität",
+      "emissionIntensityDesc": "Stündliche Muster während der Woche"
+    },
+    "categories": {
+      "transportation": "Transport",
+      "electricity": "Elektrizität",
+      "heating": "Heizung",
+      "cooling": "Kühlung",
+      "manufacturing": "Produktion",
+      "supplyChain": "Lieferkette",
+      "transport": "Transport",
+      "energy": "Energie",
+      "supply": "Versorgung"
+    },
+    "scopes": {
+      "scope1": "Scope 1",
+      "scope2": "Scope 2",
+      "scope3": "Scope 3"
+    },
+    "table": {
+      "title": "Emissionen nach Kategorie",
+      "description": "Detaillierte Analyse der Kohlenstoffemissionen",
+      "category": "Kategorie",
+      "emissions": "Emissionen (tCO₂)",
+      "percentOfTotal": "% des Gesamten",
+      "trend": "Trend",
+      "status": "Status",
+      "onTrack": "Im Plan",
+      "atRisk": "Gefährdet"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mär",
+      "apr": "Apr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Okt",
+      "nov": "Nov",
+      "dec": "Dez"
+    }
+  }
+}

@@ -10,11 +10,13 @@
 const fs = require('fs');
 const path = require('path');
 
-const LOCALES = ['pt', 'en', 'es'];
+const LOCALES = ['pt', 'en', 'es', 'fr', 'de'];
 const LOCALE_MAP = {
   pt: 'pt-PT',
   en: 'en-US',
-  es: 'es-ES'
+  es: 'es-ES',
+  fr: 'fr-FR',
+  de: 'de-DE'
 };
 
 const SOURCE_DIR = path.join(__dirname, '..', 'blipee-v2', 'apps', 'blipee-v2', 'src', 'i18n', 'locales');
@@ -78,6 +80,23 @@ function consolidateTranslations() {
     } else {
       console.log(`  ⚠️  landing.json not found at ${landingFile}`);
     }
+
+    // Read and merge other translation files
+    const otherFiles = ['common', 'auth', 'dashboard', 'profile', 'settings'];
+    otherFiles.forEach(fileName => {
+      const filePath = path.join(SOURCE_DIR, sourceLocale, `${fileName}.json`);
+      if (fs.existsSync(filePath)) {
+        try {
+          const fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          targetData[fileName] = fileData[fileName] || fileData;
+          console.log(`  ✅ Merged ${fileName}.json`);
+        } catch (e) {
+          console.error(`  ❌ Failed to parse ${fileName}.json:`, e.message);
+        }
+      } else {
+        console.log(`  ⚠️  ${fileName}.json not found at ${filePath}`);
+      }
+    });
 
     // Write back to target file
     try {

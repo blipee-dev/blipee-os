@@ -1,0 +1,148 @@
+{
+  "landing": {
+    "nav": {
+      "company": "Unternehmen",
+      "about": "Über Uns",
+      "careers": "Karriere",
+      "signIn": "Anmelden"
+    },
+    "hero": {
+      "badge": "8 KI-Agenten, die 24/7 für Ihre Nachhaltigkeitsziele arbeiten",
+      "title": "Hören Sie auf, Nachhaltigkeit zu verwalten.",
+      "titleHighlight": "Beginnen Sie, sie zu leben",
+      "description": "Während Ihre Konkurrenten Berater engagieren und Tabellen erstellen, erhalten Sie eine komplette KI-Belegschaft, die niemals schläft. 8 autonome Agenten analysieren Daten, prognostizieren Risiken, finden Einsparungen und gewährleisten Compliance – automatisch.",
+      "primaryCta": "Loslegen",
+      "secondaryCta": "Sehen Sie, was uns anders macht"
+    },
+    "problem": {
+      "titlePrefix": "Die Nachhaltigkeitsherausforderung ist",
+      "titleHighlight": "unmöglich",
+      "titleSuffix": "manuell zu bewältigen",
+      "description": "Sie ertrinken in Daten aus über 15 Emissionskategorien. Compliance-Frameworks ändern sich monatlich. Energiemuster verstecken sich in Tausenden von Datenpunkten. Lieferanten bleiben unüberwacht. Bis Sie ein Problem erkennen, hat es Sie bereits Tausende gekostet – oder schlimmer, Ihren Ruf."
+    },
+    "aiFeatures": {
+      "autonomousOps": {
+        "title": "Autonome KI-Operationen",
+        "description": "Jeder Workflow wird von auf ESG abgestimmten Agenten orchestriert. Sie priorisieren Initiativen und halten die Geschäftsführung ohne manuellen Aufwand informiert."
+      },
+      "realTimeVision": {
+        "title": "Echtzeit-Nachhaltigkeits-Vision",
+        "description": "Computer Vision über Anlagen und Assets identifiziert Anomalien sofort und verankert Erkenntnisse im realen Verhalten."
+      },
+      "predictiveIntelligence": {
+        "title": "Prädiktive Intelligenz überall",
+        "description": "Prognostizieren Sie Energie-, Wasser-, Abfall- und Kohlenstoffauswirkungen 12 Monate im Voraus mit 98,5% Genauigkeit. Agenten handeln, bevor Probleme eskalieren."
+      }
+    },
+    "agents": {
+      "chiefOfStaff": {
+        "name": "ESG-Stabschef",
+        "role": "Führungsebene • 24/7",
+        "description": "Strategische Aufsicht über alle Nachhaltigkeitsoperationen. Koordiniert Agentenaktivitäten, priorisiert Initiativen und liefert vorstandsreife Erkenntnisse."
+      },
+      "complianceGuardian": {
+        "name": "Compliance-Wächter",
+        "role": "Regulierungsexperte • 24/7",
+        "description": "Überwacht über 7 Frameworks (GHG, GRI, ESRS, TCFD). Generiert automatisch Reports, markiert Risiken vor Audits und hält Sie dauerhaft compliant."
+      },
+      "carbonHunter": {
+        "name": "Kohlenstoff-Jäger",
+        "role": "Emissionsspezialist • 24/7",
+        "description": "Sucht nach Möglichkeiten zur Kohlenstoffreduktion in allen Scopes. Identifiziert Quick Wins, verfolgt Fortschritte und optimiert den Energieverbrauch in Echtzeit."
+      },
+      "supplyChainInvestigator": {
+        "name": "Supply-Chain-Ermittler",
+        "role": "Risikoanalyst • 24/7",
+        "description": "Kontinuierliche Lieferanten-Due-Diligence und Risikobewertung. Markiert ESG-Verstöße, bevor sie zu Verbindlichkeiten werden."
+      },
+      "costSavingFinder": {
+        "name": "Kosteneinsparungs-Finder",
+        "role": "Finanzanalyst • 24/7",
+        "description": "Entdeckt versteckte Einsparungen in Energierechnungen, Abfallmanagement und Betrieb. Durchschnittliche Ersparnis von 18% im ersten Jahr."
+      },
+      "predictiveMaintenance": {
+        "name": "Vorausschauende Wartung",
+        "role": "Ausrüstungsspezialist • 24/7",
+        "description": "Prognostiziert Geräteausfälle Wochen im Voraus. Plant Wartung während optimaler Zeitfenster und verhindert kostspielige Ausfallzeiten."
+      },
+      "autonomousOptimizer": {
+        "name": "Autonomer Optimierer",
+        "role": "Performance-Tuner • 24/7",
+        "description": "Optimiert kontinuierlich den Betrieb für maximale Effizienz. Passt Systeme automatisch basierend auf für Menschen unsichtbaren Mustern an."
+      },
+      "regulatoryForesight": {
+        "name": "Regulierungsvorausschau",
+        "role": "Zukunftsprognostiker • 24/7",
+        "description": "Überwacht regulatorische Änderungen weltweit. Bereitet Sie Monate vor Inkrafttreten auf neue Anforderungen vor."
+      }
+    },
+    "assistant": {
+      "title": "blipee",
+      "titleHighlight": "Assistent",
+      "description": "Konversations-KI, die Ihre 8-Agenten-Belegschaft orchestriert. Stellen Sie beliebige Fragen, erhalten Sie zusammengefasste Antworten und halten Sie alle Stakeholder abgestimmt.",
+      "features": {
+        "plainLanguage": "Antworten in klarer Sprache, basierend auf Ihren ESG-Daten",
+        "autoRouting": "Leitet jede Anfrage automatisch an den richtigen Spezialisten weiter",
+        "proactiveBriefs": "Liefert proaktive Briefings, Warnungen und nächste Schritte",
+        "retainsContext": "Behält Kontext über Teams und vergangene Gespräche hinweg bei"
+      }
+    },
+    "impact": {
+      "costSavings": {
+        "value": "18%",
+        "label": "Durchschnittliche Kosteneinsparung\\nIm ersten Jahr"
+      },
+      "forecastAccuracy": {
+        "value": "98.5%",
+        "label": "Prognosegenauigkeit\\n12 Monate im Voraus"
+      },
+      "continuousMonitoring": {
+        "value": "24/7",
+        "label": "Kontinuierliche Überwachung\\nSchläft nie"
+      },
+      "reportingReduction": {
+        "value": "85%",
+        "label": "Reduzierung der manuellen\\nReporting-Zeit"
+      }
+    },
+    "cta": {
+      "titlePrefix": "Ihre KI-Belegschaft",
+      "titleHighlight": "startet heute",
+      "description": "Keine Berater. Keine monatelange Einrichtung. Keine Lernkurve. Ihre 8 KI-Agenten sind bereit, sofort nach der Anmeldung loszulegen.",
+      "primaryCta": "Vertrieb kontaktieren",
+      "secondaryCta": "Mehr erfahren"
+    },
+    "footer": {
+      "product": {
+        "title": "Produkt",
+        "aiWorkforce": "KI-Belegschaft",
+        "capabilities": "Fähigkeiten",
+        "pricing": "Preise",
+        "updates": "Updates"
+      },
+      "company": {
+        "title": "Unternehmen",
+        "aboutUs": "Über Uns",
+        "ourStory": "Unsere Geschichte",
+        "careers": "Karriere",
+        "contact": "Kontakt"
+      },
+      "resources": {
+        "title": "Ressourcen",
+        "documentation": "Dokumentation",
+        "api": "API",
+        "faq": "FAQ",
+        "support": "Support",
+        "status": "Status"
+      },
+      "brand": "blipee",
+      "description": "KI-gestützte Nachhaltigkeitsplattform mit 8 autonomen Agenten, die 24/7 arbeiten, um Ihre Operationen zu optimieren.",
+      "newsletterPlaceholder": "E-Mail-Adresse eingeben",
+      "newsletterCta": "Abonnieren",
+      "copyright": "© 2025 blipee. Alle Rechte vorbehalten.",
+      "socialTwitter": "Twitter",
+      "socialLinkedIn": "LinkedIn",
+      "socialGitHub": "GitHub"
+    }
+  }
+}
