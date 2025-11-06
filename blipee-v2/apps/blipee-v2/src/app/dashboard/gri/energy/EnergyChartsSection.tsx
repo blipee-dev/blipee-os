@@ -1,14 +1,15 @@
-'use client'
-
+import { getTranslations } from 'next-intl/server'
 import type { EnergyDashboardDataGRI } from '@/lib/data/gri'
-import { LineChart, DonutChartSimple, BarChart, GaugeChart } from '@/components/Dashboard/Charts'
+import { LineChart, DonutChartSimple, BarChart } from '@/components/Dashboard/Charts'
+import { CompactEnergyIntensityCards } from './CompactEnergyIntensityCards'
 import styles from '../../dashboard.module.css'
 
 interface EnergyChartsSectionProps {
   data: EnergyDashboardDataGRI
 }
 
-export function EnergyChartsSection({ data }: EnergyChartsSectionProps) {
+export async function EnergyChartsSection({ data }: EnergyChartsSectionProps) {
+  const t = await getTranslations('gri')
   const { monthlyTrend, byType, bySource, renewablePercentage } = data
 
   // Transform monthly trend for LineChart
@@ -20,12 +21,12 @@ export function EnergyChartsSection({ data }: EnergyChartsSectionProps) {
   // Transform renewable vs non-renewable for DonutChart
   const donutSegments = [
     {
-      label: 'Renewable',
+      label: t('energy.charts.renewable'),
       value: data.renewableTotal,
       color: '#10b981',
     },
     {
-      label: 'Non-Renewable',
+      label: t('energy.charts.nonRenewable'),
       value: data.nonRenewableTotal,
       color: '#6b7280',
     },
@@ -47,97 +48,44 @@ export function EnergyChartsSection({ data }: EnergyChartsSectionProps) {
       {/* Line Chart - Monthly Trend */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Energy Consumption Trend</h2>
-          <p className={styles.chartDescription}>Monthly energy usage over time (kWh)</p>
+          <h2 className={styles.chartTitle}>{t('energy.charts.consumptionTrend')}</h2>
+          <p className={styles.chartDescription}>{t('energy.charts.monthlyUsage')}</p>
         </div>
         {lineChartData.length > 0 ? (
           <LineChart data={lineChartData} />
         ) : (
-          <div className={styles.noData}>No data available for this period</div>
+          <div className={styles.noData}>{t('common.noDataPeriod')}</div>
         )}
-      </div>
-
-      {/* Gauge Chart - Renewable Percentage */}
-      <div className={styles.chartCard}>
-        <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Renewable Energy Share</h2>
-          <p className={styles.chartDescription}>Percentage of energy from renewable sources</p>
-        </div>
-        <GaugeChart
-          value={Math.round(renewablePercentage)}
-          label={`${renewablePercentage.toFixed(1)}%`}
-        />
       </div>
 
       {/* Donut Chart - Renewable vs Non-Renewable */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Energy Mix</h2>
-          <p className={styles.chartDescription}>Renewable vs Non-Renewable energy</p>
+          <h2 className={styles.chartTitle}>{t('energy.charts.energyMix')}</h2>
+          <p className={styles.chartDescription}>{t('energy.charts.renewableVsNonRenewable')}</p>
         </div>
         {donutSegments.some((s) => s.value > 0) ? (
           <DonutChartSimple segments={donutSegments} />
         ) : (
-          <div className={styles.noData}>No data available</div>
+          <div className={styles.noData}>{t('common.noData')}</div>
         )}
       </div>
 
       {/* Bar Chart - Top Sources */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Top Energy Sources</h2>
-          <p className={styles.chartDescription}>Top 5 sources by consumption (kWh)</p>
+          <h2 className={styles.chartTitle}>{t('energy.charts.topSources')}</h2>
+          <p className={styles.chartDescription}>{t('energy.charts.topFiveConsumption')}</p>
         </div>
         {barChartData.length > 0 ? (
           <BarChart bars={barChartData} />
         ) : (
-          <div className={styles.noData}>No energy source data available</div>
+          <div className={styles.noData}>{t('common.noData')}</div>
         )}
       </div>
 
-      {/* Energy Types Breakdown */}
-      {byType.length > 0 && (
-        <div className={styles.chartCard}>
-          <div className={styles.chartHeader}>
-            <h2 className={styles.chartTitle}>Energy Types</h2>
-            <p className={styles.chartDescription}>Breakdown by energy type (kWh)</p>
-          </div>
-          <div className={styles.energyTypes}>
-            {byType.map((type) => (
-              <div key={type.type} className={styles.energyType}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div
-                    style={{
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      background: type.renewable ? '#10b981' : '#6b7280',
-                    }}
-                  />
-                  <span className={styles.energyTypeName}>{type.type}</span>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      color: type.renewable ? '#10b981' : '#6b7280',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {type.renewable ? '🌱' : '⚫'}
-                  </span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div className={styles.energyTypeValue}>
-                    {type.value.toLocaleString('en-US')} kWh
-                  </div>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>
-                    {type.percentage}% of total
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Intensity Cards - 2x2 Grid */}
+      <CompactEnergyIntensityCards intensity={data.intensity} />
     </div>
   )
 }

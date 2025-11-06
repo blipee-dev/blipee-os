@@ -2,11 +2,11 @@ import { getTranslations } from 'next-intl/server'
 import { IntensityMetrics } from '@/lib/data/gri'
 import dashboardStyles from '../../dashboard.module.css'
 
-interface CompactIntensityCardsProps {
+interface CompactEnergyIntensityCardsProps {
   intensity: IntensityMetrics
 }
 
-export async function CompactIntensityCards({ intensity }: CompactIntensityCardsProps) {
+export async function CompactEnergyIntensityCards({ intensity }: CompactEnergyIntensityCardsProps) {
   const t = await getTranslations('gri')
   const hasData = intensity.perEmployee !== null || intensity.perRevenueMillion !== null || intensity.perFloorAreaM2 !== null || intensity.perCustomer !== null
 
@@ -24,8 +24,8 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
       {intensity.perEmployee !== null && (
         <div className={dashboardStyles.kpiCard}>
           <div className={dashboardStyles.kpiHeader}>
-            <span className={dashboardStyles.kpiLabel}>{t('emissions.intensity.perEmployee')}</span>
-            <span className={dashboardStyles.kpiStandard}>GRI 305-4</span>
+            <span className={dashboardStyles.kpiLabel}>{t('energy.intensity.perEmployee')}</span>
+            <span className={dashboardStyles.kpiStandard}>GRI 302-3</span>
           </div>
           <div className={dashboardStyles.kpiValue}>
             {intensity.perEmployee.toLocaleString('en-US', {
@@ -33,7 +33,7 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className={dashboardStyles.kpiUnit}>{t('emissions.intensity.unitEmployee')}</div>
+          <div className={dashboardStyles.kpiUnit}>{t('energy.intensity.unitEmployee')}</div>
           <div className={dashboardStyles.kpiTrend}>
             {intensity.perEmployeeYoY !== null ? (
               <>
@@ -58,8 +58,8 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
       {intensity.perRevenueMillion !== null && (
         <div className={dashboardStyles.kpiCard}>
           <div className={dashboardStyles.kpiHeader}>
-            <span className={dashboardStyles.kpiLabel}>{t('emissions.intensity.perRevenue')}</span>
-            <span className={dashboardStyles.kpiStandard}>GRI 305-4</span>
+            <span className={dashboardStyles.kpiLabel}>{t('energy.intensity.perRevenue')}</span>
+            <span className={dashboardStyles.kpiStandard}>GRI 302-3</span>
           </div>
           <div className={dashboardStyles.kpiValue}>
             {intensity.perRevenueMillion.toLocaleString('en-US', {
@@ -67,7 +67,7 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className={dashboardStyles.kpiUnit}>{t('emissions.intensity.unitRevenue')}</div>
+          <div className={dashboardStyles.kpiUnit}>{t('energy.intensity.unitRevenue')}</div>
           <div className={dashboardStyles.kpiTrend}>
             {intensity.perRevenueMillionYoY !== null ? (
               <>
@@ -92,8 +92,8 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
       {intensity.perFloorAreaM2 !== null && (
         <div className={dashboardStyles.kpiCard}>
           <div className={dashboardStyles.kpiHeader}>
-            <span className={dashboardStyles.kpiLabel}>{t('emissions.intensity.perFloorArea')}</span>
-            <span className={dashboardStyles.kpiStandard}>GRI 305-4</span>
+            <span className={dashboardStyles.kpiLabel}>{t('energy.intensity.perFloorArea')}</span>
+            <span className={dashboardStyles.kpiStandard}>GRI 302-3</span>
           </div>
           <div className={dashboardStyles.kpiValue}>
             {intensity.perFloorAreaM2.toLocaleString('en-US', {
@@ -101,7 +101,7 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className={dashboardStyles.kpiUnit}>{t('emissions.intensity.unitFloorArea')}</div>
+          <div className={dashboardStyles.kpiUnit}>{t('energy.intensity.unitFloorArea')}</div>
           <div className={dashboardStyles.kpiTrend}>
             {intensity.perFloorAreaM2YoY !== null ? (
               <>
@@ -126,8 +126,8 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
       {intensity.perCustomer !== null && (
         <div className={dashboardStyles.kpiCard}>
           <div className={dashboardStyles.kpiHeader}>
-            <span className={dashboardStyles.kpiLabel}>{t('emissions.intensity.perCustomer')}</span>
-            <span className={dashboardStyles.kpiStandard}>GRI 305-4</span>
+            <span className={dashboardStyles.kpiLabel}>{t('energy.intensity.perCustomer')}</span>
+            <span className={dashboardStyles.kpiStandard}>GRI 302-3</span>
           </div>
           <div className={dashboardStyles.kpiValue}>
             {intensity.perCustomer.toLocaleString('en-US', {
@@ -135,7 +135,7 @@ export async function CompactIntensityCards({ intensity }: CompactIntensityCards
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className={dashboardStyles.kpiUnit}>{t('emissions.intensity.unitCustomer')}</div>
+          <div className={dashboardStyles.kpiUnit}>{t('energy.intensity.unitCustomer')}</div>
           <div className={dashboardStyles.kpiTrend}>
             {intensity.perCustomerYoY !== null ? (
               <>

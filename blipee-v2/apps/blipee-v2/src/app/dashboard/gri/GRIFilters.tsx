@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useTransition } from 'react'
 import CustomSelect from '@/components/CustomSelect'
 import styles from '../dashboard.module.css'
@@ -18,6 +18,7 @@ interface GRIFiltersProps {
 
 export function GRIFilters({ sites, availableYears }: GRIFiltersProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
@@ -36,7 +37,7 @@ export function GRIFilters({ sites, availableYears }: GRIFiltersProps) {
       }
 
       const queryString = params.toString()
-      router.push(`/dashboard/gri${queryString ? `?${queryString}` : ''}`)
+      router.push(`${pathname}${queryString ? `?${queryString}` : ''}`)
     })
   }
 
@@ -51,7 +52,7 @@ export function GRIFilters({ sites, availableYears }: GRIFiltersProps) {
       }
 
       const queryString = params.toString()
-      router.push(`/dashboard/gri${queryString ? `?${queryString}` : ''}`)
+      router.push(`${pathname}${queryString ? `?${queryString}` : ''}`)
     })
   }
 
@@ -71,20 +72,69 @@ export function GRIFilters({ sites, availableYears }: GRIFiltersProps) {
   ]
 
   return (
-    <div className={styles.filters}>
-      <CustomSelect
-        value={selectedSite}
-        onChange={handleSiteChange}
-        options={siteOptions}
-        className={styles.filterSelect}
-      />
+    <>
+      <div className={styles.filters}>
+        <CustomSelect
+          value={selectedSite}
+          onChange={handleSiteChange}
+          options={siteOptions}
+          className={styles.filterSelect}
+        />
 
-      <CustomSelect
-        value={selectedYear}
-        onChange={handleYearChange}
-        options={yearOptions}
-        className={styles.filterSelect}
-      />
-    </div>
+        <CustomSelect
+          value={selectedYear}
+          onChange={handleYearChange}
+          options={yearOptions}
+          className={styles.filterSelect}
+        />
+      </div>
+
+      {isPending && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#1a1a1a',
+              padding: '2rem',
+              borderRadius: '8px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                border: '4px solid rgba(74, 222, 128, 0.2)',
+                borderTop: '4px solid rgb(74, 222, 128)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
+            <p style={{ color: '#fff', margin: 0 }}>Loading data...</p>
+          </div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      )}
+    </>
   )
 }

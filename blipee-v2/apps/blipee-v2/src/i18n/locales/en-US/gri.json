@@ -1,0 +1,205 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "loadingMetrics": "Loading metrics...",
+    "loadingCharts": "Loading charts...",
+    "loadingTable": "Loading table...",
+    "noData": "No data available",
+    "noDataPeriod": "No data available for this period",
+    "vsLastYear": "vs last year",
+    "vsTarget": "vs target",
+    "ofTotal": "of total",
+    "target": "Target",
+    "yoy": "YoY"
+  },
+  "filters": {
+    "allSites": "All Sites",
+    "selectSite": "Select Site",
+    "selectYear": "Select Year"
+  },
+  "energy": {
+    "title": "GRI 302 - Energy",
+    "subtitle": "Track energy consumption and renewable energy usage",
+    "metrics": {
+      "totalEnergy": "Total Energy",
+      "renewableEnergy": "Renewable Energy",
+      "nonRenewableEnergy": "Non-Renewable Energy",
+      "renewableShare": "Renewable Share",
+      "targetHundred": "Target: 100%",
+      "allEnergySources": "All energy sources",
+      "cleanEnergyRatio": "Clean energy ratio",
+      "ppVsLastYear": "pp vs last year"
+    },
+    "charts": {
+      "consumptionTrend": "Energy Consumption Trend",
+      "monthlyUsage": "Monthly energy usage over time (kWh)",
+      "energyMix": "Energy Mix",
+      "renewableVsNonRenewable": "Renewable vs Non-Renewable energy",
+      "topSources": "Top Energy Sources",
+      "topFiveConsumption": "Top 5 sources by consumption (kWh)",
+      "renewable": "Renewable",
+      "nonRenewable": "Non-Renewable"
+    },
+    "intensity": {
+      "perEmployee": "Per Employee",
+      "perRevenue": "Per Revenue",
+      "perFloorArea": "Per Floor Area",
+      "perCustomer": "Per Customer",
+      "unitEmployee": "kWh / employee",
+      "unitRevenue": "kWh / $M revenue",
+      "unitFloorArea": "kWh / m²",
+      "unitCustomer": "kWh / customer",
+      "noYoYData": "No YoY data"
+    },
+    "table": {
+      "title": "Energy by Site",
+      "description": "Detailed energy consumption breakdown by site",
+      "site": "Site",
+      "renewable": "Renewable (kWh)",
+      "nonRenewable": "Non-Renewable (kWh)",
+      "total": "Total (kWh)",
+      "efficiency": "Efficiency",
+      "yoy": "YoY",
+      "renewablePercent": "Renewable %",
+      "shareOfTotal": "Share of Total"
+    }
+  },
+  "emissions": {
+    "title": "GRI 305 - Emissions",
+    "subtitle": "Monitor greenhouse gas emissions and reduction progress",
+    "metrics": {
+      "totalEmissions": "Total Emissions",
+      "scope1": "Scope 1 Emissions",
+      "scope2": "Scope 2 Emissions",
+      "scope3": "Scope 3 Emissions",
+      "directEmissions": "Direct emissions",
+      "indirectEnergy": "Indirect energy",
+      "valueChain": "Value chain",
+      "targetProgress": "Target progress"
+    },
+    "charts": {
+      "trendTitle": "Emissions Trend",
+      "trendDesc": "Monthly emissions over time (tCO₂e)",
+      "scopeDistribution": "Scope Distribution",
+      "scopeDistributionDesc": "Breakdown by emission categories",
+      "topSources": "Top Emission Sources",
+      "topSourcesDesc": "Top 5 sources by emissions (tCO₂e)"
+    },
+    "intensity": {
+      "perEmployee": "Per Employee",
+      "perRevenue": "Per Revenue",
+      "perFloorArea": "Per Floor Area",
+      "perCustomer": "Per Customer",
+      "unitEmployee": "tCO₂e / employee",
+      "unitRevenue": "tCO₂e / $M revenue",
+      "unitFloorArea": "tCO₂e / m²",
+      "unitCustomer": "tCO₂e / customer"
+    },
+    "table": {
+      "title": "Emissions by Site",
+      "description": "Detailed emissions breakdown by site",
+      "site": "Site",
+      "scope1": "Scope 1 (tCO₂e)",
+      "scope2": "Scope 2 (tCO₂e)",
+      "scope3": "Scope 3 (tCO₂e)",
+      "total": "Total (tCO₂e)",
+      "intensity": "Intensity",
+      "yoy": "YoY",
+      "shareOfTotal": "Share of Total"
+    }
+  },
+  "water": {
+    "title": "GRI 303 - Water",
+    "subtitle": "Track water consumption and water efficiency",
+    "metrics": {
+      "totalWithdrawal": "Total Withdrawal",
+      "totalConsumption": "Total Consumption",
+      "totalDischarge": "Total Discharge",
+      "totalRecycled": "Water Recycled",
+      "waterStress": "Water Stress",
+      "allWaterSources": "All sources",
+      "waterManagement": "Water management",
+      "waterReused": "Water reused",
+      "highStress": "High stress",
+      "mediumStress": "Medium stress"
+    },
+    "charts": {
+      "withdrawalTrend": "Water Withdrawal Trend",
+      "monthlyWithdrawal": "Monthly withdrawal over time (m³)",
+      "waterBalance": "Water Balance",
+      "withdrawalVsConsumption": "Withdrawal, Consumption and Discharge",
+      "topSources": "Top Water Sources",
+      "topFiveSources": "Top 5 sources by volume (m³)",
+      "withdrawal": "Withdrawal",
+      "consumption": "Consumption",
+      "discharge": "Discharge"
+    },
+    "intensity": {
+      "perEmployee": "Per Employee",
+      "perRevenue": "Per Revenue",
+      "perFloorArea": "Per Floor Area",
+      "perCustomer": "Per Customer",
+      "unitEmployee": "m³ / employee",
+      "unitRevenue": "m³ / $M revenue",
+      "unitFloorArea": "m³ / m²",
+      "unitCustomer": "m³ / customer"
+    },
+    "table": {
+      "title": "Water by Site",
+      "description": "Detailed water consumption breakdown by site",
+      "site": "Site",
+      "withdrawal": "Withdrawal (m³)",
+      "consumption": "Consumption (m³)",
+      "discharge": "Discharge (m³)",
+      "recycled": "Recycled (m³)",
+      "intensity": "Intensity",
+      "yoy": "YoY",
+      "shareOfTotal": "Share of Total"
+    }
+  },
+  "waste": {
+    "title": "GRI 306 - Waste",
+    "subtitle": "Monitor waste generation and recycling rates",
+    "metrics": {
+      "totalWaste": "Total Waste",
+      "hazardousWaste": "Hazardous Waste",
+      "nonHazardousWaste": "Non-Hazardous Waste",
+      "diversionRate": "Diversion Rate",
+      "allWasteStreams": "All streams",
+      "wasteManagement": "Waste management",
+      "recyclingRate": "Recycling rate",
+      "targetEighty": "Target: 80%"
+    },
+    "charts": {
+      "generationTrend": "Waste Generation Trend",
+      "monthlyGeneration": "Monthly generation over time (kg)",
+      "wasteComposition": "Waste Composition",
+      "hazardousVsNonHazardous": "Hazardous vs Non-Hazardous waste",
+      "disposalMethods": "Disposal Methods",
+      "breakdownByMethod": "Breakdown by method (kg)",
+      "hazardous": "Hazardous",
+      "nonHazardous": "Non-Hazardous"
+    },
+    "intensity": {
+      "perEmployee": "Per Employee",
+      "perRevenue": "Per Revenue",
+      "perFloorArea": "Per Floor Area",
+      "perCustomer": "Per Customer",
+      "unitEmployee": "kg / employee",
+      "unitRevenue": "kg / $M revenue",
+      "unitFloorArea": "kg / m²",
+      "unitCustomer": "kg / customer"
+    },
+    "table": {
+      "title": "Waste by Site",
+      "description": "Detailed waste generation breakdown by site",
+      "site": "Site",
+      "hazardous": "Hazardous (kg)",
+      "nonHazardous": "Non-Hazardous (kg)",
+      "total": "Total (kg)",
+      "diversionRate": "Diversion Rate",
+      "yoy": "YoY",
+      "shareOfTotal": "Share of Total"
+    }
+  }
+}

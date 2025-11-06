@@ -261,7 +261,7 @@ export function BarChart({ bars }: BarChartProps) {
                 }}
               >
                 {showValueInside && (
-                  <span className={styles.barValue}>{bar.value}</span>
+                  <span className={styles.barValue}>{bar.value.toLocaleString('en-US')}</span>
                 )}
               </div>
               {!showValueInside && (
@@ -269,7 +269,7 @@ export function BarChart({ bars }: BarChartProps) {
                   className={styles.barValueOutside}
                   style={{ left: `calc(${percentage}% + 0.5rem)` }}
                 >
-                  {bar.value}
+                  {bar.value.toLocaleString('en-US')}
                 </span>
               )}
             </div>

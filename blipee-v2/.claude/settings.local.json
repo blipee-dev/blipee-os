@@ -61,7 +61,12 @@
       "Bash(git checkout:*)",
       "Bash(git stash drop:*)",
       "Bash(git diff-tree:*)",
-      "Bash(supabase link:*)"
+      "Bash(supabase link:*)",
+      "WebFetch(domain:www.climatiq.io)",
+      "WebFetch(domain:www.edp.pt)",
+      "WebFetch(domain:portal.electricitymaps.com)",
+      "Bash(supabase/migrations/20250106_complete_grid_mix_data.sql)",
+      "Bash(echo:*)"
     ]
   },
   "enabledMcpjsonServers": [

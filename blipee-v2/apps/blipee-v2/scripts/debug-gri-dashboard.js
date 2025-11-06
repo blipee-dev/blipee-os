@@ -185,53 +185,113 @@ async function debugGRIDashboard() {
     }
   })
 
-  // Step 4: Calculate dashboard totals
-  console.log('\n💰 Step 4: Calculating Dashboard Totals...')
+  // Step 4: Filter energy metrics (SAME LOGIC AS DASHBOARD)
+  console.log('\n⚡ Step 4: Filtering Energy Metrics (GRI 302 Dashboard Logic)...')
 
-  let totalEmissionsTonnes = 0
-  let totalEnergyKwh = 0
-  let totalWaterM3 = 0
-  let totalWasteKg = 0
+  const energyData = metricsData.filter((m) => {
+    const code = m.metric?.code || ''
+    return (
+      code.startsWith('gri_302') ||
+      code.startsWith('scope2_') ||
+      code.includes('energy') ||
+      code.includes('electricity')
+    )
+  })
 
-  metricsData.forEach(metric => {
-    const metricCode = metric.metric?.code || ''
+  console.log(`\n✅ Energy metrics after filter: ${energyData.length}`)
 
-    if (metricCode.startsWith('gri_305') || metricCode.startsWith('scope1_') || metricCode.startsWith('scope2_') || (metricCode.startsWith('scope3_') && !metricCode.includes('waste'))) {
-      totalEmissionsTonnes += (metric.co2e_emissions || 0) / 1000
+  // Group by metric code
+  const energyByCode = {}
+  energyData.forEach(m => {
+    const code = m.metric?.code || 'unknown'
+    if (!energyByCode[code]) {
+      energyByCode[code] = {
+        count: 0,
+        totalValue: 0,
+        hasGridMix: 0,
+        totalRenewable: 0,
+        totalNonRenewable: 0,
+        samples: []
+      }
+    }
+    const entry = energyByCode[code]
+    entry.count++
+    entry.totalValue += m.value || 0
+
+    if (m.metadata?.grid_mix) {
+      entry.hasGridMix++
+      entry.totalRenewable += m.metadata.grid_mix.renewable_kwh || 0
+      entry.totalNonRenewable += m.metadata.grid_mix.non_renewable_kwh || 0
     }
 
-    if (metricCode.includes('gri_302_1_energy_consumption') || metricCode.startsWith('scope2_')) {
-      totalEnergyKwh += metric.value || 0
-    }
-
-    if (metricCode.includes('gri_303_3_water_withdrawal') || metricCode.includes('gri_303_5_water_consumption')) {
-      totalWaterM3 += metric.value || 0
-    }
-
-    if (metricCode.includes('gri_306_3_waste_generated') || metricCode.includes('waste')) {
-      totalWasteKg += metric.value || 0
+    if (entry.samples.length < 2) {
+      entry.samples.push({
+        id: m.id.slice(0, 8),
+        period: m.period_start,
+        value: m.value,
+        renewable: m.metadata?.grid_mix?.renewable_kwh,
+        nonRenewable: m.metadata?.grid_mix?.non_renewable_kwh,
+        metadata: m.metadata
+      })
     }
   })
 
-  console.log(`\n📊 Dashboard Totals (what should display):`)
-  console.log(`  Total Emissions: ${totalEmissionsTonnes.toFixed(2)} tonnes CO2e`)
-  console.log(`  Total Energy: ${totalEnergyKwh.toFixed(2)} kWh`)
-  console.log(`  Total Water: ${totalWaterM3.toFixed(2)} m³`)
-  console.log(`  Total Waste: ${totalWasteKg.toFixed(2)} kg`)
+  console.log('\n📊 Energy Metrics Breakdown:')
+  Object.entries(energyByCode).forEach(([code, data]) => {
+    console.log(`\n  ${code}:`)
+    console.log(`    Records: ${data.count}`)
+    console.log(`    Total Value: ${data.totalValue.toFixed(2)} kWh`)
+    console.log(`    With grid_mix metadata: ${data.hasGridMix}`)
+    if (data.hasGridMix > 0) {
+      console.log(`    Total Renewable: ${data.totalRenewable.toFixed(2)} kWh`)
+      console.log(`    Total Non-Renewable: ${data.totalNonRenewable.toFixed(2)} kWh`)
+    }
+    console.log(`    Samples:`)
+    data.samples.forEach(s => {
+      console.log(`      ${s.period}: ${s.value.toFixed(2)} kWh`)
+      if (s.renewable !== undefined) {
+        console.log(`        → Renewable: ${s.renewable.toFixed(2)}, Non-renewable: ${s.nonRenewable.toFixed(2)}`)
+      }
+      if (s.metadata && Object.keys(s.metadata).length > 0) {
+        console.log(`        → Metadata keys: ${Object.keys(s.metadata).join(', ')}`)
+      } else {
+        console.log(`        → No metadata`)
+      }
+    })
+  })
 
-  if (totalEmissionsTonnes === 0 && totalEnergyKwh === 0 && totalWaterM3 === 0 && totalWasteKg === 0) {
-    console.log('\n❌ ALL TOTALS ARE ZERO!')
-    console.log('\nPossible reasons:')
-    console.log('  1. Metric codes are not matching the filter logic')
-    console.log('  2. Values or emissions are NULL in database')
-    console.log('  3. Metric catalog join is failing')
+  // Step 5: Calculate totals EXACTLY like dashboard
+  console.log('\n💰 Step 5: Calculating Dashboard Totals (Exact Logic)...')
 
-    console.log('\n🔍 Checking a sample record in detail:')
-    if (metricsData.length > 0) {
-      const sample = metricsData[0]
-      console.log(JSON.stringify(sample, null, 2))
+  let renewableTotal = 0
+  let nonRenewableTotal = 0
+
+  for (const metric of energyData) {
+    const value = metric.value || 0
+    const gridMix = metric.metadata?.grid_mix
+
+    if (gridMix && typeof gridMix.renewable_kwh === 'number' && typeof gridMix.non_renewable_kwh === 'number') {
+      renewableTotal += gridMix.renewable_kwh
+      nonRenewableTotal += gridMix.non_renewable_kwh
+    } else {
+      // Fallback: treat as non-renewable
+      nonRenewableTotal += value
     }
   }
+
+  const totalEnergy = renewableTotal + nonRenewableTotal
+  const renewablePercentage = totalEnergy > 0 ? (renewableTotal / totalEnergy) * 100 : 0
+
+  console.log(`\n📈 CALCULATED TOTALS (what dashboard should show):`)
+  console.log(`  Total Energy: ${totalEnergy.toFixed(2)} kWh`)
+  console.log(`  Renewable: ${renewableTotal.toFixed(2)} kWh (${renewablePercentage.toFixed(2)}%)`)
+  console.log(`  Non-Renewable: ${nonRenewableTotal.toFixed(2)} kWh`)
+
+  console.log(`\n🔍 COMPARISON:`)
+  console.log(`  Dashboard shows: 994,833 kWh (32.8% renewable)`)
+  console.log(`  We calculated:   ${totalEnergy.toFixed(0)} kWh (${renewablePercentage.toFixed(1)}% renewable)`)
+  console.log(`  Difference:      ${(994833 - totalEnergy).toFixed(0)} kWh`)
+  console.log(`  Multiplier:      ${(994833 / totalEnergy).toFixed(2)}x`)
 }
 
 debugGRIDashboard().catch(console.error)

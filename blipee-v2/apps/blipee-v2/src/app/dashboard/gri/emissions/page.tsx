@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getEmissionsDashboardData, getUserOrganizationId, getUserSites } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 import { EmissionsMetricsCards } from './EmissionsMetricsCards'
@@ -27,6 +28,8 @@ interface EmissionsPageProps {
 }
 
 export default async function EmissionsDashboardPage({ searchParams }: EmissionsPageProps) {
+  const t = await getTranslations('gri')
+
   // Get current user's organization
   const organizationId = await getUserOrganizationId()
 
@@ -64,26 +67,26 @@ export default async function EmissionsDashboardPage({ searchParams }: Emissions
             <svg className={styles.carbonIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
             </svg>
-            <h1>GRI 305 - Emissions</h1>
+            <h1>{t('emissions.title')}</h1>
           </div>
-          <p className={styles.subtitle}>Track and analyze greenhouse gas emissions across Scope 1, 2, and 3</p>
+          <p className={styles.subtitle}>{t('emissions.subtitle')}</p>
         </div>
 
         <GRIFilters sites={userSites} availableYears={availableYears} />
       </div>
 
       {/* KPI Cards - Fast to render */}
-      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>Loading metrics...</div></div>}>
+      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>{t('common.loadingMetrics')}</div></div>}>
         <EmissionsMetricsCards data={emissionsData} />
       </Suspense>
 
       {/* Charts Section - Includes intensity metrics */}
-      <Suspense fallback={<div className={styles.chartsLoading}>Loading charts...</div>}>
+      <Suspense fallback={<div className={styles.chartsLoading}>{t('common.loadingCharts')}</div>}>
         <EmissionsChartsSection data={emissionsData} />
       </Suspense>
 
       {/* Data Table */}
-      <Suspense fallback={<div className={styles.tableLoading}>Loading table...</div>}>
+      <Suspense fallback={<div className={styles.tableLoading}>{t('common.loadingTable')}</div>}>
         <EmissionsSiteTable data={emissionsData} />
       </Suspense>
     </>

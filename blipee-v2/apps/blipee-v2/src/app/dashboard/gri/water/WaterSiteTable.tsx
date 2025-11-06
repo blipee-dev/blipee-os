@@ -1,5 +1,4 @@
-'use client'
-
+import { getTranslations } from 'next-intl/server'
 import type { WaterDashboardData } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 
@@ -7,23 +6,25 @@ interface WaterSiteTableProps {
   data: WaterDashboardData
 }
 
-export function WaterSiteTable({ data }: WaterSiteTableProps) {
+export async function WaterSiteTable({ data }: WaterSiteTableProps) {
+  const t = await getTranslations('gri')
+
   return (
     <div className={styles.tableCard}>
       <div className={styles.chartHeader}>
-        <h2 className={styles.chartTitle}>Water Usage by Site</h2>
-        <p className={styles.chartDescription}>Detailed water breakdown by site</p>
+        <h2 className={styles.chartTitle}>{t('water.table.title')}</h2>
+        <p className={styles.chartDescription}>{t('water.table.description')}</p>
       </div>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Site</th>
-            <th>Withdrawal (m³)</th>
-            <th>Consumption (m³)</th>
-            <th>Discharge (m³)</th>
-            <th>Recycled (m³)</th>
-            <th>YoY</th>
-            <th>Share</th>
+            <th>{t('water.table.site')}</th>
+            <th>{t('water.table.withdrawal')}</th>
+            <th>{t('water.table.consumption')}</th>
+            <th>{t('water.table.discharge')}</th>
+            <th>{t('water.table.recycled')}</th>
+            <th>{t('water.table.yoy')}</th>
+            <th>{t('water.table.shareOfTotal')}</th>
           </tr>
         </thead>
         <tbody>
@@ -82,7 +83,7 @@ export function WaterSiteTable({ data }: WaterSiteTableProps) {
           ) : (
             <tr>
               <td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>
-                No water data available for this period
+                {t('common.noDataPeriod')}
               </td>
             </tr>
           )}

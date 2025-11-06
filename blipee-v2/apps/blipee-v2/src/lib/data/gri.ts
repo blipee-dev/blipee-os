@@ -1083,6 +1083,11 @@ export interface EnergyBySite {
   total: number
   // YoY percentage change for total energy
   totalYoY: number | null
+  // Efficiency metrics
+  efficiency: number | null
+  efficiencyUnit: 'kWh/employee' | 'kWh/m²' | null
+  employees: number | null
+  area: number | null
 }
 
 export interface EnergyBySource {
@@ -1102,11 +1107,114 @@ export interface EnergyDashboardDataGRI {
   bySite: EnergyBySite[]
   bySource: EnergyBySource[]
   year: number
+  intensity: IntensityMetrics
   // YoY comparisons
   totalEnergyYoY: number | null
   renewableTotalYoY: number | null
   nonRenewableTotalYoY: number | null
   renewablePercentageYoY: number | null // Percentage point change, not percentage change
+}
+
+/**
+ * Convert technical metric codes to user-friendly names
+ */
+function getEnergySourceFriendlyName(metricCode: string): string {
+  const nameMap: Record<string, string> = {
+    'scope2_electricity_grid': 'Grid Electricity',
+    'scope2_purchased_heating': 'Purchased Heating',
+    'scope2_purchased_cooling': 'Purchased Cooling',
+    'scope2_ev_charging': 'EV Charging',
+    'gri_302_1_electricity_consumption': 'Electricity Consumption',
+    'gri_305_2_purchased_electricity': 'Purchased Electricity',
+  }
+
+  return nameMap[metricCode] || metricCode
+}
+
+/**
+ * Check if a metric code represents purchased electricity from the grid
+ * (excludes self-generated renewable energy like solar, wind)
+ */
+function isPurchasedElectricity(metricCode: string): boolean {
+  const purchasedElectricityCodes = [
+    'scope2_electricity_grid',
+    'gri_302_1_electricity_consumption',
+    'gri_305_2_purchased_electricity',
+  ]
+
+  // Check if it's explicitly in the purchased list
+  if (purchasedElectricityCodes.includes(metricCode)) {
+    return true
+  }
+
+  // Scope 2 purchased energy (electricity, heating, cooling) from the grid
+  // In Portugal, purchased heating and cooling typically come from electricity grid
+  if (metricCode.startsWith('scope2_purchased_')) {
+    return true
+  }
+
+  // Or if it contains "electricity" but NOT self-generated types
+  if (metricCode.includes('electricity')) {
+    const selfGeneratedKeywords = ['solar', 'wind', 'renewable', 'self_generated']
+    return !selfGeneratedKeywords.some(keyword => metricCode.includes(keyword))
+  }
+
+  return false
+}
+
+/**
+ * Get Portugal grid mix reference data for a given date
+ * Returns renewable percentage from the reference table
+ */
+async function getPortugalGridMixReference(date: string): Promise<number | null> {
+  const supabase = await createClient()
+
+  // Parse date (YYYY-MM-DD or YYYY-MM)
+  const dateObj = new Date(date)
+  const year = dateObj.getFullYear()
+  const month = dateObj.getMonth() + 1 // JavaScript months are 0-indexed
+
+  // Try to find monthly data first
+  const { data: monthlyData } = await supabase
+    .from('portugal_grid_mix_reference')
+    .select('renewable_percentage')
+    .eq('year', year)
+    .eq('month', month)
+    .is('quarter', null)
+    .maybeSingle()
+
+  if (monthlyData) {
+    return monthlyData.renewable_percentage
+  }
+
+  // Try quarterly data
+  const quarter = Math.ceil(month / 3)
+  const { data: quarterlyData } = await supabase
+    .from('portugal_grid_mix_reference')
+    .select('renewable_percentage')
+    .eq('year', year)
+    .eq('quarter', quarter)
+    .is('month', null)
+    .maybeSingle()
+
+  if (quarterlyData) {
+    return quarterlyData.renewable_percentage
+  }
+
+  // Try annual data
+  const { data: annualData } = await supabase
+    .from('portugal_grid_mix_reference')
+    .select('renewable_percentage')
+    .eq('year', year)
+    .is('quarter', null)
+    .is('month', null)
+    .maybeSingle()
+
+  if (annualData) {
+    return annualData.renewable_percentage
+  }
+
+  return null
 }
 
 /**
@@ -1165,6 +1273,20 @@ export async function getEnergyDashboardDataGRI(
       bySite: [],
       bySource: [],
       year: new Date(options.startDate).getFullYear(),
+      intensity: {
+        perEmployee: null,
+        perRevenueMillion: null,
+        perFloorAreaM2: null,
+        perCustomer: null,
+        employeeCount: null,
+        revenue: null,
+        floorArea: null,
+        customers: null,
+        perEmployeeYoY: null,
+        perRevenueMillionYoY: null,
+        perFloorAreaM2YoY: null,
+        perCustomerYoY: null,
+      },
       totalEnergyYoY: null,
       renewableTotalYoY: null,
       nonRenewableTotalYoY: null,
@@ -1208,7 +1330,11 @@ export async function getEnergyDashboardDataGRI(
   let prevYearNonRenewableTotal = 0
   const prevYearSiteMap = new Map<string, number>()
 
-  prevYearMetrics?.forEach((metric: any) => {
+  // Cache for previous year grid mix reference data
+  const prevYearGridMixCache = new Map<string, number | null>()
+
+  // Process previous year metrics with grid mix logic
+  for (const metric of (prevYearMetrics || [])) {
     const metricCode = metric.metric?.code || ''
     // Filter for energy metrics only
     if (
@@ -1219,21 +1345,60 @@ export async function getEnergyDashboardDataGRI(
     ) {
       const value = metric.value || 0
       const siteId = metric.site_id
-      const isRenewable = metric.metric?.is_renewable === true || metric.metadata?.renewable === true || metricCode.includes('renewable')
+
+      // Apply same grid mix logic as current year
+      const gridMix = metric.metadata?.grid_mix
+      let renewableValue = 0
+      let nonRenewableValue = 0
+
+      if (gridMix && typeof gridMix.renewable_kwh === 'number' && typeof gridMix.non_renewable_kwh === 'number') {
+        // Use grid mix breakdown for electricity
+        renewableValue = gridMix.renewable_kwh
+        nonRenewableValue = gridMix.non_renewable_kwh
+      } else if (isPurchasedElectricity(metricCode) && metric.period_start) {
+        // For purchased grid electricity, use reference table
+        const cacheKey = metric.period_start.substring(0, 7) // 'YYYY-MM'
+
+        // Check cache first
+        let renewablePercentage = prevYearGridMixCache.get(cacheKey)
+
+        if (renewablePercentage === undefined) {
+          // Not in cache, fetch from database
+          renewablePercentage = await getPortugalGridMixReference(metric.period_start)
+          prevYearGridMixCache.set(cacheKey, renewablePercentage)
+        }
+
+        if (renewablePercentage !== null) {
+          // Calculate renewable and non-renewable portions
+          renewableValue = (value * renewablePercentage) / 100
+          nonRenewableValue = (value * (100 - renewablePercentage)) / 100
+        } else {
+          // No reference data available, treat as non-renewable
+          renewableValue = 0
+          nonRenewableValue = value
+        }
+      } else {
+        // Fallback to binary renewable check for non-grid sources
+        const isRenewable = metric.metric?.is_renewable === true || metric.metadata?.renewable === true || metricCode.includes('renewable')
+        if (isRenewable) {
+          renewableValue = value
+          nonRenewableValue = 0
+        } else {
+          renewableValue = 0
+          nonRenewableValue = value
+        }
+      }
 
       prevYearTotalEnergy += value
-      if (isRenewable) {
-        prevYearRenewableTotal += value
-      } else {
-        prevYearNonRenewableTotal += value
-      }
+      prevYearRenewableTotal += renewableValue
+      prevYearNonRenewableTotal += nonRenewableValue
 
       // Track by site for per-site YoY
       if (siteId) {
         prevYearSiteMap.set(siteId, (prevYearSiteMap.get(siteId) || 0) + value)
       }
     }
-  })
+  }
 
   const prevYearRenewablePercentage = prevYearTotalEnergy > 0 ? (prevYearRenewableTotal / prevYearTotalEnergy) * 100 : 0
 
@@ -1261,24 +1426,69 @@ export async function getEnergyDashboardDataGRI(
   // Type breakdown map
   const typeMap = new Map<string, { value: number; renewable: boolean }>()
 
-  // Source breakdown map
-  const sourceMap = new Map<string, { value: number; renewable: boolean }>()
+  // Source breakdown map (now tracks renewable and non-renewable separately)
+  const sourceMap = new Map<string, { renewable: number; nonRenewable: number }>()
 
-  energyData.forEach((metric: any) => {
+  // Cache for grid mix reference data to avoid duplicate queries
+  const gridMixCache = new Map<string, number | null>()
+
+  for (const metric of energyData) {
     const metricCode = metric.metric?.code || ''
     const value = metric.value || 0
     const month = metric.period_start?.substring(0, 7) // 'YYYY-MM'
     const siteName = metric.site?.name || 'Unknown Site'
     const siteId = metric.site?.id || 'unknown'
 
-    // Determine if renewable (check metric catalog first, then metadata, then code)
-    const isRenewable = metric.metric?.is_renewable === true || metric.metadata?.renewable === true || metricCode.includes('renewable')
+    // Check if this metric has grid mix data (for electricity from the grid)
+    const gridMix = metric.metadata?.grid_mix
+    let renewableValue = 0
+    let nonRenewableValue = 0
+    let isRenewable = false
 
-    if (isRenewable) {
-      renewableTotal += value
+    if (gridMix && typeof gridMix.renewable_kwh === 'number' && typeof gridMix.non_renewable_kwh === 'number') {
+      // Use grid mix breakdown for electricity
+      renewableValue = gridMix.renewable_kwh
+      nonRenewableValue = gridMix.non_renewable_kwh
+      isRenewable = renewableValue > nonRenewableValue // For type/source categorization
+    } else if (isPurchasedElectricity(metricCode) && metric.period_start) {
+      // For purchased grid electricity without grid_mix metadata, try reference table
+      // Applies to: scope2_electricity_grid, gri_302_1_electricity_consumption, gri_305_2_purchased_electricity
+      const cacheKey = metric.period_start.substring(0, 7) // 'YYYY-MM'
+
+      // Check cache first to avoid duplicate database queries
+      let renewablePercentage = gridMixCache.get(cacheKey)
+
+      if (renewablePercentage === undefined) {
+        // Not in cache, fetch from database
+        renewablePercentage = await getPortugalGridMixReference(metric.period_start)
+        gridMixCache.set(cacheKey, renewablePercentage)
+      }
+
+      if (renewablePercentage !== null) {
+        // Calculate renewable and non-renewable portions from reference data
+        renewableValue = (value * renewablePercentage) / 100
+        nonRenewableValue = (value * (100 - renewablePercentage)) / 100
+        isRenewable = renewablePercentage > 50
+      } else {
+        // No reference data available, treat as non-renewable
+        renewableValue = 0
+        nonRenewableValue = value
+        isRenewable = false
+      }
     } else {
-      nonRenewableTotal += value
+      // Fallback to binary renewable check for non-grid sources (solar, wind, gas, etc.)
+      isRenewable = metric.metric?.is_renewable === true || metric.metadata?.renewable === true || metricCode.includes('renewable')
+      if (isRenewable) {
+        renewableValue = value
+        nonRenewableValue = 0
+      } else {
+        renewableValue = 0
+        nonRenewableValue = value
+      }
     }
+
+    renewableTotal += renewableValue
+    nonRenewableTotal += nonRenewableValue
 
     // Monthly trend
     if (month) {
@@ -1286,8 +1496,8 @@ export async function getEnergyDashboardDataGRI(
         monthlyTrendMap.set(month, { renewable: 0, nonRenewable: 0 })
       }
       const monthData = monthlyTrendMap.get(month)!
-      if (isRenewable) monthData.renewable += value
-      else monthData.nonRenewable += value
+      monthData.renewable += renewableValue
+      monthData.nonRenewable += nonRenewableValue
     }
 
     // Site breakdown
@@ -1295,8 +1505,8 @@ export async function getEnergyDashboardDataGRI(
       siteMap.set(siteId, { site_name: siteName, renewable: 0, nonRenewable: 0 })
     }
     const siteData = siteMap.get(siteId)!
-    if (isRenewable) siteData.renewable += value
-    else siteData.nonRenewable += value
+    siteData.renewable += renewableValue
+    siteData.nonRenewable += nonRenewableValue
 
     // Type breakdown
     const energyType = metric.metadata?.energy_type || 'Other'
@@ -1305,13 +1515,15 @@ export async function getEnergyDashboardDataGRI(
     }
     typeMap.get(energyType)!.value += value
 
-    // Source breakdown
-    const source = metric.metadata?.source || 'Other'
+    // Source breakdown (track renewable and non-renewable separately)
+    const source = metric.metadata?.source || metricCode || 'Other'
     if (!sourceMap.has(source)) {
-      sourceMap.set(source, { value: 0, renewable: isRenewable })
+      sourceMap.set(source, { renewable: 0, nonRenewable: 0 })
     }
-    sourceMap.get(source)!.value += value
-  })
+    const sourceData = sourceMap.get(source)!
+    sourceData.renewable += renewableValue
+    sourceData.nonRenewable += nonRenewableValue
+  }
 
   const totalEnergy = renewableTotal + nonRenewableTotal
   const renewablePercentage = totalEnergy > 0 ? (renewableTotal / totalEnergy) * 100 : 0
@@ -1336,7 +1548,31 @@ export async function getEnergyDashboardDataGRI(
     }))
     .sort((a, b) => b.value - a.value)
 
-  // Build site breakdown with YoY comparisons
+  // Fetch site data for efficiency calculations
+  let sitesEfficiencyQuery = supabase
+    .from('sites')
+    .select('id, total_employees, total_area_sqm')
+    .eq('organization_id', organizationId)
+    .eq('status', 'active')
+
+  if (options.siteId) {
+    sitesEfficiencyQuery = sitesEfficiencyQuery.eq('id', options.siteId)
+  }
+
+  const { data: sitesEfficiencyData } = await sitesEfficiencyQuery
+
+  // Create a map of site data for efficient lookup
+  const siteDataMap = new Map(
+    sitesEfficiencyData?.map(site => [
+      site.id,
+      {
+        employees: site.total_employees || 0,
+        area: site.total_area_sqm || 0
+      }
+    ]) || []
+  )
+
+  // Build site breakdown with YoY comparisons and efficiency
   const bySite: EnergyBySite[] = Array.from(siteMap.entries())
     .map(([site_id, data]) => {
       const currentTotal = data.renewable + data.nonRenewable
@@ -1345,6 +1581,18 @@ export async function getEnergyDashboardDataGRI(
         ? Math.round(((currentTotal - prevYearTotal) / prevYearTotal) * 10000) / 100
         : null
 
+      // Calculate efficiency (area-based only for performance comparison)
+      const siteData = siteDataMap.get(site_id)
+      const employees = siteData?.employees || null
+      const area = siteData?.area || null
+      let efficiency: number | null = null
+      let efficiencyUnit: 'kWh/employee' | 'kWh/m²' | null = null
+
+      if (currentTotal > 0 && area && area > 0) {
+        efficiency = Math.round((currentTotal / area) * 100) / 100
+        efficiencyUnit = 'kWh/m²'
+      }
+
       return {
         site_id,
         site_name: data.site_name,
@@ -1352,18 +1600,28 @@ export async function getEnergyDashboardDataGRI(
         nonRenewable: Math.round(data.nonRenewable),
         total: Math.round(currentTotal),
         totalYoY,
+        efficiency,
+        efficiencyUnit,
+        employees,
+        area,
       }
     })
     .sort((a, b) => b.total - a.total)
 
-  // Build source breakdown
+  // Build source breakdown (total per source, with renewable percentage)
   const bySource: EnergyBySource[] = Array.from(sourceMap.entries())
-    .map(([source, data]) => ({
-      source,
-      value: Math.round(data.value),
-      percentage: totalEnergy > 0 ? Math.round((data.value / totalEnergy) * 100) : 0,
-      renewable: data.renewable,
-    }))
+    .map(([source, data]) => {
+      const friendlyName = getEnergySourceFriendlyName(source)
+      const totalValue = data.renewable + data.nonRenewable
+      const renewablePercentageForSource = totalValue > 0 ? (data.renewable / totalValue) * 100 : 0
+
+      return {
+        source: friendlyName,
+        value: Math.round(totalValue),
+        percentage: totalEnergy > 0 ? Math.round((totalValue / totalEnergy) * 100) : 0,
+        renewable: renewablePercentageForSource > 50, // Majority renewable?
+      }
+    })
     .sort((a, b) => b.value - a.value)
     .slice(0, 10) // Top 10 sources
 
@@ -1382,6 +1640,114 @@ export async function getEnergyDashboardDataGRI(
     ? Math.round((renewablePercentage - prevYearRenewablePercentage) * 10) / 10
     : null
 
+  // Calculate intensity metrics (kWh per employee, revenue, floor area, customer)
+  const intensity: IntensityMetrics = {
+    perEmployee: null,
+    perRevenueMillion: null,
+    perFloorAreaM2: null,
+    perCustomer: null,
+    employeeCount: null,
+    revenue: null,
+    floorArea: null,
+    customers: null,
+    perEmployeeYoY: null,
+    perRevenueMillionYoY: null,
+    perFloorAreaM2YoY: null,
+    perCustomerYoY: null,
+  }
+
+  // Fetch organization data for business metrics
+  const { data: orgData } = await supabase
+    .from('organizations')
+    .select('annual_revenue, annual_customers')
+    .eq('id', organizationId)
+    .maybeSingle()
+
+  // Calculate totals from the siteDataMap we already fetched
+  const totalEmployees = Array.from(siteDataMap.values()).reduce((sum, site) => sum + site.employees, 0)
+  const totalFloorArea = Array.from(siteDataMap.values()).reduce((sum, site) => sum + site.area, 0)
+
+  intensity.employeeCount = totalEmployees
+  intensity.floorArea = totalFloorArea
+  intensity.revenue = orgData?.annual_revenue || null
+  intensity.customers = orgData?.annual_customers || null
+
+  // Fetch previous year data for YoY intensity comparison
+  let prevYearIntensityQuery = supabase
+    .from('metrics_data')
+    .select('value, metric:metrics_catalog(code, is_renewable), metadata')
+    .eq('organization_id', organizationId)
+    .gte('period_start', prevYearStart.toISOString().split('T')[0])
+    .lte('period_end', prevYearEnd.toISOString().split('T')[0])
+
+  if (options.siteId) {
+    prevYearIntensityQuery = prevYearIntensityQuery.eq('site_id', options.siteId)
+  }
+
+  const { data: prevYearIntensityMetrics } = await prevYearIntensityQuery
+
+  // Calculate previous year intensity metrics
+  let prevPerEmployee: number | null = null
+  let prevPerRevenueMillion: number | null = null
+  let prevPerFloorAreaM2: number | null = null
+  let prevPerCustomer: number | null = null
+
+  if (prevYearTotalEnergy > 0) {
+    if (totalEmployees > 0) {
+      prevPerEmployee = prevYearTotalEnergy / totalEmployees
+    }
+    if (orgData?.annual_revenue && orgData.annual_revenue > 0) {
+      const revenueMillion = orgData.annual_revenue / 1000000
+      prevPerRevenueMillion = prevYearTotalEnergy / revenueMillion
+    }
+    if (totalFloorArea > 0) {
+      prevPerFloorAreaM2 = prevYearTotalEnergy / totalFloorArea
+    }
+    if (orgData?.annual_customers && orgData.annual_customers > 0) {
+      prevPerCustomer = prevYearTotalEnergy / orgData.annual_customers
+    }
+  }
+
+  // Calculate current year intensity metrics
+  if (totalEnergy > 0) {
+    // Per employee (kWh / employee)
+    if (totalEmployees > 0) {
+      intensity.perEmployee = Math.round((totalEnergy / totalEmployees) * 100) / 100
+      // Calculate YoY change
+      if (prevPerEmployee !== null && prevPerEmployee > 0) {
+        intensity.perEmployeeYoY = Math.round(((intensity.perEmployee - prevPerEmployee) / prevPerEmployee) * 10000) / 100
+      }
+    }
+
+    // Per revenue million (kWh / $M revenue)
+    if (orgData?.annual_revenue && orgData.annual_revenue > 0) {
+      const revenueMillion = orgData.annual_revenue / 1000000
+      intensity.perRevenueMillion = Math.round((totalEnergy / revenueMillion) * 100) / 100
+      // Calculate YoY change
+      if (prevPerRevenueMillion !== null && prevPerRevenueMillion > 0) {
+        intensity.perRevenueMillionYoY = Math.round(((intensity.perRevenueMillion - prevPerRevenueMillion) / prevPerRevenueMillion) * 10000) / 100
+      }
+    }
+
+    // Per floor area (kWh / m²)
+    if (totalFloorArea > 0) {
+      intensity.perFloorAreaM2 = Math.round((totalEnergy / totalFloorArea) * 100) / 100
+      // Calculate YoY change
+      if (prevPerFloorAreaM2 !== null && prevPerFloorAreaM2 > 0) {
+        intensity.perFloorAreaM2YoY = Math.round(((intensity.perFloorAreaM2 - prevPerFloorAreaM2) / prevPerFloorAreaM2) * 10000) / 100
+      }
+    }
+
+    // Per customer (kWh / customer)
+    if (orgData?.annual_customers && orgData.annual_customers > 0) {
+      intensity.perCustomer = Math.round((totalEnergy / orgData.annual_customers) * 100) / 100
+      // Calculate YoY change
+      if (prevPerCustomer !== null && prevPerCustomer > 0) {
+        intensity.perCustomerYoY = Math.round(((intensity.perCustomer - prevPerCustomer) / prevPerCustomer) * 10000) / 100
+      }
+    }
+  }
+
   return {
     totalEnergy: Math.round(totalEnergy),
     renewableTotal: Math.round(renewableTotal),
@@ -1392,6 +1758,7 @@ export async function getEnergyDashboardDataGRI(
     bySite,
     bySource,
     year: new Date(options.startDate).getFullYear(),
+    intensity,
     totalEnergyYoY,
     renewableTotalYoY,
     nonRenewableTotalYoY,

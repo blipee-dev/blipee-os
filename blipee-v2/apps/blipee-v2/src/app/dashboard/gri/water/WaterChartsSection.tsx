@@ -1,5 +1,4 @@
-'use client'
-
+import { getTranslations } from 'next-intl/server'
 import type { WaterDashboardData } from '@/lib/data/gri'
 import { LineChart, DonutChartSimple, BarChart } from '@/components/Dashboard/Charts'
 import { WaterIntensityCards } from './WaterIntensityCards'
@@ -9,7 +8,8 @@ interface WaterChartsSectionProps {
   data: WaterDashboardData
 }
 
-export function WaterChartsSection({ data }: WaterChartsSectionProps) {
+export async function WaterChartsSection({ data }: WaterChartsSectionProps) {
+  const t = await getTranslations('gri')
   const { monthlyTrend, bySource } = data
 
   // Transform monthly trend for LineChart - show withdrawal vs consumption
@@ -21,17 +21,17 @@ export function WaterChartsSection({ data }: WaterChartsSectionProps) {
   // Calculate water balance for donut chart
   const donutSegments = [
     {
-      label: 'Withdrawal',
+      label: t('water.charts.withdrawal'),
       value: data.totalWithdrawal,
       color: '#3b82f6', // blue
     },
     {
-      label: 'Consumption',
+      label: t('water.charts.consumption'),
       value: data.totalConsumption,
       color: '#ef4444', // red
     },
     {
-      label: 'Discharge',
+      label: t('water.charts.discharge'),
       value: data.totalDischarge,
       color: '#10b981', // green
     },
@@ -51,39 +51,39 @@ export function WaterChartsSection({ data }: WaterChartsSectionProps) {
       {/* Line Chart - Monthly Trend */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Water Withdrawal Trend</h2>
-          <p className={styles.chartDescription}>Monthly water withdrawal over time (m³)</p>
+          <h2 className={styles.chartTitle}>{t('water.charts.withdrawalTrend')}</h2>
+          <p className={styles.chartDescription}>{t('water.charts.monthlyWithdrawal')}</p>
         </div>
         {lineChartData.length > 0 ? (
           <LineChart data={lineChartData} />
         ) : (
-          <div className={styles.noData}>No data available for this period</div>
+          <div className={styles.noData}>{t('common.noDataPeriod')}</div>
         )}
       </div>
 
       {/* Donut Chart - Water Balance */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Water Balance</h2>
-          <p className={styles.chartDescription}>Withdrawal, consumption, and discharge distribution</p>
+          <h2 className={styles.chartTitle}>{t('water.charts.waterBalance')}</h2>
+          <p className={styles.chartDescription}>{t('water.charts.withdrawalVsConsumption')}</p>
         </div>
         {donutSegments.length > 0 && donutSegments.some((s) => s.value > 0) ? (
           <DonutChartSimple segments={donutSegments} />
         ) : (
-          <div className={styles.noData}>No data available</div>
+          <div className={styles.noData}>{t('common.noData')}</div>
         )}
       </div>
 
       {/* Bar Chart - Top Water Sources */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Top Water Sources</h2>
-          <p className={styles.chartDescription}>Top 5 sources by volume (m³)</p>
+          <h2 className={styles.chartTitle}>{t('water.charts.topSources')}</h2>
+          <p className={styles.chartDescription}>{t('water.charts.topFiveSources')}</p>
         </div>
         {barChartData.length > 0 ? (
           <BarChart bars={barChartData} />
         ) : (
-          <div className={styles.noData}>No water source data available</div>
+          <div className={styles.noData}>{t('common.noData')}</div>
         )}
       </div>
 

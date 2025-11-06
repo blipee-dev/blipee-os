@@ -1,5 +1,4 @@
-'use client'
-
+import { getTranslations } from 'next-intl/server'
 import type { EmissionsDashboardData } from '@/lib/data/gri'
 import { LineChart, DonutChartSimple, BarChart } from '@/components/Dashboard/Charts'
 import { CompactIntensityCards } from './CompactIntensityCards'
@@ -9,7 +8,8 @@ interface EmissionsChartsSectionProps {
   data: EmissionsDashboardData
 }
 
-export function EmissionsChartsSection({ data }: EmissionsChartsSectionProps) {
+export async function EmissionsChartsSection({ data }: EmissionsChartsSectionProps) {
+  const t = await getTranslations('gri')
   const { monthlyTrend, byScope, bySource } = data
 
   // Transform monthly trend for LineChart (show total only for simplicity)
@@ -49,39 +49,39 @@ export function EmissionsChartsSection({ data }: EmissionsChartsSectionProps) {
       {/* Line Chart - Monthly Trend */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Emissions Trend</h2>
-          <p className={styles.chartDescription}>Monthly total emissions over time (tonnes CO₂e)</p>
+          <h2 className={styles.chartTitle}>{t('emissions.charts.trendTitle')}</h2>
+          <p className={styles.chartDescription}>{t('emissions.charts.trendDesc')}</p>
         </div>
         {lineChartData.length > 0 ? (
           <LineChart data={lineChartData} />
         ) : (
-          <div className={styles.noData}>No data available for this period</div>
+          <div className={styles.noData}>{t('common.noDataPeriod')}</div>
         )}
       </div>
 
       {/* Donut Chart - Emissions by Scope */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Emissions by Scope</h2>
-          <p className={styles.chartDescription}>Distribution across Scope 1, 2, and 3</p>
+          <h2 className={styles.chartTitle}>{t('emissions.charts.scopeDistribution')}</h2>
+          <p className={styles.chartDescription}>{t('emissions.charts.scopeDistributionDesc')}</p>
         </div>
         {donutSegments.length > 0 && donutSegments.some((s) => s.value > 0) ? (
           <DonutChartSimple segments={donutSegments} />
         ) : (
-          <div className={styles.noData}>No data available</div>
+          <div className={styles.noData}>{t('common.noData')}</div>
         )}
       </div>
 
       {/* Bar Chart - Top Sources */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Top Emission Sources</h2>
-          <p className={styles.chartDescription}>Top 5 sources by emissions (tonnes CO₂e)</p>
+          <h2 className={styles.chartTitle}>{t('emissions.charts.topSources')}</h2>
+          <p className={styles.chartDescription}>{t('emissions.charts.topSourcesDesc')}</p>
         </div>
         {barChartData.length > 0 ? (
           <BarChart bars={barChartData} />
         ) : (
-          <div className={styles.noData}>No emission source data available</div>
+          <div className={styles.noData}>{t('common.noData')}</div>
         )}
       </div>
 

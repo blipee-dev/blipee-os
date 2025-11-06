@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getWaterDashboardData, getUserOrganizationId, getUserSites } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 import { WaterMetricsCards } from './WaterMetricsCards'
@@ -27,6 +28,8 @@ interface WaterPageProps {
 }
 
 export default async function WaterDashboardPage({ searchParams }: WaterPageProps) {
+  const t = await getTranslations('gri')
+
   // Get current user's organization
   const organizationId = await getUserOrganizationId()
 
@@ -64,26 +67,26 @@ export default async function WaterDashboardPage({ searchParams }: WaterPageProp
             <svg className={styles.carbonIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
             </svg>
-            <h1>GRI 303 - Water and Effluents</h1>
+            <h1>{t('water.title')}</h1>
           </div>
-          <p className={styles.subtitle}>Monitor water withdrawal, consumption, and discharge across all facilities</p>
+          <p className={styles.subtitle}>{t('water.subtitle')}</p>
         </div>
 
         <GRIFilters sites={userSites} availableYears={availableYears} />
       </div>
 
       {/* KPI Cards - Fast to render */}
-      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>Loading metrics...</div></div>}>
+      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>{t('common.loadingMetrics')}</div></div>}>
         <WaterMetricsCards data={waterData} />
       </Suspense>
 
       {/* Charts Section - Includes intensity metrics */}
-      <Suspense fallback={<div className={styles.chartsLoading}>Loading charts...</div>}>
+      <Suspense fallback={<div className={styles.chartsLoading}>{t('common.loadingCharts')}</div>}>
         <WaterChartsSection data={waterData} />
       </Suspense>
 
       {/* Data Table */}
-      <Suspense fallback={<div className={styles.tableLoading}>Loading table...</div>}>
+      <Suspense fallback={<div className={styles.tableLoading}>{t('common.loadingTable')}</div>}>
         <WaterSiteTable data={waterData} />
       </Suspense>
     </>

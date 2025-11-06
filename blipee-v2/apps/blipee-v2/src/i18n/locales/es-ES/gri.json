@@ -1,0 +1,205 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "loadingMetrics": "Cargando métricas...",
+    "loadingCharts": "Cargando gráficos...",
+    "loadingTable": "Cargando tabla...",
+    "noData": "Sin datos disponibles",
+    "noDataPeriod": "Sin datos disponibles para este período",
+    "vsLastYear": "vs año anterior",
+    "vsTarget": "vs target",
+    "ofTotal": "del total",
+    "target": "Target",
+    "yoy": "YoY"
+  },
+  "filters": {
+    "allSites": "Todos los Sites",
+    "selectSite": "Seleccionar Site",
+    "selectYear": "Seleccionar Año"
+  },
+  "energy": {
+    "title": "GRI 302 - Energía",
+    "subtitle": "Monitorice el consumo de energía y la utilización de energías renovables",
+    "metrics": {
+      "totalEnergy": "Energía Total",
+      "renewableEnergy": "Energía Renovable",
+      "nonRenewableEnergy": "Energía No Renovable",
+      "renewableShare": "Cuota Renovable",
+      "targetHundred": "Target: 100%",
+      "allEnergySources": "Todas las fuentes de energía",
+      "cleanEnergyRatio": "Ratio de energía limpia",
+      "ppVsLastYear": "pp vs año anterior"
+    },
+    "charts": {
+      "consumptionTrend": "Tendencia de Consumo de Energía",
+      "monthlyUsage": "Consumo mensual a lo largo del tiempo (kWh)",
+      "energyMix": "Energy Mix",
+      "renewableVsNonRenewable": "Energía renovable vs no renovable",
+      "topSources": "Top Fuentes de Energía",
+      "topFiveConsumption": "Top 5 fuentes por consumo (kWh)",
+      "renewable": "Renovable",
+      "nonRenewable": "No Renovable"
+    },
+    "intensity": {
+      "perEmployee": "Por Empleado",
+      "perRevenue": "Por Ingresos",
+      "perFloorArea": "Por Área",
+      "perCustomer": "Por Cliente",
+      "unitEmployee": "kWh / empleado",
+      "unitRevenue": "kWh / M$ ingresos",
+      "unitFloorArea": "kWh / m²",
+      "unitCustomer": "kWh / cliente",
+      "noYoYData": "Sin datos YoY"
+    },
+    "table": {
+      "title": "Energía por Site",
+      "description": "Detalle del consumo de energía por site",
+      "site": "Site",
+      "renewable": "Renovable (kWh)",
+      "nonRenewable": "No Renovable (kWh)",
+      "total": "Total (kWh)",
+      "efficiency": "Eficiencia",
+      "yoy": "YoY",
+      "renewablePercent": "% Renovable",
+      "shareOfTotal": "% del Total"
+    }
+  },
+  "emissions": {
+    "title": "GRI 305 - Emisiones",
+    "subtitle": "Monitorice las emisiones de gases de efecto invernadero y el progreso en la reducción",
+    "metrics": {
+      "totalEmissions": "Emisiones Totales",
+      "scope1": "Emisiones Scope 1",
+      "scope2": "Emisiones Scope 2",
+      "scope3": "Emisiones Scope 3",
+      "directEmissions": "Emisiones directas",
+      "indirectEnergy": "Energía indirecta",
+      "valueChain": "Cadena de valor",
+      "targetProgress": "Progreso del target"
+    },
+    "charts": {
+      "trendTitle": "Tendencia de Emisiones",
+      "trendDesc": "Emisiones mensuales a lo largo del tiempo (tCO₂e)",
+      "scopeDistribution": "Distribución por Scope",
+      "scopeDistributionDesc": "Desglose por categorías de emisión",
+      "topSources": "Top Fuentes de Emisión",
+      "topSourcesDesc": "Top 5 fuentes por emisiones (tCO₂e)"
+    },
+    "intensity": {
+      "perEmployee": "Por Empleado",
+      "perRevenue": "Por Ingresos",
+      "perFloorArea": "Por Área",
+      "perCustomer": "Por Cliente",
+      "unitEmployee": "tCO₂e / empleado",
+      "unitRevenue": "tCO₂e / M$ ingresos",
+      "unitFloorArea": "tCO₂e / m²",
+      "unitCustomer": "tCO₂e / cliente"
+    },
+    "table": {
+      "title": "Emisiones por Site",
+      "description": "Detalle de las emisiones por site",
+      "site": "Site",
+      "scope1": "Scope 1 (tCO₂e)",
+      "scope2": "Scope 2 (tCO₂e)",
+      "scope3": "Scope 3 (tCO₂e)",
+      "total": "Total (tCO₂e)",
+      "intensity": "Intensidad",
+      "yoy": "YoY",
+      "shareOfTotal": "% del Total"
+    }
+  },
+  "water": {
+    "title": "GRI 303 - Agua",
+    "subtitle": "Monitorice el consumo de agua y la eficiencia hídrica",
+    "metrics": {
+      "totalWithdrawal": "Extracción Total",
+      "totalConsumption": "Consumo Total",
+      "totalDischarge": "Descarga Total",
+      "totalRecycled": "Agua Reciclada",
+      "waterStress": "Estrés Hídrico",
+      "allWaterSources": "Todas las fuentes",
+      "waterManagement": "Gestión hídrica",
+      "waterReused": "Agua reutilizada",
+      "highStress": "Estrés alto",
+      "mediumStress": "Estrés medio"
+    },
+    "charts": {
+      "withdrawalTrend": "Tendencia de Extracción de Agua",
+      "monthlyWithdrawal": "Extracción mensual a lo largo del tiempo (m³)",
+      "waterBalance": "Balance Hídrico",
+      "withdrawalVsConsumption": "Extracción, Consumo y Descarga",
+      "topSources": "Top Fuentes de Agua",
+      "topFiveSources": "Top 5 fuentes por volumen (m³)",
+      "withdrawal": "Extracción",
+      "consumption": "Consumo",
+      "discharge": "Descarga"
+    },
+    "intensity": {
+      "perEmployee": "Por Empleado",
+      "perRevenue": "Por Ingresos",
+      "perFloorArea": "Por Área",
+      "perCustomer": "Por Cliente",
+      "unitEmployee": "m³ / empleado",
+      "unitRevenue": "m³ / M$ ingresos",
+      "unitFloorArea": "m³ / m²",
+      "unitCustomer": "m³ / cliente"
+    },
+    "table": {
+      "title": "Agua por Site",
+      "description": "Detalle del consumo de agua por site",
+      "site": "Site",
+      "withdrawal": "Extracción (m³)",
+      "consumption": "Consumo (m³)",
+      "discharge": "Descarga (m³)",
+      "recycled": "Reciclada (m³)",
+      "intensity": "Intensidad",
+      "yoy": "YoY",
+      "shareOfTotal": "% del Total"
+    }
+  },
+  "waste": {
+    "title": "GRI 306 - Residuos",
+    "subtitle": "Monitorice la generación de residuos y las tasas de reciclaje",
+    "metrics": {
+      "totalWaste": "Residuos Totales",
+      "hazardousWaste": "Residuos Peligrosos",
+      "nonHazardousWaste": "Residuos No Peligrosos",
+      "diversionRate": "Tasa de Desviación",
+      "allWasteStreams": "Todos los flujos",
+      "wasteManagement": "Gestión de residuos",
+      "recyclingRate": "Tasa de reciclaje",
+      "targetEighty": "Target: 80%"
+    },
+    "charts": {
+      "generationTrend": "Tendencia de Generación de Residuos",
+      "monthlyGeneration": "Generación mensual a lo largo del tiempo (kg)",
+      "wasteComposition": "Composición de Residuos",
+      "hazardousVsNonHazardous": "Residuos peligrosos vs no peligrosos",
+      "disposalMethods": "Métodos de Eliminación",
+      "breakdownByMethod": "Desglose por método (kg)",
+      "hazardous": "Peligroso",
+      "nonHazardous": "No Peligroso"
+    },
+    "intensity": {
+      "perEmployee": "Por Empleado",
+      "perRevenue": "Por Ingresos",
+      "perFloorArea": "Por Área",
+      "perCustomer": "Por Cliente",
+      "unitEmployee": "kg / empleado",
+      "unitRevenue": "kg / M$ ingresos",
+      "unitFloorArea": "kg / m²",
+      "unitCustomer": "kg / cliente"
+    },
+    "table": {
+      "title": "Residuos por Site",
+      "description": "Detalle de la generación de residuos por site",
+      "site": "Site",
+      "hazardous": "Peligroso (kg)",
+      "nonHazardous": "No Peligroso (kg)",
+      "total": "Total (kg)",
+      "diversionRate": "Tasa Desviación",
+      "yoy": "YoY",
+      "shareOfTotal": "% del Total"
+    }
+  }
+}

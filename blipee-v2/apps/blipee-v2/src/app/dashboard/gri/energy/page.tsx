@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getEnergyDashboardDataGRI, getUserOrganizationId, getUserSites } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 import { EnergyMetricsCards } from './EnergyMetricsCards'
@@ -10,7 +11,7 @@ import { GRIFilters } from '../GRIFilters'
 export const dynamic = 'force-dynamic'
 
 /**
- * GRI 302 Energy Dashboard Page (Server Component)
+ * GRI 302 Energy Dashboard Page (Server Component) - i18n enabled
  */
 
 interface EnergyPageProps {
@@ -21,6 +22,7 @@ interface EnergyPageProps {
 }
 
 export default async function EnergyDashboardPage({ searchParams }: EnergyPageProps) {
+  const t = await getTranslations('gri')
   const organizationId = await getUserOrganizationId()
 
   if (!organizationId) {
@@ -49,23 +51,23 @@ export default async function EnergyDashboardPage({ searchParams }: EnergyPagePr
             <svg className={styles.carbonIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
-            <h1>GRI 302 - Energy</h1>
+            <h1>{t('energy.title')}</h1>
           </div>
-          <p className={styles.subtitle}>Track energy consumption and renewable energy usage</p>
+          <p className={styles.subtitle}>{t('energy.subtitle')}</p>
         </div>
 
         <GRIFilters sites={userSites} availableYears={availableYears} />
       </div>
 
-      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>Loading metrics...</div></div>}>
+      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>{t('common.loadingMetrics')}</div></div>}>
         <EnergyMetricsCards data={energyData} />
       </Suspense>
 
-      <Suspense fallback={<div className={styles.chartsLoading}>Loading charts...</div>}>
+      <Suspense fallback={<div className={styles.chartsLoading}>{t('common.loadingCharts')}</div>}>
         <EnergyChartsSection data={energyData} />
       </Suspense>
 
-      <Suspense fallback={<div className={styles.tableLoading}>Loading table...</div>}>
+      <Suspense fallback={<div className={styles.tableLoading}>{t('common.loadingTable')}</div>}>
         <EnergySiteTable data={energyData} />
       </Suspense>
     </>

@@ -1,5 +1,4 @@
-'use client'
-
+import { getTranslations } from 'next-intl/server'
 import type { EnergyDashboardDataGRI } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 
@@ -7,23 +6,26 @@ interface EnergySiteTableProps {
   data: EnergyDashboardDataGRI
 }
 
-export function EnergySiteTable({ data }: EnergySiteTableProps) {
+export async function EnergySiteTable({ data }: EnergySiteTableProps) {
+  const t = await getTranslations('gri')
+
   return (
     <div className={styles.tableCard}>
       <div className={styles.chartHeader}>
-        <h2 className={styles.chartTitle}>Energy by Site</h2>
-        <p className={styles.chartDescription}>Detailed energy consumption breakdown by site</p>
+        <h2 className={styles.chartTitle}>{t('energy.table.title')}</h2>
+        <p className={styles.chartDescription}>{t('energy.table.description')}</p>
       </div>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Site</th>
-            <th>Renewable (kWh)</th>
-            <th>Non-Renewable (kWh)</th>
-            <th>Total (kWh)</th>
-            <th>YoY</th>
-            <th>Renewable %</th>
-            <th>Share of Total</th>
+            <th>{t('energy.table.site')}</th>
+            <th>{t('energy.table.renewable')}</th>
+            <th>{t('energy.table.nonRenewable')}</th>
+            <th>{t('energy.table.total')}</th>
+            <th>{t('energy.table.efficiency')}</th>
+            <th>{t('energy.table.yoy')}</th>
+            <th>{t('energy.table.renewablePercent')}</th>
+            <th>{t('energy.table.shareOfTotal')}</th>
           </tr>
         </thead>
         <tbody>
@@ -51,6 +53,21 @@ export function EnergySiteTable({ data }: EnergySiteTableProps) {
                   </td>
                   <td>
                     <strong>{site.total.toLocaleString('en-US')}</strong>
+                  </td>
+                  <td>
+                    {site.efficiency !== null && site.efficiencyUnit ? (
+                      <>
+                        {site.efficiency.toLocaleString('en-US', {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 1,
+                        })}
+                        <span style={{ fontSize: '0.8em', marginLeft: '0.25rem', color: '#6b7280' }}>
+                          {site.efficiencyUnit}
+                        </span>
+                      </>
+                    ) : (
+                      <span style={{ color: '#6b7280' }}>-</span>
+                    )}
                   </td>
                   <td>
                     {site.totalYoY !== null ? (
@@ -85,8 +102,8 @@ export function EnergySiteTable({ data }: EnergySiteTableProps) {
             })
           ) : (
             <tr>
-              <td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>
-                No energy data available for this period
+              <td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>
+                {t('common.noDataPeriod')}
               </td>
             </tr>
           )}

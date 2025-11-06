@@ -52,8 +52,8 @@ export default function CustomSelect({ value, onChange, options, className = '' 
 
     if (isOpen) {
       updatePosition()
-      window.addEventListener('scroll', updatePosition, true)
-      window.addEventListener('resize', updatePosition)
+      window.addEventListener('scroll', updatePosition, { capture: true, passive: true })
+      window.addEventListener('resize', updatePosition, { passive: true })
     }
 
     return () => {
@@ -63,7 +63,7 @@ export default function CustomSelect({ value, onChange, options, className = '' 
   }, [isOpen])
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       const target = event.target as Node
 
       // Check if click is outside both the select button and the dropdown
@@ -78,11 +78,13 @@ export default function CustomSelect({ value, onChange, options, className = '' 
     }
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('mousedown', handleClickOutside, { passive: true })
+      document.addEventListener('touchstart', handleClickOutside, { passive: true })
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
     }
   }, [isOpen])
 

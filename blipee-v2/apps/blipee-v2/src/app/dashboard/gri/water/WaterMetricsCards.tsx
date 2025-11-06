@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server'
 import { WaterDashboardData } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 
@@ -5,13 +6,15 @@ interface WaterMetricsCardsProps {
   data: WaterDashboardData
 }
 
-export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
+export async function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
+  const t = await getTranslations('gri')
+
   return (
     <div className={styles.kpiGrid}>
       {/* Total Water Withdrawal */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Total Water Withdrawal</span>
+          <span className={styles.kpiLabel}>{t('water.metrics.totalWithdrawal')}</span>
           <span className={styles.kpiStandard}>GRI 303-3</span>
         </div>
         <div className={styles.kpiValue}>
@@ -28,13 +31,13 @@ export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
                 {data.totalWithdrawalYoY < 0 ? '↓' : '↑'}
               </span>
               <span style={{ color: data.totalWithdrawalYoY < 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.totalWithdrawalYoY).toFixed(1)}% vs same period last year
+                {Math.abs(data.totalWithdrawalYoY).toFixed(1)}% {t('common.vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>💧</span>
-              <span>All sources combined</span>
+              <span>{t('water.metrics.allWaterSources')}</span>
             </>
           )}
         </div>
@@ -43,7 +46,7 @@ export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
       {/* Water Consumption */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Water Consumption</span>
+          <span className={styles.kpiLabel}>{t('water.metrics.totalConsumption')}</span>
           <span className={styles.kpiStandard}>GRI 303-5</span>
         </div>
         <div className={styles.kpiValue}>
@@ -60,13 +63,13 @@ export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
                 {data.totalConsumptionYoY < 0 ? '↓' : '↑'}
               </span>
               <span style={{ color: data.totalConsumptionYoY < 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.totalConsumptionYoY).toFixed(1)}% vs same period last year
+                {Math.abs(data.totalConsumptionYoY).toFixed(1)}% {t('common.vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>🚰</span>
-              <span>Water consumed</span>
+              <span>{t('water.metrics.waterManagement')}</span>
             </>
           )}
         </div>
@@ -75,7 +78,7 @@ export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
       {/* Water Discharge */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Water Discharge</span>
+          <span className={styles.kpiLabel}>{t('water.metrics.totalDischarge')}</span>
           <span className={styles.kpiStandard}>GRI 303-4</span>
         </div>
         <div className={styles.kpiValue}>
@@ -92,13 +95,13 @@ export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
                 {data.totalDischargeYoY < 0 ? '↓' : '↑'}
               </span>
               <span style={{ color: data.totalDischargeYoY < 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.totalDischargeYoY).toFixed(1)}% vs same period last year
+                {Math.abs(data.totalDischargeYoY).toFixed(1)}% {t('common.vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>🌊</span>
-              <span>Water discharged</span>
+              <span>{t('water.metrics.waterManagement')}</span>
             </>
           )}
         </div>
@@ -107,7 +110,7 @@ export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
       {/* Water Recycled */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Water Recycled</span>
+          <span className={styles.kpiLabel}>{t('water.metrics.totalRecycled')}</span>
           <span className={styles.kpiStandard}>GRI 303-3</span>
         </div>
         <div className={styles.kpiValue}>
@@ -124,13 +127,13 @@ export function WaterMetricsCards({ data }: WaterMetricsCardsProps) {
                 {data.totalRecycledYoY > 0 ? '↑' : '↓'}
               </span>
               <span style={{ color: data.totalRecycledYoY > 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.totalRecycledYoY).toFixed(1)}% vs same period last year
+                {Math.abs(data.totalRecycledYoY).toFixed(1)}% {t('common.vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>♻️</span>
-              <span>Water reused</span>
+              <span>{t('water.metrics.waterReused')}</span>
             </>
           )}
         </div>

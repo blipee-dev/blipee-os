@@ -1,5 +1,4 @@
-'use client'
-
+import { getTranslations } from 'next-intl/server'
 import type { EmissionsDashboardData } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 
@@ -7,23 +6,25 @@ interface EmissionsSiteTableProps {
   data: EmissionsDashboardData
 }
 
-export function EmissionsSiteTable({ data }: EmissionsSiteTableProps) {
+export async function EmissionsSiteTable({ data }: EmissionsSiteTableProps) {
+  const t = await getTranslations('gri')
+
   return (
     <div className={styles.tableCard}>
       <div className={styles.chartHeader}>
-        <h2 className={styles.chartTitle}>Emissions by Site</h2>
-        <p className={styles.chartDescription}>Detailed emissions breakdown by site and scope</p>
+        <h2 className={styles.chartTitle}>{t('emissions.table.title')}</h2>
+        <p className={styles.chartDescription}>{t('emissions.table.description')}</p>
       </div>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Site</th>
-            <th>Scope 1 (tCO₂e)</th>
-            <th>Scope 2 (tCO₂e)</th>
-            <th>Scope 3 (tCO₂e)</th>
-            <th>Total (tCO₂e)</th>
-            <th>YoY</th>
-            <th>Share</th>
+            <th>{t('emissions.table.site')}</th>
+            <th>{t('emissions.table.scope1')}</th>
+            <th>{t('emissions.table.scope2')}</th>
+            <th>{t('emissions.table.scope3')}</th>
+            <th>{t('emissions.table.total')}</th>
+            <th>{t('emissions.table.yoy')}</th>
+            <th>{t('emissions.table.shareOfTotal')}</th>
           </tr>
         </thead>
         <tbody>
@@ -84,7 +85,7 @@ export function EmissionsSiteTable({ data }: EmissionsSiteTableProps) {
           ) : (
             <tr>
               <td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>
-                No emissions data available for this period
+                {t('common.noDataPeriod')}
               </td>
             </tr>
           )}
