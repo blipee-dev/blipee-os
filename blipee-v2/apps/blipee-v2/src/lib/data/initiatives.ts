@@ -65,6 +65,7 @@ export async function getDismissedMetrics(
       metric_catalog_id,
       recommendation_reason,
       dismissed_at,
+      dismissed_by,
       dismissed_category,
       dismissed_notes,
       is_reactivatable,
@@ -77,10 +78,6 @@ export async function getDismissedMetrics(
         name,
         code,
         category
-      ),
-      dismissed_by_user:auth.users!dismissed_by(
-        id,
-        email
       )
     `
     )
@@ -101,7 +98,7 @@ export async function getDismissedMetrics(
     category: rec.metric?.category || '',
     recommendation_reason: rec.recommendation_reason,
     dismissed_at: rec.dismissed_at,
-    dismissed_by: rec.dismissed_by_user?.email || 'Unknown',
+    dismissed_by: rec.dismissed_by || 'Unknown',
     dismissed_category: rec.dismissed_category,
     dismissed_notes: rec.dismissed_notes,
     is_reactivatable: rec.is_reactivatable,
