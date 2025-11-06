@@ -37,181 +37,149 @@
     }
   },
   "landing": {
-    "skipToContent": "Saltar para o conteúdo principal",
-    "features": {
-      "title": "Capacidades Revolucionárias",
-      "subtitle": "A plataforma de sustentabilidade mais avançada, alimentada por IA que prevê, aconselha e atua",
-      "conversational": {
-        "title": "100% Conversacional",
-        "description": "Sem dashboards, sem formulários complexos. Apenas pergunte à suaIA qualquer coisa sobre sustentabilidade"
+    "nav": {
+      "company": "Empresa",
+      "about": "Sobre",
+      "careers": "Carreiras",
+      "signIn": "Iniciar Sessão"
+    },
+    "hero": {
+      "badge": "8 Agentes de IA a Trabalhar 24/7 para os seus Objetivos de Sustentabilidade",
+      "title": "Deixe de Gerir a Sustentabilidade.",
+      "titleHighlight": "Comece a Vivê-la",
+      "description": "Enquanto os seus concorrentes contratam consultores e criam folhas de cálculo, tem uma força de trabalho de IA completa que nunca dorme. 8 agentes autónomos a analisar dados, prever riscos, encontrar poupanças e garantir compliance — automaticamente.",
+      "primaryCta": "Começar",
+      "secondaryCta": "Veja o Que Nos Distingue"
+    },
+    "problem": {
+      "titlePrefix": "O Desafio da Sustentabilidade é",
+      "titleHighlight": "Impossível",
+      "titleSuffix": "de Gerir Manualmente",
+      "description": "Afoga-se em dados de mais de 15 categorias de emissões. Os frameworks de compliance mudam mensalmente. Os padrões de energia escondem-se em milhares de pontos de dados. Os fornecedores ficam sem supervisão. Quando deteta um problema, já lhe custou milhares — ou pior, a sua reputação."
+    },
+    "aiFeatures": {
+      "autonomousOps": {
+        "title": "Operações de IA Autónomas",
+        "description": "Cada workflow orquestrado por agentes ajustados para ESG. Priorizam iniciativas e mantêm a administração informada sem esforço manual."
       },
-      "scopeTracking": {
-        "title": "Tracking de Âmbito 1, 2, 3",
-        "description": "Tracking completo de emissões em toda a sua cadeia de valor, automaticamente"
+      "realTimeVision": {
+        "title": "Visão de Sustentabilidade em Tempo Real",
+        "description": "Computer vision nas instalações e ativos identifica anomalias instantaneamente, fundamentando insights em comportamentos do mundo real."
       },
-      "scienceTargets": {
-        "title": "Metas Baseadas na Ciência",
-        "description": "A IA define e rastreia metas alinhadas com SBTi, garantindo que cumpre os objetivos climáticos"
-      },
-      "documentIntelligence": {
-        "title": "Inteligência de Documentos",
-        "description": "Carregue qualquer fatura, conta ou relatório. A IA extrai emissões instantaneamente"
-      },
-      "buildingExcellence": {
-        "title": "Excelência em Edifícios",
-        "description": "Capacidades de gestão de edifícios de classe mundial integradas perfeitamente"
-      },
-      "complianceAutomation": {
-        "title": "Automação de Compliance",
-        "description": "Mantenha-se à frente das regulamentações com IA que monitoriza e garante compliance"
+      "predictiveIntelligence": {
+        "title": "Inteligência Preditiva em Todo o Lado",
+        "description": "Prevê impactos de energia, água, resíduos e carbono 12 meses antecipadamente com 98.5% de precisão. Os agentes agem antes dos problemas escalarem."
       }
     },
-    "useCases": {
-      "title": "Funciona para",
-      "titleHighlight": "Todas as Indústrias",
-      "subtitle": "Veja como as organizações alcançam os seusobjetivos de sustentabilidade através da conversação",
-      "buildings": {
-        "title": "Para Edifícios",
-        "stats": "23 Mil Milhões de pés²",
-        "query": "Reduzir as nossas emissões de edifícios em 40% este ano",
-        "response": "Analisei os seuspadrões de energia e identifiquei 2 oportunidades de otimização que reduzirão as emissões em 42% enquanto poupam €127.000 anualmente."
+    "agents": {
+      "chiefOfStaff": {
+        "name": "Diretor-Geral ESG",
+        "role": "Liderança Executiva • 24/7",
+        "description": "Supervisão estratégica de todas as operações de sustentabilidade. Coordena atividades de agentes, prioriza iniciativas e entrega insights prontos para a administração."
       },
-      "manufacturing": {
-        "title": "Para Manufatura",
-        "stats": "45% potencial de redução",
-        "query": "Qual é a nossa pegada de carbono por unidade de produto?",
-        "response": "Cada unidade produz 12,7 kg CO₂e. Principal ponto crítico: matérias-primas (45%). Mudar para o Fornecedor B para alumínio reduziria isto em 23%."
+      "complianceGuardian": {
+        "name": "Guardião do Compliance",
+        "role": "Especialista Regulatório • 24/7",
+        "description": "Monitoriza mais de 7 frameworks (GHG, GRI, ESRS, TCFD). Gera reports automaticamente, sinaliza riscos antes das auditorias e mantém-no perpetuamente compliant."
       },
-      "energy": {
-        "title": "Para Energia",
-        "stats": "7 Sites Ativos",
-        "query": "Mostre-me o performance de energia renovável em todos os sites",
-        "response": "Geração solar aumentou 18% este mês. Site 3 a render 30% acima do objetivo. Recomendo armazenamento de bateria para o Site 5 para capturar €85K em créditos de rede."
+      "carbonHunter": {
+        "name": "Caçador de Carbono",
+        "role": "Especialista em Emissões • 24/7",
+        "description": "Procura oportunidades de redução de carbono em todos os âmbitos. Identifica quick wins, rastreia progresso e otimiza o uso de energia em tempo real."
       },
-      "retail": {
-        "title": "Para Retalho",
-        "stats": "1.247 Localizações",
-        "query": "Como podemos alcançar zero líquido até 2030?",
-        "response": "Criei o seu roteiro: Modernização LED (T2), contratos renováveis (T3), eletrificação da frota (T4). Este caminho alcança zero líquido até 2029."
+      "supplyChainInvestigator": {
+        "name": "Investigador da Cadeia de Fornecimento",
+        "role": "Analista de Riscos • 24/7",
+        "description": "Due diligence contínua de fornecedores e avaliação de riscos. Sinaliza violações ESG antes de se tornarem responsabilidades."
       },
-      "aiThinking": "A IA está a pensar..."
+      "costSavingFinder": {
+        "name": "Detetor de Poupanças",
+        "role": "Analista Financeiro • 24/7",
+        "description": "Descobre poupanças ocultas em faturas de energia, gestão de resíduos e operações. O cliente médio poupa 18% no primeiro ano."
+      },
+      "predictiveMaintenance": {
+        "name": "Manutenção Preditiva",
+        "role": "Especialista em Equipamentos • 24/7",
+        "description": "Prevê falhas de equipamentos com semanas de antecedência. Agenda manutenção em janelas ótimas, prevenindo paragens dispendiosas."
+      },
+      "autonomousOptimizer": {
+        "name": "Otimizador Autónomo",
+        "role": "Afinador de Performance • 24/7",
+        "description": "Otimiza continuamente as operações para máxima eficiência. Auto-ajusta sistemas baseando-se em padrões invisíveis para humanos."
+      },
+      "regulatoryForesight": {
+        "name": "Prospeção Regulatória",
+        "role": "Preditor do Futuro • 24/7",
+        "description": "Monitoriza alterações regulatórias globalmente. Prepara-o para novos requisitos meses antes de entrarem em vigor."
+      }
     },
-    "stats": {
-      "reductionInWork": "Redução em Trabalho Manual",
-      "reductionInWorkValue": "90%",
-      "minutesToSetup": "Minutos para Configuração Completa",
-      "minutesToSetupValue": "5min",
-      "aiAccuracy": "Taxa de Precisão da IA",
-      "aiAccuracyValue": "99,2%",
-      "compliance": "Compliance Regulamentar",
-      "complianceValue": "100%"
+    "assistant": {
+      "title": "blipee",
+      "titleHighlight": "Assistant",
+      "description": "IA conversacional que orquestra a sua força de trabalho de 8 agentes. Pergunte o que quiser, obtenha respostas resumidas e mantenha cada stakeholder alinhado.",
+      "features": {
+        "plainLanguage": "Respostas em linguagem natural baseadas nos seus dados ESG",
+        "autoRouting": "Direciona cada pedido para o especialista certo automaticamente",
+        "proactiveBriefs": "Entrega briefings proativos, alertas e próximos passos",
+        "retainsContext": "Retém contexto entre equipas e conversas passadas"
+      }
     },
-    "aiCapabilities": {
-      "title": "12 Cérebros de IA Trabalhando",
-      "titleHighlight": "Para Si 24/7",
-      "subtitle": "A nossa arquitetura de IA multi-cérebro garante que cada aspeto da sustentabilidade está coberto, desde monitorização em tempo real até análises preditivas e ações autónomas.",
-      "capabilities": [
-        "Tracking e previsão de emissões",
-        "Análise preditiva para equipamentos",
-        "Monitorização e alertas de compliance",
-        "Otimização da cadeia de fornecimento",
-        "Definição de metas baseadas na ciência",
-        "Relatórios de sustentabilidade automatizados",
-        "Otimização de energia em tempo real",
-        "Gestão de créditos de carbono",
-        "Comunicação com partes interessadas",
-        "Avaliação e mitigação de riscos",
-        "Cálculos de ROI de investimentos",
-        "Comparação com pares"
-      ]
+    "impact": {
+      "costSavings": {
+        "value": "18%",
+        "label": "Poupança Média de Custos\nPrimeiro Ano"
+      },
+      "forecastAccuracy": {
+        "value": "98.5%",
+        "label": "Precisão do Forecast\n12 Meses Antecipadamente"
+      },
+      "continuousMonitoring": {
+        "value": "24/7",
+        "label": "Monitorização Contínua\nNunca Dorme"
+      },
+      "reportingReduction": {
+        "value": "85%",
+        "label": "Redução no Tempo de\nReporting Manual"
+      }
     },
     "cta": {
-      "title": "Pronto para Transformar a sua Sustentabilidade?",
-      "subtitle": "Aceda à suaplataforma de sustentabilidade alimentada por IA e comece a tomar decisões baseadas em dados hoje.",
-      "signInButton": "Iniciar Sessão no Painel",
-      "requestButton": "Solicitar Acesso",
-      "footer": "A a sua equipa de IA de sustentabilidade está à sua espera"
+      "titlePrefix": "A sua Força de Trabalho de IA",
+      "titleHighlight": "Começa Hoje",
+      "description": "Sem consultores. Sem meses de configuração. Sem curva de aprendizagem. Os seus 8 agentes de IA estão prontos para começar a trabalhar no momento em que se regista.",
+      "primaryCta": "Contactar Vendas",
+      "secondaryCta": "Saber Mais"
     },
-    "contactModal": {
-      "title": "Agendar uma Demonstração",
-      "subtitle": "Entre em contacto com a nossa equipa para ver a blipee em ação",
-      "namePlaceholder": "O Seu Nome",
-      "emailPlaceholder": "Endereço de Email",
-      "companyPlaceholder": "Empresa",
-      "messagePlaceholder": "Conte-nos sobre os seusobjetivos de sustentabilidade",
-      "submitButton": "Enviar Pedido"
-    },
-    "supportModal": {
-      "title": "Obter Suporte",
-      "subtitle": "A nossa equipa está aqui para ajudá-lo a ter sucesso com a blipee",
-      "namePlaceholder": "O Seu Nome",
-      "emailPlaceholder": "Endereço de Email",
-      "issueTypePlaceholder": "Selecionar Tipo de Problema",
-      "issueTypes": {
-        "technical": "Problema Técnico",
-        "billing": "Questão de Faturação",
-        "feature": "Pedido de Funcionalidade",
-        "other": "Outro"
+    "footer": {
+      "product": {
+        "title": "Produto",
+        "aiWorkforce": "Força de Trabalho de IA",
+        "capabilities": "Capacidades",
+        "pricing": "Preços",
+        "updates": "Atualizações"
       },
-      "descriptionPlaceholder": "Descreva o seu problema ou questão",
-      "submitButton": "Enviar Pedido"
-    },
-    "testimonials": {
-      "title": "Adorado por Líderes de Sustentabilidade",
-      "cta": "Junte-se a milhares de empresas a transformar a suasustentabilidade"
-    },
-    "pricing": {
-      "title": "Preços Simples e Transparentes",
-      "subtitle": "Escolha o plano que se adequa à suajornada",
-      "starter": {
-        "name": "Inicial",
-        "price": "€299",
-        "period": "/mês",
-        "description": "Perfeito para pequenas equipas a começar",
-        "features": [
-          "Até 10 utilizadores",
-          "Tracking básico de emissões",
-          "Relatórios mensais",
-          "Suporte por email"
-        ]
+      "company": {
+        "title": "Empresa",
+        "aboutUs": "Sobre Nós",
+        "ourStory": "A Nossa História",
+        "careers": "Carreiras",
+        "contact": "Contacto"
       },
-      "professional": {
-        "name": "Profissional",
-        "price": "€999",
-        "period": "/mês",
-        "description": "Para organizações em crescimento",
-        "features": [
-          "Até 50 utilizadores",
-          "Análise avançada",
-          "Relatórios personalizados",
-          "Acesso API",
-          "Suporte prioritário"
-        ]
+      "resources": {
+        "title": "Recursos",
+        "documentation": "Documentação",
+        "api": "API",
+        "faq": "FAQ",
+        "support": "Suporte",
+        "status": "Estado"
       },
-      "enterprise": {
-        "name": "Empresarial",
-        "price": "Preço",
-        "period": "personalizado",
-        "description": "Para grandes organizações",
-        "features": [
-          "Utilizadores ilimitados",
-          "Opções de marca branca",
-          "Gestor de sucesso dedicado",
-          "Integrações personalizadas",
-          "Suporte telefónico 24/7"
-        ]
-      }
-    },
-    "faq": {
-      "title": "Perguntas Frequentes",
-      "q1": "Quão rapidamente posso começar?",
-      "a1": "A nossa configuração de 7 minutos coloca-o a funcionar imediatamente. Sem implementação complexa.",
-      "q2": "Preciso de conhecimentos técnicos?",
-      "a2": "De todo! A blipee foi desenvolvida para todos. Se consegue conversar, consegue usar a blipee.",
-      "q3": "Os meus dados estão seguros?",
-      "a3": "Absolutamente. Usamos encriptação de nível bancário e somos certificados SOC 2 Tipo II.",
-      "q4": "Posso integrar com sistemas existentes?",
-      "a4": "Sim! Integramos com todos os principais sistemas ERP, IoT e empresariais."
+      "brand": "blipee",
+      "description": "Plataforma de sustentabilidade potenciada por IA com 8 agentes autónomos a trabalhar 24/7 para otimizar as suas operações.",
+      "newsletterPlaceholder": "Introduza o seu email",
+      "newsletterCta": "Subscrever",
+      "copyright": "© 2025 blipee. Todos os direitos reservados.",
+      "socialTwitter": "Twitter",
+      "socialLinkedIn": "LinkedIn",
+      "socialGitHub": "GitHub"
     }
   },
   "features": {
@@ -1963,7 +1931,8 @@
       "status": {
         "active": "Ativo",
         "inactive": "Inativo",
-        "pending": "Pendente"
+        "pending": "Pendente",
+        "suspended": "Suspenso"
       },
       "modal": {
         "createTitle": "Adicionar Novo Utilizador",
@@ -2073,12 +2042,6 @@
         "member": "Membro",
         "admin": "Administrador",
         "super_admin": "Super Admin"
-      },
-      "status": {
-        "active": "Ativo",
-        "inactive": "Inativo",
-        "pending": "Pendente",
-        "suspended": "Suspenso"
       },
       "validation": {
         "firstNameRequired": "Primeiro nome é obrigatório",
@@ -4533,6 +4496,253 @@
         "format_one": "{n} dia de perda de habitat de ursos polares",
         "context": "Perda de gelo ártico = ~1 dia por 15 toneladas CO2e",
         "didYouKnow": "Ursos polares precisam de gelo marinho para caçar - estão a perder 3-4 semanas de tempo de caça por década!"
+      }
+    }
+  },
+  "marketing": {
+    "about": {
+      "hero": {
+        "title": "A Construir os Negócios Sustentáveis",
+        "titleHighlight": "de Amanhã Hoje",
+        "subtitle": "A nossa missão é tornar a sustentabilidade rentável, mensurável e acessível a cada negócio através da inovação em IA."
+      },
+      "story": {
+        "title": "A Nossa",
+        "titleHighlight": "História",
+        "paragraph1": "A blipee nasceu de uma observação simples mas poderosa: as empresas querem ser sustentáveis, mas faltam-lhes tempo, experiência e recursos para o fazer eficazmente. A consultoria de sustentabilidade tradicional é cara e morosa. Sabíamos que tinha de haver uma forma melhor.",
+        "paragraph2": "Os nossos fundadores – uma mistura única de investigadores de IA, cientistas ambientais e estrategas de negócio – juntaram-se para construir algo sem precedentes: uma força de trabalho de IA autónoma dedicada inteiramente à sustentabilidade. Cada um dos nossos 8 agentes é treinado com milhões de pontos de dados, a trabalhar 24/7 para otimizar cada aspeto das suas operações.",
+        "paragraph3": "Hoje, a blipee representa a convergência da inteligência artificial de vanguarda e da ação ambiental urgente. Não somos apenas uma plataforma de software – somos a sua equipa de sustentabilidade, escalada infinitamente e sempre disponível."
+      },
+      "stats": {
+        "title": "Pelos",
+        "titleHighlight": "Números",
+        "aiAgents": {
+          "number": "8",
+          "label": "Agentes de IA"
+        },
+        "uptime": {
+          "number": "24/7",
+          "label": "Disponibilidade"
+        },
+        "accuracy": {
+          "number": "98.5%",
+          "label": "Precisão"
+        },
+        "costReduction": {
+          "number": "18%",
+          "label": "Redução de Custos Média"
+        }
+      },
+      "timeline": {
+        "title": "A Nossa",
+        "titleHighlight": "Jornada",
+        "vision": {
+          "year": "2023",
+          "title": "A Visão",
+          "description": "Fundada por uma equipa de investigadores de IA e especialistas em sustentabilidade que acreditavam que os negócios podiam ser uma força para o bem ambiental."
+        },
+        "firstAgents": {
+          "year": "2024",
+          "title": "Primeiros Agentes Implementados",
+          "description": "Lançámos os nossos primeiros 3 agentes de IA focados em compliance ESG, rastreamento de carbono e otimização da cadeia de fornecimento."
+        },
+        "completeWorkforce": {
+          "year": "2025",
+          "title": "Força de Trabalho de IA Completa",
+          "description": "Expandimos para 8 agentes especializados que cobrem todos os aspetos de operações sustentáveis, desde manutenção até compliance regulatório."
+        }
+      },
+      "cta": {
+        "title": "Junte-se à Nossa",
+        "titleHighlight": "Missão",
+        "text": "Faça parte da equipa que está a redefinir como os negócios abordam a sustentabilidade.",
+        "button": "Explorar Carreiras"
+      }
+    },
+    "company": {
+      "hero": {
+        "title": "Pioneiros no Futuro do",
+        "titleHighlight": "Negócio Sustentável",
+        "subtitle": "Estamos a construir a força de trabalho de IA mais avançada do mundo dedicada à sustentabilidade e excelência operacional."
+      },
+      "mission": {
+        "title": "A Nossa",
+        "titleHighlight": "Missão",
+        "paragraph1": "Na blipee, acreditamos que cada negócio pode ser uma força para o bem. A nossa missão é tornar a sustentabilidade acessível, mensurável e rentável para empresas de todos os tamanhos através do poder de agentes de IA autónomos.",
+        "paragraph2": "Reunimos 8 agentes de IA especializados que trabalham 24/7, cada um especialista num aspeto crítico de operações sustentáveis. Desde compliance ESG até rastreamento de carbono, desde otimização da cadeia de fornecimento até poupança de custos – cobrimos tudo com precisão e inteligência sem precedentes."
+      },
+      "values": {
+        "title": "Os Nossos",
+        "titleHighlight": "Valores",
+        "innovation": {
+          "title": "Inovação",
+          "description": "Aproveitamos IA de vanguarda para resolver desafios de sustentabilidade que importam."
+        },
+        "commitment": {
+          "title": "Compromisso 24/7",
+          "description": "Os nossos agentes de IA trabalham ininterruptamente, garantindo que os seus objetivos de sustentabilidade nunca dormem."
+        },
+        "trust": {
+          "title": "Confiança e Transparência",
+          "description": "Construímos confiança através de processos transparentes e resultados verificáveis."
+        },
+        "impact": {
+          "title": "Impacto",
+          "description": "Cada ação que tomamos é medida pelo seu impacto ambiental e empresarial no mundo real."
+        }
+      },
+      "cta": {
+        "title": "Junte-se à Nossa",
+        "titleHighlight": "Jornada",
+        "text": "Procuramos sempre pessoas talentosas que partilhem a nossa paixão pela sustentabilidade e inovação.",
+        "button": "Ver Posições Abertas"
+      }
+    },
+    "careers": {
+      "hero": {
+        "title": "Construa o Futuro do",
+        "titleHighlight": "Negócio Sustentável",
+        "subtitle": "Junte-se a uma equipa de inovadores a trabalhar para tornar a sustentabilidade acessível, mensurável e rentável para cada negócio."
+      },
+      "benefits": {
+        "title": "Porquê a",
+        "titleHighlight": "blipee",
+        "cuttingEdge": {
+          "title": "IA de Vanguarda",
+          "description": "Trabalhe com modelos de IA de última geração e contribua para soluções de sustentabilidade revolucionárias."
+        },
+        "realImpact": {
+          "title": "Impacto Real",
+          "description": "Cada linha de código que escreve ajuda as empresas a reduzir a sua pegada ambiental."
+        },
+        "remoteFirst": {
+          "title": "Remoto em Primeiro",
+          "description": "Trabalhe de qualquer parte do mundo. Valorizamos resultados sobre localização."
+        },
+        "growth": {
+          "title": "Crescimento e Aprendizagem",
+          "description": "Orçamento de aprendizagem contínua, conferências e programas de mentoria."
+        },
+        "compensation": {
+          "title": "Pacote Competitivo",
+          "description": "Salário de topo, opções de equity e benefícios abrangentes."
+        },
+        "wellness": {
+          "title": "Apoio ao Bem-Estar",
+          "description": "Seguro de saúde, programas de bem-estar mental e férias ilimitadas."
+        }
+      },
+      "jobs": {
+        "title": "Posições",
+        "titleHighlight": "Abertas",
+        "seniorAI": {
+          "title": "Engenheiro Sénior de IA",
+          "location": "Remoto",
+          "type": "Tempo Integral",
+          "department": "Engenharia",
+          "description": "Lidere o desenvolvimento dos nossos agentes de IA autónomos. Desenhe e implemente modelos de machine learning que impulsionam insights de sustentabilidade.",
+          "tags": [
+            "Python",
+            "TensorFlow",
+            "LLMs",
+            "MLOps"
+          ]
+        },
+        "fullStack": {
+          "title": "Engenheiro Full-Stack",
+          "location": "Remoto",
+          "type": "Tempo Integral",
+          "department": "Engenharia",
+          "description": "Construa interfaces bonitas e eficientes que tornam os dados de sustentabilidade acionáveis. Trabalhe no nosso frontend Next.js e backend Node.js.",
+          "tags": [
+            "React",
+            "Next.js",
+            "TypeScript",
+            "Node.js"
+          ]
+        },
+        "productDesigner": {
+          "title": "Designer de Produto",
+          "location": "Remoto",
+          "type": "Tempo Integral",
+          "department": "Design",
+          "description": "Crie experiências intuitivas que tornam métricas de sustentabilidade complexas compreensíveis. Gira todo o sistema de design.",
+          "tags": [
+            "Figma",
+            "UI/UX",
+            "Design Systems",
+            "User Research"
+          ]
+        },
+        "sustainability": {
+          "title": "Especialista em Sustentabilidade",
+          "location": "Remoto",
+          "type": "Tempo Integral",
+          "department": "Produto",
+          "description": "Faça a ponte entre as capacidades de IA e as práticas de sustentabilidade do mundo real. Ajude a moldar a experiência dos nossos agentes.",
+          "tags": [
+            "ESG",
+            "Carbon Accounting",
+            "Supply Chain",
+            "Compliance"
+          ]
+        },
+        "applyButton": "Candidatar-me Agora",
+        "applyAlert": "Demo: Formulário de candidatura"
+      },
+      "cta": {
+        "title": "Não Vê a Sua",
+        "titleHighlight": "Função?",
+        "text": "Procuramos sempre talento excecional. Envie-nos o seu currículo e conte-nos como pode ajudar a construir o futuro do negócio sustentável.",
+        "button": "Entre em Contacto"
+      }
+    },
+    "contact": {
+      "hero": {
+        "title": "Entre em",
+        "titleHighlight": "Contacto",
+        "subtitle": "Tem questões? Adoraríamos ouvir de si. Envie-nos uma mensagem e responderemos o mais breve possível."
+      },
+      "info": {
+        "title": "Vamos Falar",
+        "description": "Quer esteja interessado na nossa força de trabalho de IA, tenha questões sobre sustentabilidade ou queira explorar uma parceria, estamos aqui para ajudar."
+      },
+      "contactItems": {
+        "meeting": {
+          "title": "Agendar uma Reunião",
+          "description": "Reserve um horário que funcione para si"
+        },
+        "email": {
+          "title": "Email",
+          "description": "info@blipee.com"
+        },
+        "phone": {
+          "title": "Telefone",
+          "description": "+351 934 866 155"
+        },
+        "office": {
+          "title": "Escritório",
+          "description": "Lisboa, PT"
+        }
+      },
+      "form": {
+        "labelName": "Nome Completo",
+        "placeholderName": "João Silva",
+        "labelEmail": "Email",
+        "placeholderEmail": "joao@empresa.com",
+        "labelCompany": "Empresa",
+        "placeholderCompany": "A Sua Empresa",
+        "labelSubject": "Assunto",
+        "placeholderSubject": "Selecione um assunto",
+        "subjectDemo": "Solicitar uma Demo",
+        "subjectPricing": "Questão sobre Preços",
+        "subjectPartnership": "Oportunidade de Parceria",
+        "subjectSupport": "Suporte Técnico",
+        "subjectOther": "Outro",
+        "labelMessage": "Mensagem",
+        "placeholderMessage": "Conte-nos sobre as suas necessidades...",
+        "buttonSending": "A enviar...",
+        "buttonSend": "Enviar Mensagem"
       }
     }
   }

@@ -37,181 +37,149 @@
     }
   },
   "landing": {
-    "skipToContent": "Skip to main content",
-    "features": {
-      "title": "Revolutionary Capabilities",
-      "subtitle": "The most advanced sustainability platform, powered by AI that predicts, advises, and acts",
-      "conversational": {
-        "title": "100% Conversational",
-        "description": "No dashboards, no complex forms. Just ask your AI anything about sustainability"
+    "nav": {
+      "company": "Company",
+      "about": "About",
+      "careers": "Careers",
+      "signIn": "Sign In"
+    },
+    "hero": {
+      "badge": "8 AI Agents Working 24/7 for Your Sustainability Goals",
+      "title": "Stop Managing Sustainability.",
+      "titleHighlight": "Start Living It",
+      "description": "While your competitors hire consultants and build spreadsheets, you get an entire AI workforce that never sleeps. 8 autonomous agents analyzing data, predicting risks, finding savings, and ensuring compliance — automatically.",
+      "primaryCta": "Get Started",
+      "secondaryCta": "See What Makes Us Different"
+    },
+    "problem": {
+      "titlePrefix": "The Sustainability Challenge is",
+      "titleHighlight": "Impossible",
+      "titleSuffix": "to Manage Manually",
+      "description": "You're drowning in data from 15+ emission categories. Compliance frameworks change monthly. Energy patterns hide in thousands of data points. Suppliers go unmonitored. By the time you spot a problem, it's already cost you thousands — or worse, your reputation."
+    },
+    "aiFeatures": {
+      "autonomousOps": {
+        "title": "Autonomous AI Operations",
+        "description": "Every workflow orchestrated by agents tuned for ESG. They prioritise initiatives and keep the board informed without manual effort."
       },
-      "scopeTracking": {
-        "title": "Scope 1, 2, 3 Tracking",
-        "description": "Complete emissions tracking across your entire value chain, automatically"
+      "realTimeVision": {
+        "title": "Real-time Sustainability Vision",
+        "description": "Computer vision across facilities and assets identifies anomalies instantly, grounding insights in real-world behaviour."
       },
-      "scienceTargets": {
-        "title": "Science-Based Targets",
-        "description": "AI sets and tracks SBTi-aligned targets, ensuring you meet climate goals"
-      },
-      "documentIntelligence": {
-        "title": "Document Intelligence",
-        "description": "Upload any invoice, bill, or report. AI extracts emissions instantly"
-      },
-      "buildingExcellence": {
-        "title": "Building Excellence",
-        "description": "World-class building management capabilities integrated seamlessly"
-      },
-      "complianceAutomation": {
-        "title": "Compliance Automation",
-        "description": "Stay ahead of regulations with AI that monitors and ensures compliance"
+      "predictiveIntelligence": {
+        "title": "Predictive Intelligence Everywhere",
+        "description": "Forecast energy, water, waste, and carbon impacts 12 months ahead with 98.5% accuracy. Agents act before issues escalate."
       }
     },
-    "useCases": {
-      "title": "Works for",
-      "titleHighlight": "Every Industry",
-      "subtitle": "See how organizations achieve their sustainability goals through conversation",
-      "buildings": {
-        "title": "For Buildings",
-        "stats": "23 Billion sq ft",
-        "query": "Reduce our building emissions by 40% this year",
-        "response": "Analyzed your energy patterns and identified 2 optimization opportunities that will reduce emissions by 42% while saving $127,000 annually."
+    "agents": {
+      "chiefOfStaff": {
+        "name": "ESG Chief of Staff",
+        "role": "Executive Leadership • 24/7",
+        "description": "Strategic oversight across all sustainability operations. Coordinates agent activities, prioritizes initiatives, and delivers board-ready insights."
       },
-      "manufacturing": {
-        "title": "For Manufacturing",
-        "stats": "45% reduction potential",
-        "query": "What's our carbon footprint per product unit?",
-        "response": "Each unit produces 12.7 kg CO₂e. Main hotspot: raw materials (45%). Switching to Supplier B for aluminum would reduce this by 23%."
+      "complianceGuardian": {
+        "name": "Compliance Guardian",
+        "role": "Regulatory Expert • 24/7",
+        "description": "Monitors 7+ frameworks (GHG, GRI, ESRS, TCFD). Auto-generates reports, flags risks before audits, and keeps you perpetually compliant."
       },
-      "energy": {
-        "title": "For Energy",
-        "stats": "7 Active Sites",
-        "query": "Show me renewable energy performance across all sites",
-        "response": "Solar generation up 18% this month. Site 3 performing 30% above target. Recommend battery storage for Site 5 to capture $85K in grid credits."
+      "carbonHunter": {
+        "name": "Carbon Hunter",
+        "role": "Emissions Specialist • 24/7",
+        "description": "Hunts carbon reduction opportunities across all scopes. Identifies quick wins, tracks progress, and optimizes energy usage in real-time."
       },
-      "retail": {
-        "title": "For Retail",
-        "stats": "1,247 Locations",
-        "query": "How can we achieve net zero by 2030?",
-        "response": "Created your roadmap: LED retrofits (Q2), renewable contracts (Q3), fleet electrification (Q4). This pathway achieves net zero by 2029."
+      "supplyChainInvestigator": {
+        "name": "Supply Chain Investigator",
+        "role": "Risk Analyst • 24/7",
+        "description": "Continuous supplier due diligence and risk assessment. Flags ESG violations before they become liabilities."
       },
-      "aiThinking": "AI is thinking..."
+      "costSavingFinder": {
+        "name": "Cost Saving Finder",
+        "role": "Financial Analyst • 24/7",
+        "description": "Discovers hidden savings in energy bills, waste management, and operations. Average client saves 18% in year one."
+      },
+      "predictiveMaintenance": {
+        "name": "Predictive Maintenance",
+        "role": "Equipment Specialist • 24/7",
+        "description": "Predicts equipment failures weeks in advance. Schedules maintenance during optimal windows, preventing costly downtime."
+      },
+      "autonomousOptimizer": {
+        "name": "Autonomous Optimizer",
+        "role": "Performance Tuner • 24/7",
+        "description": "Continuously optimizes operations for maximum efficiency. Auto-adjusts systems based on patterns invisible to humans."
+      },
+      "regulatoryForesight": {
+        "name": "Regulatory Foresight",
+        "role": "Future Predictor • 24/7",
+        "description": "Monitors regulatory changes globally. Prepares you for new requirements months before they take effect."
+      }
     },
-    "stats": {
-      "reductionInWork": "Reduction in Manual Work",
-      "reductionInWorkValue": "90%",
-      "minutesToSetup": "Minutes to Full Setup",
-      "minutesToSetupValue": "5min",
-      "aiAccuracy": "AI Accuracy Rate",
-      "aiAccuracyValue": "99.2%",
-      "compliance": "Regulatory Compliance",
-      "complianceValue": "100%"
+    "assistant": {
+      "title": "blipee",
+      "titleHighlight": "Assistant",
+      "description": "Conversational AI that orchestrates your 8-agent workforce. Ask anything, get summarized answers, and keep every stakeholder aligned.",
+      "features": {
+        "plainLanguage": "Plain-language answers grounded in your ESG data",
+        "autoRouting": "Routes every request to the right specialist automatically",
+        "proactiveBriefs": "Delivers proactive briefs, alerts, and next steps",
+        "retainsContext": "Retains context across teams and past conversations"
+      }
     },
-    "aiCapabilities": {
-      "title": "12 AI Brains Working",
-      "titleHighlight": "For You 24/7",
-      "subtitle": "Our multi-brain AI architecture ensures every aspect of sustainability is covered, from real-time monitoring to predictive analytics and autonomous actions.",
-      "capabilities": [
-        "Emission tracking and forecasting",
-        "Predictive analytics for equipment",
-        "Compliance monitoring and alerts",
-        "Supply chain optimization",
-        "Science-based target setting",
-        "Automated sustainability reporting",
-        "Real-time energy optimization",
-        "Carbon credit management",
-        "Stakeholder communication",
-        "Risk assessment and mitigation",
-        "Investment ROI calculations",
-        "Benchmark against peers"
-      ]
+    "impact": {
+      "costSavings": {
+        "value": "18%",
+        "label": "Average Cost Savings\nFirst Year"
+      },
+      "forecastAccuracy": {
+        "value": "98.5%",
+        "label": "Forecast Accuracy\n12 Months Ahead"
+      },
+      "continuousMonitoring": {
+        "value": "24/7",
+        "label": "Continuous Monitoring\nNever Sleeps"
+      },
+      "reportingReduction": {
+        "value": "85%",
+        "label": "Reduction in Manual\nReporting Time"
+      }
     },
     "cta": {
-      "title": "Ready to Transform Your Sustainability?",
-      "subtitle": "Access your AI-powered sustainability platform and start making data-driven decisions today.",
-      "signInButton": "Sign In to Dashboard",
-      "requestButton": "Request Access",
-      "footer": "Your AI sustainability team is waiting for you"
+      "titlePrefix": "Your AI Workforce",
+      "titleHighlight": "Starts Today",
+      "description": "No consultants. No months of setup. No learning curve. Your 8 AI agents are ready to start working the moment you sign up.",
+      "primaryCta": "Contact Sales",
+      "secondaryCta": "Learn More"
     },
-    "contactModal": {
-      "title": "Schedule a Demo",
-      "subtitle": "Get in touch with our team to see blipee in action",
-      "namePlaceholder": "Your Name",
-      "emailPlaceholder": "Email Address",
-      "companyPlaceholder": "Company",
-      "messagePlaceholder": "Tell us about your sustainability goals",
-      "submitButton": "Send Request"
-    },
-    "supportModal": {
-      "title": "Get Support",
-      "subtitle": "Our team is here to help you succeed with blipee",
-      "namePlaceholder": "Your Name",
-      "emailPlaceholder": "Email Address",
-      "issueTypePlaceholder": "Select Issue Type",
-      "issueTypes": {
-        "technical": "Technical Issue",
-        "billing": "Billing Question",
-        "feature": "Feature Request",
-        "other": "Other"
+    "footer": {
+      "product": {
+        "title": "Product",
+        "aiWorkforce": "AI Workforce",
+        "capabilities": "Capabilities",
+        "pricing": "Pricing",
+        "updates": "Updates"
       },
-      "descriptionPlaceholder": "Describe your issue or question",
-      "submitButton": "Submit Request"
-    },
-    "testimonials": {
-      "title": "Loved by Sustainability Leaders",
-      "cta": "Join thousands of companies transforming their sustainability"
-    },
-    "pricing": {
-      "title": "Simple, Transparent Pricing",
-      "subtitle": "Choose the plan that fits your journey",
-      "starter": {
-        "name": "Starter",
-        "price": "$299",
-        "period": "/month",
-        "description": "Perfect for small teams getting started",
-        "features": [
-          "Up to 10 users",
-          "Basic emissions tracking",
-          "Monthly reports",
-          "Email support"
-        ]
+      "company": {
+        "title": "Company",
+        "aboutUs": "About Us",
+        "ourStory": "Our Story",
+        "careers": "Careers",
+        "contact": "Contact"
       },
-      "professional": {
-        "name": "Professional",
-        "price": "$999",
-        "period": "/month",
-        "description": "For growing organizations",
-        "features": [
-          "Up to 50 users",
-          "Advanced analytics",
-          "Custom reports",
-          "API access",
-          "Priority support"
-        ]
+      "resources": {
+        "title": "Resources",
+        "documentation": "Documentation",
+        "api": "API",
+        "faq": "FAQ",
+        "support": "Support",
+        "status": "Status"
       },
-      "enterprise": {
-        "name": "Enterprise",
-        "price": "Custom",
-        "period": "pricing",
-        "description": "For large organizations",
-        "features": [
-          "Unlimited users",
-          "White-label options",
-          "Dedicated success manager",
-          "Custom integrations",
-          "24/7 phone support"
-        ]
-      }
-    },
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "q1": "How quickly can I get started?",
-      "a1": "Our 7-minute setup gets you running immediately. No complex implementation needed.",
-      "q2": "Do I need technical expertise?",
-      "a2": "Not at all! blipee is designed for everyone. If you can chat, you can use blipee.",
-      "q3": "Is my data secure?",
-      "a3": "Absolutely. We use bank-level encryption and are SOC 2 Type II certified.",
-      "q4": "Can I integrate with existing systems?",
-      "a4": "Yes! We integrate with all major ERP, IoT, and business systems."
+      "brand": "blipee",
+      "description": "AI-powered sustainability platform with 8 autonomous agents working 24/7 to optimise your operations.",
+      "newsletterPlaceholder": "Enter your email",
+      "newsletterCta": "Subscribe",
+      "copyright": "© 2025 blipee. All rights reserved.",
+      "socialTwitter": "Twitter",
+      "socialLinkedIn": "LinkedIn",
+      "socialGitHub": "GitHub"
     }
   },
   "features": {
@@ -1931,10 +1899,6 @@
         "sustainability_manager": "Sustainability Manager",
         "facility_manager": "Facility Manager",
         "analyst": "Analyst",
-        "viewer": "Viewer",
-        "owner": "Owner",
-        "manager": "Manager",
-        "member": "Member",
         "admin": "Admin",
         "super_admin": "Super Admin"
       }
@@ -2782,11 +2746,6 @@
       },
       "actions": {
         "addInitiative": "Add Initiative"
-      },
-      "legends": {
-        "withdrawal": "Withdrawal",
-        "discharge": "Discharge",
-        "consumptionTotal": "Consumption (Total)"
       },
       "axisLabels": {
         "changePercent": "Change (%)",
@@ -4359,6 +4318,253 @@
         "format_one": "{n} day of polar bear habitat loss",
         "context": "Arctic ice loss = ~1 day per 15 tonnes CO2e",
         "didYouKnow": "Polar bears need sea ice to hunt - they're losing 3-4 weeks of hunting time per decade!"
+      }
+    }
+  },
+  "marketing": {
+    "about": {
+      "hero": {
+        "title": "Building Tomorrow's Sustainable",
+        "titleHighlight": "Businesses Today",
+        "subtitle": "We're on a mission to make sustainability profitable, measurable, and accessible to every business through AI innovation."
+      },
+      "story": {
+        "title": "Our",
+        "titleHighlight": "Story",
+        "paragraph1": "blipee was born from a simple yet powerful observation: businesses want to be sustainable, but they lack the time, expertise, and resources to do it effectively. Traditional sustainability consulting is expensive and time-consuming. We knew there had to be a better way.",
+        "paragraph2": "Our founders – a unique blend of AI researchers, environmental scientists, and business strategists – came together to build something unprecedented: an autonomous AI workforce dedicated entirely to sustainability. Each of our 8 agents is trained on millions of data points, working 24/7 to optimize every aspect of your operations.",
+        "paragraph3": "Today, blipee represents the convergence of cutting-edge artificial intelligence and urgent environmental action. We're not just a software platform – we're your sustainability team, scaled infinitely and always available."
+      },
+      "stats": {
+        "title": "By the",
+        "titleHighlight": "Numbers",
+        "aiAgents": {
+          "number": "8",
+          "label": "AI Agents"
+        },
+        "uptime": {
+          "number": "24/7",
+          "label": "Uptime"
+        },
+        "accuracy": {
+          "number": "98.5%",
+          "label": "Accuracy"
+        },
+        "costReduction": {
+          "number": "18%",
+          "label": "Avg. Cost Reduction"
+        }
+      },
+      "timeline": {
+        "title": "Our",
+        "titleHighlight": "Journey",
+        "vision": {
+          "year": "2023",
+          "title": "The Vision",
+          "description": "Founded by a team of AI researchers and sustainability experts who believed business could be a force for environmental good."
+        },
+        "firstAgents": {
+          "year": "2024",
+          "title": "First Agents Deployed",
+          "description": "Launched our first 3 AI agents focusing on ESG compliance, carbon tracking, and supply chain optimization."
+        },
+        "completeWorkforce": {
+          "year": "2025",
+          "title": "Complete AI Workforce",
+          "description": "Expanded to 8 specialized agents covering all aspects of sustainable operations, from maintenance to regulatory compliance."
+        }
+      },
+      "cta": {
+        "title": "Join Our",
+        "titleHighlight": "Mission",
+        "text": "Be part of the team that's redefining how businesses approach sustainability.",
+        "button": "Explore Careers"
+      }
+    },
+    "company": {
+      "hero": {
+        "title": "Pioneering the Future of",
+        "titleHighlight": "Sustainable Business",
+        "subtitle": "We're building the world's most advanced AI workforce dedicated to sustainability and operational excellence."
+      },
+      "mission": {
+        "title": "Our",
+        "titleHighlight": "Mission",
+        "paragraph1": "At blipee, we believe that every business can be a force for good. Our mission is to make sustainability accessible, measurable, and profitable for companies of all sizes through the power of autonomous AI agents.",
+        "paragraph2": "We've assembled 8 specialized AI agents that work 24/7, each an expert in a critical aspect of sustainable operations. From ESG compliance to carbon tracking, from supply chain optimization to cost savings – we cover it all with unprecedented accuracy and intelligence."
+      },
+      "values": {
+        "title": "Our",
+        "titleHighlight": "Values",
+        "innovation": {
+          "title": "Innovation",
+          "description": "We leverage cutting-edge AI to solve sustainability challenges that matter."
+        },
+        "commitment": {
+          "title": "24/7 Commitment",
+          "description": "Our AI agents work around the clock, ensuring your sustainability goals never sleep."
+        },
+        "trust": {
+          "title": "Trust & Transparency",
+          "description": "We build trust through transparent processes and verifiable results."
+        },
+        "impact": {
+          "title": "Impact",
+          "description": "Every action we take is measured by its real-world environmental and business impact."
+        }
+      },
+      "cta": {
+        "title": "Join Our",
+        "titleHighlight": "Journey",
+        "text": "We're always looking for talented individuals who share our passion for sustainability and innovation.",
+        "button": "View Open Positions"
+      }
+    },
+    "careers": {
+      "hero": {
+        "title": "Build the Future of",
+        "titleHighlight": "Sustainable Business",
+        "subtitle": "Join a team of innovators working to make sustainability accessible, measurable, and profitable for every business."
+      },
+      "benefits": {
+        "title": "Why",
+        "titleHighlight": "blipee",
+        "cuttingEdge": {
+          "title": "Cutting-Edge AI",
+          "description": "Work with state-of-the-art AI models and contribute to groundbreaking sustainability solutions."
+        },
+        "realImpact": {
+          "title": "Real Impact",
+          "description": "Every line of code you write helps businesses reduce their environmental footprint."
+        },
+        "remoteFirst": {
+          "title": "Remote-First",
+          "description": "Work from anywhere in the world. We value results over location."
+        },
+        "growth": {
+          "title": "Growth & Learning",
+          "description": "Continuous learning budget, conferences, and mentorship programs."
+        },
+        "compensation": {
+          "title": "Competitive Package",
+          "description": "Top-tier salary, equity options, and comprehensive benefits."
+        },
+        "wellness": {
+          "title": "Wellness Support",
+          "description": "Health insurance, mental wellness programs, and unlimited PTO."
+        }
+      },
+      "jobs": {
+        "title": "Open",
+        "titleHighlight": "Positions",
+        "seniorAI": {
+          "title": "Senior AI Engineer",
+          "location": "Remote",
+          "type": "Full-time",
+          "department": "Engineering",
+          "description": "Lead the development of our autonomous AI agents. Design and implement machine learning models that drive sustainability insights.",
+          "tags": [
+            "Python",
+            "TensorFlow",
+            "LLMs",
+            "MLOps"
+          ]
+        },
+        "fullStack": {
+          "title": "Full-Stack Engineer",
+          "location": "Remote",
+          "type": "Full-time",
+          "department": "Engineering",
+          "description": "Build beautiful, performant interfaces that make sustainability data actionable. Work across our Next.js frontend and Node.js backend.",
+          "tags": [
+            "React",
+            "Next.js",
+            "TypeScript",
+            "Node.js"
+          ]
+        },
+        "productDesigner": {
+          "title": "Product Designer",
+          "location": "Remote",
+          "type": "Full-time",
+          "department": "Design",
+          "description": "Craft intuitive experiences that make complex sustainability metrics understandable. Own the entire design system.",
+          "tags": [
+            "Figma",
+            "UI/UX",
+            "Design Systems",
+            "User Research"
+          ]
+        },
+        "sustainability": {
+          "title": "Sustainability Specialist",
+          "location": "Remote",
+          "type": "Full-time",
+          "department": "Product",
+          "description": "Bridge the gap between AI capabilities and real-world sustainability practices. Help shape our agent expertise.",
+          "tags": [
+            "ESG",
+            "Carbon Accounting",
+            "Supply Chain",
+            "Compliance"
+          ]
+        },
+        "applyButton": "Apply Now",
+        "applyAlert": "Demo: Application form"
+      },
+      "cta": {
+        "title": "Don't See Your",
+        "titleHighlight": "Role?",
+        "text": "We're always looking for exceptional talent. Send us your resume and tell us how you can help build the future of sustainable business.",
+        "button": "Get in Touch"
+      }
+    },
+    "contact": {
+      "hero": {
+        "title": "Get in",
+        "titleHighlight": "Touch",
+        "subtitle": "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
+      },
+      "info": {
+        "title": "Let's Talk",
+        "description": "Whether you're interested in our AI workforce, have questions about sustainability, or want to explore a partnership, we're here to help."
+      },
+      "contactItems": {
+        "meeting": {
+          "title": "Schedule a Meeting",
+          "description": "Book a time that works for you"
+        },
+        "email": {
+          "title": "Email",
+          "description": "info@blipee.com"
+        },
+        "phone": {
+          "title": "Phone",
+          "description": "+351 934 866 155"
+        },
+        "office": {
+          "title": "Office",
+          "description": "Lisboa, PT"
+        }
+      },
+      "form": {
+        "labelName": "Full Name",
+        "placeholderName": "John Doe",
+        "labelEmail": "Email",
+        "placeholderEmail": "john@company.com",
+        "labelCompany": "Company",
+        "placeholderCompany": "Your Company",
+        "labelSubject": "Subject",
+        "placeholderSubject": "Select a subject",
+        "subjectDemo": "Request a Demo",
+        "subjectPricing": "Pricing Question",
+        "subjectPartnership": "Partnership Opportunity",
+        "subjectSupport": "Technical Support",
+        "subjectOther": "Other",
+        "labelMessage": "Message",
+        "placeholderMessage": "Tell us about your needs...",
+        "buttonSending": "Sending...",
+        "buttonSend": "Send Message"
       }
     }
   }
