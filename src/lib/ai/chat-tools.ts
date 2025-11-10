@@ -136,30 +136,44 @@ export const analyzeCarbonFootprintTool = tool({
 
         if (buildingId) {
           // Get specific site data
-          const { data } = await supabase
+          console.log('[Carbon Tool] 🏢 Fetching site data for buildingId:', buildingId);
+          const { data, error } = await supabase
             .from('sites')
             .select('total_employees, total_area_sqm')
             .eq('id', buildingId)
             .single();
+
+          if (error) {
+            console.error('[Carbon Tool] ❌ Error fetching site data:', error);
+          } else {
+            console.log('[Carbon Tool] ✅ Site data fetched:', data);
+          }
           siteData = data;
         } else {
           // Get organization-wide totals by summing all sites
-          const { data: sites } = await supabase
+          console.log('[Carbon Tool] 🏢 Fetching organization-wide site data for orgId:', organizationId);
+          const { data: sites, error } = await supabase
             .from('sites')
             .select('total_employees, total_area_sqm')
             .eq('organization_id', organizationId);
 
-          if (sites && sites.length > 0) {
-            const totalEmployees = sites.reduce((sum, site) => sum + (site.total_employees || 0), 0);
-            const totalAreaSqm = sites.reduce((sum, site) => sum + (site.total_area_sqm || 0), 0);
-            siteData = {
-              total_employees: totalEmployees > 0 ? totalEmployees : null,
-              total_area_sqm: totalAreaSqm > 0 ? totalAreaSqm : null
-            };
+          if (error) {
+            console.error('[Carbon Tool] ❌ Error fetching sites:', error);
+          } else {
+            console.log('[Carbon Tool] ✅ Fetched', sites?.length || 0, 'sites');
+            if (sites && sites.length > 0) {
+              const totalEmployees = sites.reduce((sum, site) => sum + (site.total_employees || 0), 0);
+              const totalAreaSqm = sites.reduce((sum, site) => sum + (site.total_area_sqm || 0), 0);
+              siteData = {
+                total_employees: totalEmployees > 0 ? totalEmployees : null,
+                total_area_sqm: totalAreaSqm > 0 ? totalAreaSqm : null
+              };
+              console.log('[Carbon Tool] 📊 Aggregated site data:', siteData);
+            }
           }
         }
       } catch (error) {
-        console.error('[Carbon Tool] Failed to fetch site data:', error);
+        console.error('[Carbon Tool] ❌ Failed to fetch site data:', error);
       }
 
       // Check if there's no data for the requested period
@@ -227,14 +241,20 @@ export const analyzeCarbonFootprintTool = tool({
       } = {};
 
       if (siteData) {
+        console.log('[Carbon Tool] 📊 Calculating intensity metrics from site data...');
         if (siteData.total_employees && siteData.total_employees > 0) {
           intensityMetrics.emissionsPerEmployee = Math.round((emissions.total / siteData.total_employees) * 100) / 100;
           intensityMetrics.totalEmployees = siteData.total_employees;
+          console.log('[Carbon Tool] ✅ Emissions per employee:', intensityMetrics.emissionsPerEmployee, 'tCO2e/employee');
         }
         if (siteData.total_area_sqm && siteData.total_area_sqm > 0) {
           intensityMetrics.emissionsPerAreaSqm = Math.round((emissions.total / siteData.total_area_sqm) * 1000) / 1000;
           intensityMetrics.totalAreaSqm = siteData.total_area_sqm;
+          console.log('[Carbon Tool] ✅ Emissions per m²:', intensityMetrics.emissionsPerAreaSqm, 'tCO2e/m²');
         }
+        console.log('[Carbon Tool] 📊 Final intensity metrics:', intensityMetrics);
+      } else {
+        console.log('[Carbon Tool] ⚠️  No site data available for intensity calculations');
       }
 
       // Generate insights based on the data
