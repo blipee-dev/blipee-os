@@ -129,6 +129,39 @@ export const analyzeCarbonFootprintTool = tool({
         buildingId // buildingId maps to siteId in calculator
       );
 
+      // Fetch site/organization data for intensity calculations (per employee, per area)
+      let siteData: { total_employees: number | null; total_area_sqm: number | null } | null = null;
+      try {
+        const supabase = createAdminClient();
+
+        if (buildingId) {
+          // Get specific site data
+          const { data } = await supabase
+            .from('sites')
+            .select('total_employees, total_area_sqm')
+            .eq('id', buildingId)
+            .single();
+          siteData = data;
+        } else {
+          // Get organization-wide totals by summing all sites
+          const { data: sites } = await supabase
+            .from('sites')
+            .select('total_employees, total_area_sqm')
+            .eq('organization_id', organizationId);
+
+          if (sites && sites.length > 0) {
+            const totalEmployees = sites.reduce((sum, site) => sum + (site.total_employees || 0), 0);
+            const totalAreaSqm = sites.reduce((sum, site) => sum + (site.total_area_sqm || 0), 0);
+            siteData = {
+              total_employees: totalEmployees > 0 ? totalEmployees : null,
+              total_area_sqm: totalAreaSqm > 0 ? totalAreaSqm : null
+            };
+          }
+        }
+      } catch (error) {
+        console.error('[Carbon Tool] Failed to fetch site data:', error);
+      }
+
       // Check if there's no data for the requested period
       if (emissions.total === 0) {
         const requestedYear = new Date(startDate).getFullYear();
@@ -185,6 +218,25 @@ export const analyzeCarbonFootprintTool = tool({
         );
       }
 
+      // Calculate intensity metrics if site data is available
+      const intensityMetrics: {
+        emissionsPerEmployee?: number;
+        emissionsPerAreaSqm?: number;
+        totalEmployees?: number;
+        totalAreaSqm?: number;
+      } = {};
+
+      if (siteData) {
+        if (siteData.total_employees && siteData.total_employees > 0) {
+          intensityMetrics.emissionsPerEmployee = Math.round((emissions.total / siteData.total_employees) * 100) / 100;
+          intensityMetrics.totalEmployees = siteData.total_employees;
+        }
+        if (siteData.total_area_sqm && siteData.total_area_sqm > 0) {
+          intensityMetrics.emissionsPerAreaSqm = Math.round((emissions.total / siteData.total_area_sqm) * 1000) / 1000;
+          intensityMetrics.totalAreaSqm = siteData.total_area_sqm;
+        }
+      }
+
       // Generate insights based on the data
       const categoryText = categories
         .slice(0, 3)
@@ -196,13 +248,23 @@ export const analyzeCarbonFootprintTool = tool({
       const endYear = new Date(endDate).getFullYear();
       const yearLabel = startYear === endYear ? `year ${startYear}` : `period ${startYear}-${endYear}`;
 
-      const insights = `For the ${yearLabel} (${startDate} to ${endDate}), total emissions are ${emissions.total} tCO2e. ${breakdown ? `Breakdown: Scope 1 (${breakdown.scope1} tCO2e), Scope 2 (${breakdown.scope2} tCO2e), Scope 3 (${breakdown.scope3} tCO2e). ` : ''}Top emission categories: ${categoryText}. ${comparison ? `Year-over-year change: ${comparison.percentageChange > 0 ? '+' : ''}${comparison.percentageChange.toFixed(1)}% (${comparison.percentageChange > 0 ? 'increase' : 'decrease'} of ${Math.abs(comparison.absoluteChange).toFixed(1)} tCO2e)` : ''}`;
+      // Build intensity text for insights
+      let intensityText = '';
+      if (intensityMetrics.emissionsPerEmployee) {
+        intensityText += ` Emissions per employee: ${intensityMetrics.emissionsPerEmployee} tCO2e/employee (based on ${intensityMetrics.totalEmployees} employees).`;
+      }
+      if (intensityMetrics.emissionsPerAreaSqm) {
+        intensityText += ` Emissions per m²: ${intensityMetrics.emissionsPerAreaSqm} tCO2e/m² (based on ${intensityMetrics.totalAreaSqm} m²).`;
+      }
+
+      const insights = `For the ${yearLabel} (${startDate} to ${endDate}), total emissions are ${emissions.total} tCO2e. ${breakdown ? `Breakdown: Scope 1 (${breakdown.scope1} tCO2e), Scope 2 (${breakdown.scope2} tCO2e), Scope 3 (${breakdown.scope3} tCO2e). ` : ''}Top emission categories: ${categoryText}. ${comparison ? `Year-over-year change: ${comparison.percentageChange > 0 ? '+' : ''}${comparison.percentageChange.toFixed(1)}% (${comparison.percentageChange > 0 ? 'increase' : 'decrease'} of ${Math.abs(comparison.absoluteChange).toFixed(1)} tCO2e). ` : ''}${intensityText}`;
 
       return {
         success: true,
         scope,
         totalEmissions: emissions.total,
         breakdown,
+        intensityMetrics: Object.keys(intensityMetrics).length > 0 ? intensityMetrics : undefined,
         categories: categories.slice(0, 5), // Top 5 categories
         comparison: comparison ? {
           previousPeriod: comparison.previousValue,
