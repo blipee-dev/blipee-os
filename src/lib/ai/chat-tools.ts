@@ -3602,6 +3602,81 @@ export const getBuildingEnergyBreakdownTool = tool({
 });
 
 /**
+ * Get Sites/Buildings Tool
+ * Allows searching and listing sites/buildings by name or location
+ */
+export const getSitesTool = tool({
+  description: 'Search for sites/buildings/locations within an organization. Use this when users mention specific locations like "Lisboa", "Porto", "Faro", "office", or ask about "sites" or "locations". Returns site IDs and details needed for site-specific analysis.',
+  inputSchema: z.object({
+    organizationId: z.string().describe('Organization ID'),
+    searchTerm: z.string().optional().describe('Search term to filter sites by name or location (e.g., "Lisboa", "Porto", "Faro", "office")')
+  }),
+  execute: async ({ organizationId, searchTerm }) => {
+    try {
+      const supabase = createAdminClient();
+
+      let query = supabase
+        .from('sites')
+        .select('id, name, location, total_employees, total_area_sqm, type, status')
+        .eq('organization_id', organizationId)
+        .eq('status', 'active');
+
+      // Apply search filter if provided
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        query = query.or(`name.ilike.%${searchLower}%,location.ilike.%${searchLower}%`);
+      }
+
+      const { data: sites, error } = await query.order('name');
+
+      if (error) {
+        console.error('[Sites Tool] Error fetching sites:', error);
+        return {
+          success: false,
+          error: error.message,
+          sites: []
+        };
+      }
+
+      if (!sites || sites.length === 0) {
+        return {
+          success: true,
+          sites: [],
+          message: searchTerm
+            ? `No sites found matching "${searchTerm}". Try a different search term or list all sites by omitting the search term.`
+            : 'No active sites found for this organization.'
+        };
+      }
+
+      console.log('[Sites Tool] ✅ Found', sites.length, 'sites');
+
+      return {
+        success: true,
+        sites: sites.map(site => ({
+          id: site.id,
+          name: site.name,
+          location: site.location,
+          totalEmployees: site.total_employees,
+          totalAreaSqm: site.total_area_sqm,
+          type: site.type
+        })),
+        count: sites.length,
+        message: searchTerm
+          ? `Found ${sites.length} site(s) matching "${searchTerm}"`
+          : `Found ${sites.length} active site(s) in the organization`
+      };
+    } catch (error) {
+      console.error('[Sites Tool] Error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        sites: []
+      };
+    }
+  }
+});
+
+/**
  * Export all tools for use in chat API
  */
 export const sustainabilityTools = {
@@ -3625,6 +3700,8 @@ export const sustainabilityTools = {
   bulkAddMetricData: bulkAddMetricDataTool,
   updateMetricData: updateMetricDataTool,
   deleteMetricData: deleteMetricDataTool,
+  // Site/location tools
+  getSites: getSitesTool,
   // Visualization tools
   getEmissionsTrend: getEmissionsTrendTool,
   getEmissionsBreakdown: getEmissionsBreakdownTool,
