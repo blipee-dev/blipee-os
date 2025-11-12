@@ -1,8 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { Toast } from '@/lib/toast'
 import styles from './ToastNotification.module.css'
+
+type Toast = {
+  type: 'success' | 'error' | 'warning' | 'info'
+  message: string
+  duration?: number
+}
 
 interface ToastNotificationProps {
   toast: Toast | null

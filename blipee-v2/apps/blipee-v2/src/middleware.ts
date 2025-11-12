@@ -50,6 +50,7 @@ function isPublicPath(pathname: string): boolean {
     '/status',
     '/support',
     '/updates',
+    '/initiatives/view', // Public access to initiative invitations
   ]
   return publicPaths.some(path => pathname === path || pathname.startsWith(path + '/'))
 }

@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { WasteIntensityMetrics } from '@/lib/data/gri'
 import dashboardStyles from '../../dashboard.module.css'
 
@@ -6,6 +9,8 @@ interface WasteIntensityCardsProps {
 }
 
 export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
+  const t = useTranslations('gri.waste.intensity')
+  const tCommon = useTranslations('gri.common')
   const hasData = intensity.perEmployee !== null || intensity.perRevenueMillion !== null || intensity.perFloorAreaM2 !== null
 
   if (!hasData) {
@@ -22,7 +27,7 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
       {intensity.perEmployee !== null && (
         <div className={dashboardStyles.kpiCard}>
           <div className={dashboardStyles.kpiHeader}>
-            <span className={dashboardStyles.kpiLabel}>Per Employee</span>
+            <span className={dashboardStyles.kpiLabel}>{t('perEmployee')}</span>
             <span className={dashboardStyles.kpiStandard}>GRI 306-3</span>
           </div>
           <div className={dashboardStyles.kpiValue}>
@@ -31,7 +36,7 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className={dashboardStyles.kpiUnit}>kg / employee</div>
+          <div className={dashboardStyles.kpiUnit}>{t('unitEmployee')}</div>
           <div className={dashboardStyles.kpiTrend}>
             {intensity.perEmployeeYoY !== null ? (
               <>
@@ -39,13 +44,13 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
                   {intensity.perEmployeeYoY < 0 ? '↓' : '↑'}
                 </span>
                 <span style={{ color: intensity.perEmployeeYoY < 0 ? '#10b981' : '#ef4444' }}>
-                  {Math.abs(intensity.perEmployeeYoY).toFixed(1)}% YoY
+                  {Math.abs(intensity.perEmployeeYoY).toFixed(1)}% {tCommon('yoy')}
                 </span>
               </>
             ) : (
               <>
                 <span className={dashboardStyles.trendIcon}>👥</span>
-                <span>No YoY data</span>
+                <span>{t('noYoYData')}</span>
               </>
             )}
           </div>
@@ -56,7 +61,7 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
       {intensity.perRevenueMillion !== null && (
         <div className={dashboardStyles.kpiCard}>
           <div className={dashboardStyles.kpiHeader}>
-            <span className={dashboardStyles.kpiLabel}>Per Revenue</span>
+            <span className={dashboardStyles.kpiLabel}>{t('perRevenue')}</span>
             <span className={dashboardStyles.kpiStandard}>GRI 306-3</span>
           </div>
           <div className={dashboardStyles.kpiValue}>
@@ -65,7 +70,7 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className={dashboardStyles.kpiUnit}>kg / $M revenue</div>
+          <div className={dashboardStyles.kpiUnit}>{t('unitRevenue')}</div>
           <div className={dashboardStyles.kpiTrend}>
             {intensity.perRevenueMillionYoY !== null ? (
               <>
@@ -73,13 +78,13 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
                   {intensity.perRevenueMillionYoY < 0 ? '↓' : '↑'}
                 </span>
                 <span style={{ color: intensity.perRevenueMillionYoY < 0 ? '#10b981' : '#ef4444' }}>
-                  {Math.abs(intensity.perRevenueMillionYoY).toFixed(1)}% YoY
+                  {Math.abs(intensity.perRevenueMillionYoY).toFixed(1)}% {tCommon('yoy')}
                 </span>
               </>
             ) : (
               <>
                 <span className={dashboardStyles.trendIcon}>💰</span>
-                <span>No YoY data</span>
+                <span>{t('noYoYData')}</span>
               </>
             )}
           </div>
@@ -90,7 +95,7 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
       {intensity.perFloorAreaM2 !== null && (
         <div className={dashboardStyles.kpiCard}>
           <div className={dashboardStyles.kpiHeader}>
-            <span className={dashboardStyles.kpiLabel}>Per Floor Area</span>
+            <span className={dashboardStyles.kpiLabel}>{t('perFloorArea')}</span>
             <span className={dashboardStyles.kpiStandard}>GRI 306-3</span>
           </div>
           <div className={dashboardStyles.kpiValue}>
@@ -99,7 +104,7 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className={dashboardStyles.kpiUnit}>kg / m²</div>
+          <div className={dashboardStyles.kpiUnit}>{t('unitFloorArea')}</div>
           <div className={dashboardStyles.kpiTrend}>
             {intensity.perFloorAreaM2YoY !== null ? (
               <>
@@ -107,13 +112,13 @@ export function WasteIntensityCards({ intensity }: WasteIntensityCardsProps) {
                   {intensity.perFloorAreaM2YoY < 0 ? '↓' : '↑'}
                 </span>
                 <span style={{ color: intensity.perFloorAreaM2YoY < 0 ? '#10b981' : '#ef4444' }}>
-                  {Math.abs(intensity.perFloorAreaM2YoY).toFixed(1)}% YoY
+                  {Math.abs(intensity.perFloorAreaM2YoY).toFixed(1)}% {tCommon('yoy')}
                 </span>
               </>
             ) : (
               <>
                 <span className={dashboardStyles.trendIcon}>🏢</span>
-                <span>No YoY data</span>
+                <span>{t('noYoYData')}</span>
               </>
             )}
           </div>

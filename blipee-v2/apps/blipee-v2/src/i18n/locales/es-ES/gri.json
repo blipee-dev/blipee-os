@@ -159,26 +159,35 @@
   },
   "waste": {
     "title": "GRI 306 - Residuos",
-    "subtitle": "Monitorice la generación de residuos y las tasas de reciclaje",
+    "subtitle": "Monitoriza la generación, reciclaje y eliminación de residuos en todas las instalaciones",
     "metrics": {
+      "totalGenerated": "Total de Residuos Generados",
+      "wasteDiverted": "Residuos Reciclados",
+      "wasteDisposed": "Residuos Eliminados",
+      "recyclingRate": "Tasa de Reciclaje",
+      "allWasteTypes": "Todos los tipos de residuos",
+      "recycledRecovered": "Reciclado & recuperado",
+      "landfillIncineration": "Vertedero & incineración",
+      "diversionRate": "Tasa de reciclaje",
       "totalWaste": "Residuos Totales",
       "hazardousWaste": "Residuos Peligrosos",
       "nonHazardousWaste": "Residuos No Peligrosos",
-      "diversionRate": "Tasa de Desviación",
       "allWasteStreams": "Todos los flujos",
       "wasteManagement": "Gestión de residuos",
-      "recyclingRate": "Tasa de reciclaje",
       "targetEighty": "Target: 80%"
     },
     "charts": {
       "generationTrend": "Tendencia de Generación de Residuos",
       "monthlyGeneration": "Generación mensual a lo largo del tiempo (kg)",
-      "wasteComposition": "Composición de Residuos",
-      "hazardousVsNonHazardous": "Residuos peligrosos vs no peligrosos",
-      "disposalMethods": "Métodos de Eliminación",
-      "breakdownByMethod": "Desglose por método (kg)",
+      "wasteComposition": "Residuos por Tipo",
+      "hazardousVsNonHazardous": "Desglose peligrosos vs no peligrosos",
+      "disposalMethods": "Top Métodos de Tratamiento",
+      "breakdownByMethod": "Top 5 métodos de tratamiento (kg)",
       "hazardous": "Peligroso",
-      "nonHazardous": "No Peligroso"
+      "nonHazardous": "No Peligroso",
+      "noData": "Sin datos disponibles",
+      "noDataPeriod": "Sin datos disponibles para este período",
+      "noTreatmentData": "Sin datos de tratamiento disponibles"
     },
     "intensity": {
       "perEmployee": "Por Empleado",
@@ -188,18 +197,99 @@
       "unitEmployee": "kg / empleado",
       "unitRevenue": "kg / M$ ingresos",
       "unitFloorArea": "kg / m²",
-      "unitCustomer": "kg / cliente"
+      "unitCustomer": "kg / cliente",
+      "noYoYData": "Sin datos YoY"
     },
     "table": {
       "title": "Residuos por Site",
-      "description": "Detalle de la generación de residuos por site",
+      "description": "Detalle de residuos por site",
       "site": "Site",
+      "generated": "Generado (kg)",
+      "diverted": "Reciclado (kg)",
+      "disposed": "Eliminado (kg)",
       "hazardous": "Peligroso (kg)",
       "nonHazardous": "No Peligroso (kg)",
       "total": "Total (kg)",
-      "diversionRate": "Tasa Desviación",
+      "recyclingRate": "Tasa Reciclaje",
+      "diversionRate": "Tasa Reciclaje",
       "yoy": "YoY",
-      "shareOfTotal": "% del Total"
+      "share": "Cuota",
+      "shareOfTotal": "% del Total",
+      "noData": "Sin datos de residuos disponibles para este período"
+    }
+  },
+  "gapAnalysis": {
+    "title": "Análisis de Brechas y Oportunidades GRI",
+    "subtitle": "Descubra oportunidades para mejorar su reporting de sostenibilidad",
+    "summaryCards": {
+      "coverage": "Cobertura",
+      "coverageUnit": "%",
+      "coverageDescription": "métricas",
+      "opportunities": "Oportunidades",
+      "opportunitiesUnit": "métricas",
+      "opportunitiesDescription": "Aún no monitorizadas",
+      "quickWins": "Quick Wins",
+      "quickWinsUnit": "métricas",
+      "quickWinsDescription": "Fáciles de implementar",
+      "standards": "Normas GRI",
+      "standardsUnit": "normas",
+      "standardsDescription": "Temas ambientales",
+      "standardsRange": "301-308",
+      "overall": "Global"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "quickWins": "Quick Wins",
+      "byStandard": "Por Norma"
+    },
+    "sections": {
+      "highPriority": "Oportunidades de Alta Prioridad",
+      "highPriorityDesc": "Métricas recomendadas para el sector",
+      "sectorRecommended": "Recomendadas por el Sector",
+      "sectorRecommendedDesc": ">60% de las empresas del sector monitorizan estas métricas",
+      "quickWinsTitle": "Quick Wins",
+      "quickWinsDesc": "Métricas de alta prioridad que son fáciles de implementar",
+      "availableOpportunities": "Oportunidades Disponibles"
+    },
+    "priority": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "difficulty": {
+      "easy": "Fácil",
+      "medium": "Medio",
+      "hard": "Difícil"
+    },
+    "impact": {
+      "high": "Alto",
+      "medium": "Medio",
+      "low": "Bajo"
+    },
+    "badges": {
+      "quickWin": "Quick Win",
+      "recommended": "Recomendada"
+    },
+    "metrics": {
+      "tracked": "monitorizadas",
+      "notTracked": "oportunidades",
+      "coverage": "cobertura",
+      "of": "de",
+      "peerAdoption": "peers"
+    },
+    "emptyStates": {
+      "noQuickWins": "Sin quick wins disponibles. ¡Todas las métricas de alta prioridad y fáciles ya están siendo monitorizadas!",
+      "fullCoverage": "¡Todas las métricas disponibles para esta norma ya están siendo monitorizadas!"
+    },
+    "standards": {
+      "301": "Materiales",
+      "302": "Energía",
+      "303": "Agua y Efluentes",
+      "304": "Biodiversidad",
+      "305": "Emisiones",
+      "306": "Residuos",
+      "307": "Cumplimiento Ambiental",
+      "308": "Evaluación Ambiental de Proveedores"
     }
   }
 }

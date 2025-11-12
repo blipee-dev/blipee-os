@@ -318,17 +318,78 @@ interface LineChartDataPoint {
 
 interface LineChartProps {
   data: LineChartDataPoint[]
+  unit?: string
 }
 
-export function LineChart({ data }: LineChartProps) {
+export function LineChart({ data, unit = 'tonnes' }: LineChartProps) {
   const [hoveredPoint, setHoveredPoint] = React.useState<number | null>(null)
+  const [dimensions, setDimensions] = React.useState({ width: 600, height: 350 })
+  const containerRef = React.useRef<HTMLDivElement>(null)
 
-  const maxValue = Math.max(...data.map((d) => d.value))
-  const minValue = 0 // Always start Y-axis from 0 for proper scale
+  React.useEffect(() => {
+    if (!containerRef.current) return
+
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect()
+        setDimensions({
+          width: Math.max(width, 300),
+          height: Math.max(height, 200)
+        })
+      }
+    }
+
+    // Initial measurement
+    updateDimensions()
+
+    // Watch for resize
+    const resizeObserver = new ResizeObserver(updateDimensions)
+    resizeObserver.observe(containerRef.current)
+
+    return () => resizeObserver.disconnect()
+  }, [])
+
+  // Helper function to format numbers with thousand separators
+  const formatNumber = (value: number): string => {
+    return value.toLocaleString('en-US')
+  }
+
+  // Helper function to calculate nice Y-axis ticks
+  const getNiceYAxisTicks = (maxDataValue: number): number[] => {
+    if (maxDataValue === 0) return [0, 10, 20, 30, 40, 50]
+
+    // Calculate the order of magnitude
+    const magnitude = Math.pow(10, Math.floor(Math.log10(maxDataValue)))
+    const normalized = maxDataValue / magnitude
+
+    // Determine nice interval (1, 2, 5, 10, 20, 50, 100, etc.)
+    let interval: number
+    if (normalized <= 1) interval = magnitude * 0.2
+    else if (normalized <= 2) interval = magnitude * 0.5
+    else if (normalized <= 5) interval = magnitude * 1
+    else interval = magnitude * 2
+
+    // Calculate max value rounded up to nearest interval
+    const niceMax = Math.ceil(maxDataValue / interval) * interval
+
+    // Generate 5-6 ticks from 0 to niceMax
+    const ticks: number[] = []
+    for (let i = 0; i <= niceMax; i += interval) {
+      ticks.push(i)
+      if (ticks.length >= 6) break // Limit to 6 ticks max
+    }
+
+    return ticks
+  }
+
+  const maxDataValue = Math.max(...data.map((d) => d.value))
+  const yAxisTicks = getNiceYAxisTicks(maxDataValue)
+  const maxValue = yAxisTicks[yAxisTicks.length - 1]
+  const minValue = 0
   const range = maxValue || 1
 
-  const width = 600
-  const height = 260
+  const width = dimensions.width
+  const height = dimensions.height
   const padding = { top: 20, right: 30, bottom: 40, left: 50 }
   const chartWidth = width - padding.left - padding.right
   const chartHeight = height - padding.top - padding.bottom
@@ -344,7 +405,7 @@ export function LineChart({ data }: LineChartProps) {
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - padding.bottom} L ${points[0].x} ${height - padding.bottom} Z`
 
   return (
-    <div className={styles.lineChart} style={{ position: 'relative' }}>
+    <div ref={containerRef} className={styles.lineChart} style={{ position: 'relative' }}>
       {/* HTML Tooltip - rendered outside SVG to avoid clipping */}
       {hoveredPoint !== null && (
         <div
@@ -369,7 +430,7 @@ export function LineChart({ data }: LineChartProps) {
             {points[hoveredPoint].label}
           </div>
           <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
-            {points[hoveredPoint].value.toFixed(1)} tonnes
+            {formatNumber(Math.round(points[hoveredPoint].value))} {unit}
           </div>
         </div>
       )}
@@ -404,27 +465,27 @@ export function LineChart({ data }: LineChartProps) {
         />
         
         {/* Horizontal grid lines with Y-axis labels */}
-        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
-          const yValue = minValue + range * ratio
+        {yAxisTicks.map((tickValue, i) => {
+          const yPosition = padding.top + chartHeight * (1 - tickValue / range)
           return (
             <g key={i}>
               <line
                 x1={padding.left}
-                y1={padding.top + chartHeight * (1 - ratio)}
+                y1={yPosition}
                 x2={width - padding.right}
-                y2={padding.top + chartHeight * (1 - ratio)}
+                y2={yPosition}
                 stroke="var(--glass-border)"
                 strokeWidth="1"
                 opacity="0.3"
               />
               <text
                 x={padding.left - 8}
-                y={padding.top + chartHeight * (1 - ratio) + 4}
+                y={yPosition + 4}
                 textAnchor="end"
                 fill="var(--text-tertiary)"
                 fontSize="11"
               >
-                {yValue.toFixed(0)}
+                {formatNumber(tickValue)}
               </text>
             </g>
           )
@@ -496,77 +557,97 @@ interface DonutChartSimpleProps {
     value: number
     color: string
   }>
+  unit?: string
 }
 
-export function DonutChartSimple({ segments }: DonutChartSimpleProps) {
+export function DonutChartSimple({ segments, unit = 'tonnes' }: DonutChartSimpleProps) {
+  const [hoveredSegment, setHoveredSegment] = React.useState<number | null>(null)
   const total = segments.reduce((sum, seg) => sum + seg.value, 0)
   let offset = 0
 
   return (
     <div className={styles.donutChartSimple}>
-      <svg viewBox="0 0 200 200">
-        {segments.map((segment, index) => {
-          const percentage = (segment.value / total) * 100
-          const dashArray = (percentage * 502.4) / 100
-          const currentOffset = -offset
+      <div style={{ position: 'relative' }}>
+        <svg viewBox="0 0 200 200">
+          {segments.map((segment, index) => {
+            const percentage = (segment.value / total) * 100
+            const dashArray = (percentage * 502.4) / 100
+            const currentOffset = -offset
 
-          offset += dashArray
+            offset += dashArray
 
-          return (
-            <circle
-              key={index}
-              cx="100"
-              cy="100"
-              r="80"
-              fill="none"
-              stroke={segment.color}
-              strokeWidth="40"
-              strokeDasharray={`${dashArray} 502.4`}
-              strokeDashoffset={currentOffset}
-              transform="rotate(-90 100 100)"
-              className={styles.donutSegment}
-            />
-          )
-        })}
-        <circle cx="100" cy="100" r="50" fill="var(--glass-bg)" />
-      </svg>
-      <div className={styles.donutLegendDetailed}>
-        {segments.map((segment, index) => {
-          const percentage = ((segment.value / total) * 100).toFixed(0)
-          return (
-            <div key={index} className={styles.legendItemDetailed}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-                <div
-                  className={styles.legendColor}
-                  style={{ background: segment.color }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '4px' }}>
-                    {segment.label}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <span style={{ fontWeight: 600, fontSize: '1.125rem', color: 'var(--text-primary)' }}>
-                      {segment.value.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                      tonnes
-                    </span>
-                    <span style={{
-                      fontSize: '0.875rem',
-                      color: 'var(--text-tertiary)',
-                      marginLeft: 'auto'
-                    }}>
-                      {percentage}%
-                    </span>
-                  </div>
-                </div>
-              </div>
+            return (
+              <circle
+                key={index}
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke={segment.color}
+                strokeWidth="40"
+                strokeDasharray={`${dashArray} 502.4`}
+                strokeDashoffset={currentOffset}
+                transform="rotate(-90 100 100)"
+                className={styles.donutSegment}
+                onMouseEnter={() => setHoveredSegment(index)}
+                onMouseLeave={() => setHoveredSegment(null)}
+                style={{
+                  cursor: 'pointer',
+                  opacity: hoveredSegment === null || hoveredSegment === index ? 1 : 0.5,
+                  transition: 'opacity 0.2s ease'
+                }}
+              />
+            )
+          })}
+          <circle cx="100" cy="100" r="50" fill="var(--glass-bg)" />
+        </svg>
+
+        {/* Tooltip */}
+        {hoveredSegment !== null && (
+          <div className={styles.donutTooltip}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>
+              {segments[hoveredSegment].label}
             </div>
-          )
-        })}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {segments[hoveredSegment].value.toLocaleString('en-US', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}
+              </span>
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                {unit}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', marginTop: '2px' }}>
+              {((segments[hoveredSegment].value / total) * 100).toFixed(1)}%
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Simplified Legend - Just color + label */}
+      <div className={styles.donutLegendCompact}>
+        {segments.map((segment, index) => (
+          <div
+            key={index}
+            className={styles.legendItemCompact}
+            onMouseEnter={() => setHoveredSegment(index)}
+            onMouseLeave={() => setHoveredSegment(null)}
+            style={{
+              opacity: hoveredSegment === null || hoveredSegment === index ? 1 : 0.5,
+              cursor: 'pointer'
+            }}
+          >
+            <div
+              className={styles.legendColor}
+              style={{ background: segment.color }}
+            />
+            <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+              {segment.label}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   )

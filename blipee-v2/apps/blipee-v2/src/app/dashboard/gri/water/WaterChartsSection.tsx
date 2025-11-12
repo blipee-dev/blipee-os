@@ -68,7 +68,7 @@ export async function WaterChartsSection({ data }: WaterChartsSectionProps) {
           <p className={styles.chartDescription}>{t('water.charts.withdrawalVsConsumption')}</p>
         </div>
         {donutSegments.length > 0 && donutSegments.some((s) => s.value > 0) ? (
-          <DonutChartSimple segments={donutSegments} />
+          <DonutChartSimple segments={donutSegments} unit="m³" />
         ) : (
           <div className={styles.noData}>{t('common.noData')}</div>
         )}

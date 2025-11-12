@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import type { WasteDashboardData } from '@/lib/data/gri'
 import { LineChart, DonutChartSimple, BarChart } from '@/components/Dashboard/Charts'
 import { WasteIntensityCards } from './WasteIntensityCards'
@@ -10,6 +11,7 @@ interface WasteChartsSectionProps {
 }
 
 export function WasteChartsSection({ data }: WasteChartsSectionProps) {
+  const t = useTranslations('gri.waste.charts')
   const { monthlyTrend, byType, byTreatment } = data
 
   // Transform monthly trend for LineChart - show total waste generated
@@ -18,11 +20,31 @@ export function WasteChartsSection({ data }: WasteChartsSectionProps) {
     value: item.generated,
   }))
 
-  // Transform waste types for DonutChart (hazardous vs non-hazardous)
+  // Transform waste types for DonutChart with distinct colors
+  const getWasteTypeColor = (typeName: string, isHazardous: boolean): string => {
+    if (isHazardous) return '#ef4444' // red for hazardous
+
+    // Assign distinct colors based on waste type
+    const typeColors: Record<string, string> = {
+      'Paper': '#10b981',           // green
+      'Plastic': '#3b82f6',         // blue
+      'Metal': '#f59e0b',           // amber
+      'Glass': '#06b6d4',           // cyan
+      'Mixed Recycling': '#8b5cf6', // violet
+      'Food Waste': '#ec4899',      // pink
+      'Garden Waste': '#14b8a6',    // teal
+      'Incineration': '#ef4444',    // red
+      'Landfill': '#dc2626',        // dark red
+      'E-Waste': '#6366f1',         // indigo
+    }
+
+    return typeColors[typeName] || '#64748b' // slate gray as fallback
+  }
+
   const donutSegments = byType.map((type) => ({
     label: type.type,
     value: type.value,
-    color: type.hazardous ? '#ef4444' : '#10b981', // red for hazardous, green for non-hazardous
+    color: getWasteTypeColor(type.type, type.hazardous),
   }))
 
   // Transform treatment methods for BarChart (top 5)
@@ -43,39 +65,39 @@ export function WasteChartsSection({ data }: WasteChartsSectionProps) {
       {/* Line Chart - Monthly Trend */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Waste Generation Trend</h2>
-          <p className={styles.chartDescription}>Monthly waste generated over time (kg)</p>
+          <h2 className={styles.chartTitle}>{t('generationTrend')}</h2>
+          <p className={styles.chartDescription}>{t('monthlyGeneration')}</p>
         </div>
         {lineChartData.length > 0 ? (
-          <LineChart data={lineChartData} />
+          <LineChart data={lineChartData} unit="kg" />
         ) : (
-          <div className={styles.noData}>No data available for this period</div>
+          <div className={styles.noData}>{t('noDataPeriod')}</div>
         )}
       </div>
 
       {/* Donut Chart - Waste by Type */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Waste by Type</h2>
-          <p className={styles.chartDescription}>Hazardous vs non-hazardous breakdown</p>
+          <h2 className={styles.chartTitle}>{t('wasteComposition')}</h2>
+          <p className={styles.chartDescription}>{t('hazardousVsNonHazardous')}</p>
         </div>
         {donutSegments.length > 0 && donutSegments.some((s) => s.value > 0) ? (
-          <DonutChartSimple segments={donutSegments} />
+          <DonutChartSimple segments={donutSegments} unit="kg" />
         ) : (
-          <div className={styles.noData}>No data available</div>
+          <div className={styles.noData}>{t('noData')}</div>
         )}
       </div>
 
       {/* Bar Chart - Top Treatment Methods */}
       <div className={styles.chartCard}>
         <div className={styles.chartHeader}>
-          <h2 className={styles.chartTitle}>Top Treatment Methods</h2>
-          <p className={styles.chartDescription}>Top 5 waste treatment methods (kg)</p>
+          <h2 className={styles.chartTitle}>{t('disposalMethods')}</h2>
+          <p className={styles.chartDescription}>{t('breakdownByMethod')}</p>
         </div>
         {barChartData.length > 0 ? (
           <BarChart bars={barChartData} />
         ) : (
-          <div className={styles.noData}>No treatment data available</div>
+          <div className={styles.noData}>{t('noTreatmentData')}</div>
         )}
       </div>
 

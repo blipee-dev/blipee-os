@@ -99,43 +99,64 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Tab Navigation */
+/* Tab Navigation - Modern Underline Style */
 .tabNavigation {
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
+  gap: 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.tabNavigation::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .tabButton {
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
+  padding: 1rem 1.75rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  position: relative;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tabButton::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 .tabButton:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(16, 185, 129, 0.3);
   color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .tabButtonActive {
-  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
-  border-color: transparent;
   color: white;
+  font-weight: 700;
+}
+
+.tabButtonActive::after {
+  transform: scaleX(1);
 }
 
 .tabButtonActive:hover {
-  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Export Button */
@@ -160,19 +181,20 @@
   box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
 }
 
-/* GRI Standard Cards */
+/* GRI Standard Cards - Sophisticated Pattern */
 .standardCard {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 2rem;
+  border-radius: 12px;
   backdrop-filter: blur(20px);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .standardCard:hover {
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .standardCardMaterial {
@@ -193,8 +215,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
+  padding: 20px;
+  gap: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.standardHeader:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .standardTitleSection {
@@ -215,14 +243,19 @@
 }
 
 .standardTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.4;
 }
 
 .standardMeta {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .standardMetaMaterial {
@@ -254,7 +287,10 @@
 }
 
 .disclosuresSection {
-  margin-bottom: 1rem;
+  padding: 16px 20px 20px;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: slideDown 0.3s ease;
 }
 
 .disclosuresLabel {
@@ -456,6 +492,241 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* Opportunities Section */
+.opportunitiesSection {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.opportunitiesTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.opportunitiesList {
+  display: grid;
+  gap: 1rem;
+}
+
+.opportunityCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.opportunityCard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+
+.opportunityCardCompact {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.opportunityCardCompact:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.opportunityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.opportunityName {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.opportunityMeta {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.opportunityDescription {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.opportunityBadges {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.priorityBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.opportunityFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.opportunityMetrics {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.opportunityMetrics span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.quickWinBadge {
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.recommendedBadge {
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* Sophisticated Opportunity Card (expandable pattern) */
+.opportunityCardSophisticated {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.opportunityCardSophisticated:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.opportunityCardHeader {
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.opportunityCardHeader:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.opportunityCardHeaderExpanded {
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.opportunityHeaderLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.opportunityHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.opportunityInfo {
+  min-width: 0;
+}
+
+.opportunityTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.opportunityMeta {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.opportunityDetailsExpanded {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: slideDown 0.3s ease;
+}
+
+.opportunityDetailsContent {
+  margin-bottom: 16px;
+}
+
+.standardSection {
+  margin-bottom: 2rem;
+}
+
+.standardSubtitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.emptyState {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9375rem;
+}
+
+.fullCoverageMessage {
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 0.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9375rem;
+  margin-top: 1rem;
+}
+
 @media (max-width: 768px) {
   .kpiGrid {
     grid-template-columns: 1fr;
@@ -479,10 +750,966 @@
   }
 
   .tabNavigation {
-    flex-direction: column;
+    overflow-x: auto;
+    flex-wrap: nowrap;
   }
 
   .tabButton {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .opportunityHeader {
+    flex-direction: column;
+  }
+
+  .opportunityBadges {
     width: 100%;
   }
+
+  .opportunityFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================================================
+   DISCLOSURE CARD STYLES
+   ============================================================================ */
+
+.disclosureCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(20px);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.disclosureCard:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.disclosureCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.disclosureCardHeader:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.disclosureCardHeaderLeft {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.disclosureCardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.disclosureCardTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.disclosureCode {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+}
+
+.disclosureTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.4;
+}
+
+.disclosureCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.metaItem {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quickWinBadge {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.disclosureCardHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.disclosureCardBody {
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: slideDown 0.3s ease;
+}
+
+.disclosureDescription {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #10b981;
+  border-radius: 6px;
+}
+
+.metricsListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.metricsListTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.selectAllButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selectAllButton:hover {
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.metricsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.metricItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.metricItem:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transform: translateX(4px);
+}
+
+.metricItemSelected {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.metricItemLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.metricCheckbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.metricInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.metricName {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95) !important;
+  margin-bottom: 4px;
+}
+
+.metricMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.metricCategory {
+  font-weight: 500;
+}
+
+.metricSubcategory {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.metricUnit {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.metricItemRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.disclosureCardActions {
+  display: flex;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.primaryButton {
+  flex: 1;
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.secondaryButton {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Disclosures Container */
+.disclosuresContainer {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Disclosures Section (inside Standards) */
+.disclosuresSection {
+  padding: 1.5rem 2rem 2rem 2rem;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Filters Grid - Dropdowns Style */
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filterLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filterSelect {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.7)' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.filterSelect:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: rgba(16, 185, 129, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.filterSelect option {
+  background: #1a1a1a;
+  color: white;
+  padding: 10px;
+}
+
+/* Old Filter Section - Keep for backwards compatibility */
+.filterSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.filterButtonActive {
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  border-color: transparent;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.filterButtonActive:hover {
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Priority Badges (for Disclosure Cards) - Sophisticated Pills */
+.priorityBadgeHigh {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.priorityBadgeMedium {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.priorityBadgeLow {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+/* Difficulty Badges (for Disclosure Cards) - Sophisticated Pills */
+.difficultyBadgeEasy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.difficultyBadgeMedium {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.difficultyBadgeHard {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ============================================================================
+   BULK ACTIONS STYLES
+   ============================================================================ */
+
+.bulkActionsToggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.bulkToggle {
+  padding: 10px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bulkToggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: white;
+}
+
+.bulkToggleActive {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.bulkToggleActive:hover {
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+  transform: translateY(-2px);
+}
+
+.bulkActionsBar {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+}
+
+.bulkActionsInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bulkActionsCount {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+  padding: 6px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.bulkActionsButtons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bulkActionButton {
+  flex: 1;
+  min-width: 160px;
+  padding: 12px 20px;
+  border: 2px solid;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bulkActionTracking {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.bulkActionTracking:hover {
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+  transform: translateY(-2px);
+}
+
+.bulkActionNotPriority {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.bulkActionNotPriority:hover {
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+  transform: translateY(-2px);
+}
+
+.bulkActionNotApplicable {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.bulkActionNotApplicable:hover {
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+  transform: translateY(-2px);
+}
+
+.bulkActionCancel {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.bulkActionCancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+/* ============================================================================
+   SOPHISTICATED METRIC INTERFACE
+   ============================================================================ */
+
+/* Select All Button */
+.selectAllBtn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selectAllBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Compact Bulk Actions Bar */
+.bulkActionsBarCompact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+
+.bulkActionsInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bulkCount {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.bulkClear {
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bulkClear:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bulkActionsGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.bulkPillTrack,
+.bulkPillSkip,
+.bulkPillDismiss {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bulkPillTrack {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.bulkPillTrack:hover {
+  background: rgba(16, 185, 129, 0.25);
+  transform: translateY(-1px);
+}
+
+.bulkPillSkip {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.bulkPillSkip:hover {
+  background: rgba(245, 158, 11, 0.25);
+  transform: translateY(-1px);
+}
+
+.bulkPillDismiss {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.bulkPillDismiss:hover {
+  background: rgba(239, 68, 68, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Metric Item Wrapper */
+.metricItemWrapper {
+  margin-bottom: 1px;
+}
+
+.metricItemExpanded {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.expandIcon {
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.metricItem:hover .expandIcon {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Status Pills */
+.quickWinPill {
+  padding: 4px 10px;
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 12px;
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusPill {
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Metric Details (Expanded) */
+.metricDetails {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.metricDetailsContent {
+  margin-bottom: 20px;
+}
+
+.metricDescription {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid rgba(16, 185, 129, 0.4);
+  border-radius: 6px;
+}
+
+.metricProps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.metricProp {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metricPropLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+}
+
+.metricPropValue {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+/* Action Pills */
+.metricActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.actionPill {
+  flex: 1;
+  min-width: 160px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.actionPill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.actionPillActive {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.actionPillActive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+}
+
+/* Checkbox Styling */
+.metricCheckbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.metricCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #10b981;
+}
+
+@media (max-width: 768px) {
+  .bulkActionsBarCompact {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .bulkActionsGroup {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .bulkPillTrack,
+  .bulkPillSkip,
+  .bulkPillDismiss {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .metricActions {
+    flex-direction: column;
+  }
+
+  .actionPill {
+    min-width: auto;
+  }
+
+  .metricProps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

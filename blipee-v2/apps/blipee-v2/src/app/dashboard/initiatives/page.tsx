@@ -1,16 +1,16 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { getDismissedMetrics, getInitiativesStats, getDismissedBreakdown } from '@/lib/data/initiatives'
 import { getOrganizationForUser } from '@/lib/data/organizations'
-import styles from '../dashboard.module.css'
-import { InitiativesMetricsCards } from './InitiativesMetricsCards'
-import { InitiativesContent } from './InitiativesContent'
+import { getInitiatives, getInitiativesSummary } from '@/app/actions/initiatives'
+import { InitiativesSummaryCards } from './InitiativesSummaryCards'
+import { InitiativesMainContent } from './InitiativesMainContent'
+import styles from './initiatives.module.css'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Initiatives & Dismissed Metrics | Blipee',
-  description: 'Track dismissed metrics and review your sustainability initiatives',
+  title: 'Initiatives Tracker | Blipee',
+  description: 'Track and manage your sustainability initiatives',
 }
 
 export default async function InitiativesPage() {
@@ -20,40 +20,44 @@ export default async function InitiativesPage() {
     notFound()
   }
 
-  const [dismissedMetrics, stats, breakdown] = await Promise.all([
-    getDismissedMetrics(org.id),
-    getInitiativesStats(org.id),
-    getDismissedBreakdown(org.id),
+  const [initiativesResult, summaryResult] = await Promise.all([
+    getInitiatives(),
+    getInitiativesSummary(),
   ])
+
+  if (initiativesResult.error || summaryResult.error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.errorMessage}>
+          Error loading initiatives: {initiativesResult.error || summaryResult.error}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
-      {/* Dashboard Header */}
-      <div className={styles.dashboardHeader}>
-        <div>
-          <div className={styles.dashboardTitle}>
-            <svg className={styles.carbonIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-            <h1>Initiatives & Dismissed Metrics</h1>
+      {/* Summary Cards */}
+      <Suspense
+        fallback={
+          <div style={{ padding: '1.5rem' }}>
+            <div>Loading summary...</div>
           </div>
-          <p className={styles.subtitle}>
-            Track dismissed metrics and review recategorization opportunities
-          </p>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <Suspense fallback={<div className={styles.kpiGrid}><div className={styles.kpiCard}>Loading metrics...</div></div>}>
-        <InitiativesMetricsCards stats={stats} />
+        }
+      >
+        <InitiativesSummaryCards summary={summaryResult.data!} />
       </Suspense>
 
       {/* Main Content */}
-      <Suspense fallback={<div className={styles.chartsLoading}>Loading content...</div>}>
-        <InitiativesContent
-          dismissedMetrics={dismissedMetrics}
-          breakdown={breakdown}
+      <Suspense
+        fallback={
+          <div style={{ padding: '1.5rem' }}>
+            <div>Loading initiatives...</div>
+          </div>
+        }
+      >
+        <InitiativesMainContent
+          initiatives={initiativesResult.data || []}
           organizationId={org.id}
         />
       </Suspense>

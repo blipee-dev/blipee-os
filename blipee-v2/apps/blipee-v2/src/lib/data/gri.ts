@@ -1926,7 +1926,9 @@ export async function getWaterDashboardData(
     const siteId = metric.site?.id || 'unknown'
 
     // Determine water type based on GRI 303 sub-categories
-    if (metricCode.includes('gri_303_3') || metricCode.includes('withdrawal')) {
+    // IMPORTANT: Only count _total metrics to avoid double-counting subcategories
+    if (metricCode.includes('gri_303_3_withdrawal_total') ||
+        (metricCode.includes('gri_303_3') && !metricCode.includes('_') && metricCode.length <= 9)) {
       totalWithdrawal += value
       if (month) {
         if (!monthlyTrendMap.has(month)) {
@@ -1938,7 +1940,12 @@ export async function getWaterDashboardData(
         siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
       }
       siteMap.get(siteId)!.withdrawal += value
-    } else if (metricCode.includes('gri_303_5') || metricCode.includes('consumption')) {
+
+      // Source breakdown - only count withdrawal
+      const source = metric.metadata?.water_source || 'Other'
+      sourceMap.set(source, (sourceMap.get(source) || 0) + value)
+    } else if (metricCode.includes('gri_303_5_consumption_total') ||
+               (metricCode.includes('gri_303_5') && !metricCode.includes('_') && metricCode.length <= 9)) {
       totalConsumption += value
       if (month) {
         if (!monthlyTrendMap.has(month)) {
@@ -1950,7 +1957,8 @@ export async function getWaterDashboardData(
         siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
       }
       siteMap.get(siteId)!.consumption += value
-    } else if (metricCode.includes('gri_303_4') || metricCode.includes('discharge')) {
+    } else if (metricCode.includes('gri_303_4_discharge_total') ||
+               (metricCode.includes('gri_303_4') && !metricCode.includes('_') && metricCode.length <= 9)) {
       totalDischarge += value
       if (month) {
         if (!monthlyTrendMap.has(month)) {
@@ -1962,17 +1970,15 @@ export async function getWaterDashboardData(
         siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
       }
       siteMap.get(siteId)!.discharge += value
-    } else if (metricCode.includes('recycled') || metricCode.includes('reused')) {
+    } else if (metricCode === 'water_recycled_grey_water' ||
+               (metricCode.includes('recycled') && !metricCode.includes('scope3') && !metricCode.includes('toilet'))) {
+      // IMPORTANT: Only count main recycled water metric, not subcategories like scope3_water_recycled_toilet
       totalRecycled += value
       if (!siteMap.has(siteId)) {
         siteMap.set(siteId, { site_name: siteName, withdrawal: 0, consumption: 0, discharge: 0, recycled: 0 })
       }
       siteMap.get(siteId)!.recycled += value
     }
-
-    // Source breakdown
-    const source = metric.metadata?.water_source || 'Other'
-    sourceMap.set(source, (sourceMap.get(source) || 0) + value)
   })
 
   // Build monthly trend array
@@ -2031,7 +2037,7 @@ export async function getWaterDashboardData(
     .select('value, site_id, metric:metrics_catalog(code)')
     .eq('organization_id', organizationId)
     .gte('period_start', prevYearStart.toISOString().split('T')[0])
-    .lte('period_end', prevYearEnd.toISOString().split('T')[0])
+    .lte('period_start', prevYearEnd.toISOString().split('T')[0])
 
   if (options.siteId) {
     prevYearQuery = prevYearQuery.eq('site_id', options.siteId)
@@ -2050,16 +2056,22 @@ export async function getWaterDashboardData(
     const value = metric.value || 0
     const siteId = metric.site_id
 
-    if (metricCode.includes('gri_303_3') || metricCode.includes('withdrawal')) {
+    // IMPORTANT: Only count _total metrics to avoid double-counting subcategories (same as main calculation)
+    if (metricCode.includes('gri_303_3_withdrawal_total') ||
+        (metricCode.includes('gri_303_3') && !metricCode.includes('_') && metricCode.length <= 9)) {
       prevYearWithdrawal += value
       if (siteId) {
         prevYearSiteMap.set(siteId, (prevYearSiteMap.get(siteId) || 0) + value)
       }
-    } else if (metricCode.includes('gri_303_5') || metricCode.includes('consumption')) {
+    } else if (metricCode.includes('gri_303_5_consumption_total') ||
+               (metricCode.includes('gri_303_5') && !metricCode.includes('_') && metricCode.length <= 9)) {
       prevYearConsumption += value
-    } else if (metricCode.includes('gri_303_4') || metricCode.includes('discharge')) {
+    } else if (metricCode.includes('gri_303_4_discharge_total') ||
+               (metricCode.includes('gri_303_4') && !metricCode.includes('_') && metricCode.length <= 9)) {
       prevYearDischarge += value
-    } else if (metricCode.includes('recycled') || metricCode.includes('reused')) {
+    } else if (metricCode === 'water_recycled_grey_water' ||
+               (metricCode.includes('recycled') && !metricCode.includes('scope3') && !metricCode.includes('toilet'))) {
+      // IMPORTANT: Only count main recycled water metric, not subcategories like scope3_water_recycled_toilet
       prevYearRecycled += value
     }
   })
@@ -2336,8 +2348,19 @@ export async function getWasteDashboardData(
     const siteName = metric.site?.name || 'Unknown Site'
     const siteId = metric.site?.id || 'unknown'
 
+    // Map scope3_waste_* metrics to GRI 306 categories
+    const isDiverted = metricCode.includes('scope3_waste_recycling') ||
+                       metricCode.includes('scope3_waste_composting')
+    const isDisposed = metricCode.includes('scope3_waste_landfill') ||
+                       metricCode.includes('scope3_waste_incineration') ||
+                       (metricCode.includes('scope3_waste_ewaste') && !metricCode.includes('recycl'))
+
     // Determine waste category based on GRI 306 sub-categories
-    if (metricCode.includes('gri_306_3') || metricCode.includes('generated')) {
+    // IMPORTANT: Only count _total metrics to avoid double-counting subcategories
+    // Also map scope3_waste_* metrics to appropriate GRI categories
+    if (metricCode.includes('gri_306_3_waste_generated_total') ||
+        metricCode.includes('gri_306_3_total') ||
+        (metricCode.includes('gri_306_3') && !metricCode.includes('_') && metricCode.length <= 9)) {
       totalGenerated += value
       if (month) {
         if (!monthlyTrendMap.has(month)) {
@@ -2349,34 +2372,72 @@ export async function getWasteDashboardData(
         siteMap.set(siteId, { site_name: siteName, generated: 0, diverted: 0, disposed: 0 })
       }
       siteMap.get(siteId)!.generated += value
-    } else if (metricCode.includes('gri_306_4') || metricCode.includes('diverted')) {
+    } else if (metricCode.includes('gri_306_4_diverted_total') ||
+               metricCode.includes('gri_306_4_total') ||
+               (metricCode.includes('gri_306_4') && !metricCode.includes('_') && metricCode.length <= 9) ||
+               isDiverted) {
       totalDiverted += value
+      totalGenerated += value // Diverted waste is also generated
       if (month) {
         if (!monthlyTrendMap.has(month)) {
           monthlyTrendMap.set(month, { generated: 0, diverted: 0, disposed: 0 })
         }
         monthlyTrendMap.get(month)!.diverted += value
+        monthlyTrendMap.get(month)!.generated += value
       }
       if (!siteMap.has(siteId)) {
         siteMap.set(siteId, { site_name: siteName, generated: 0, diverted: 0, disposed: 0 })
       }
       siteMap.get(siteId)!.diverted += value
-    } else if (metricCode.includes('gri_306_5') || metricCode.includes('disposed')) {
+      siteMap.get(siteId)!.generated += value
+    } else if (metricCode.includes('gri_306_5_disposed_total') ||
+               metricCode.includes('gri_306_5_total') ||
+               (metricCode.includes('gri_306_5') && !metricCode.includes('_') && metricCode.length <= 9) ||
+               isDisposed) {
       totalDisposed += value
+      totalGenerated += value // Disposed waste is also generated
       if (month) {
         if (!monthlyTrendMap.has(month)) {
           monthlyTrendMap.set(month, { generated: 0, diverted: 0, disposed: 0 })
         }
         monthlyTrendMap.get(month)!.disposed += value
+        monthlyTrendMap.get(month)!.generated += value
       }
       if (!siteMap.has(siteId)) {
         siteMap.set(siteId, { site_name: siteName, generated: 0, diverted: 0, disposed: 0 })
       }
       siteMap.get(siteId)!.disposed += value
+      siteMap.get(siteId)!.generated += value
     }
 
     // Type breakdown (hazardous vs non-hazardous)
-    const wasteType = metric.metadata?.waste_type || 'Other'
+    let wasteType = metric.metadata?.waste_type || 'Other'
+
+    // Extract type from scope3_waste_* metric codes if metadata is missing
+    if (wasteType === 'Other' && metricCode.includes('scope3_waste')) {
+      if (metricCode.includes('_recycling_paper')) {
+        wasteType = 'Paper'
+      } else if (metricCode.includes('_recycling_plastic')) {
+        wasteType = 'Plastic'
+      } else if (metricCode.includes('_recycling_metal')) {
+        wasteType = 'Metal'
+      } else if (metricCode.includes('_recycling_glass')) {
+        wasteType = 'Glass'
+      } else if (metricCode.includes('_recycling_mixed')) {
+        wasteType = 'Mixed Recycling'
+      } else if (metricCode.includes('_composting_food')) {
+        wasteType = 'Food Waste'
+      } else if (metricCode.includes('_composting_garden')) {
+        wasteType = 'Garden Waste'
+      } else if (metricCode.includes('_landfill')) {
+        wasteType = 'Landfill'
+      } else if (metricCode.includes('_incineration')) {
+        wasteType = 'Incineration'
+      } else if (metricCode.includes('_ewaste')) {
+        wasteType = 'E-Waste'
+      }
+    }
+
     const isHazardous = metric.metadata?.hazardous === true || metricCode.includes('hazardous')
     if (!typeMap.has(wasteType)) {
       typeMap.set(wasteType, { value: 0, hazardous: isHazardous })
@@ -2384,7 +2445,23 @@ export async function getWasteDashboardData(
     typeMap.get(wasteType)!.value += value
 
     // Treatment breakdown
-    const treatment = metric.metadata?.treatment_method || 'Other'
+    let treatment = metric.metadata?.treatment_method || 'Other'
+
+    // Extract treatment from scope3_waste_* metric codes if metadata is missing
+    if (treatment === 'Other' && metricCode.includes('scope3_waste')) {
+      if (metricCode.includes('_recycling_')) {
+        treatment = 'Recycling'
+      } else if (metricCode.includes('_composting_')) {
+        treatment = 'Composting'
+      } else if (metricCode.includes('_landfill')) {
+        treatment = 'Landfill'
+      } else if (metricCode.includes('_incineration')) {
+        treatment = 'Incineration'
+      } else if (metricCode.includes('_ewaste')) {
+        treatment = 'E-Waste Disposal'
+      }
+    }
+
     treatmentMap.set(treatment, (treatmentMap.get(treatment) || 0) + value)
   })
 
@@ -2456,7 +2533,7 @@ export async function getWasteDashboardData(
     .select('value, site_id, metric:metrics_catalog(code)')
     .eq('organization_id', organizationId)
     .gte('period_start', prevYearStart.toISOString().split('T')[0])
-    .lte('period_end', prevYearEnd.toISOString().split('T')[0])
+    .lte('period_start', prevYearEnd.toISOString().split('T')[0])
 
   if (options.siteId) {
     prevYearQuery = prevYearQuery.eq('site_id', options.siteId)
@@ -2474,15 +2551,39 @@ export async function getWasteDashboardData(
     const value = metric.value || 0
     const siteId = metric.site_id
 
-    if (metricCode.includes('gri_306_3') || metricCode.includes('generated')) {
+    // Map scope3_waste_* metrics to GRI 306 categories (same as main calculation)
+    const isDiverted = metricCode.includes('scope3_waste_recycling') ||
+                       metricCode.includes('scope3_waste_composting')
+    const isDisposed = metricCode.includes('scope3_waste_landfill') ||
+                       metricCode.includes('scope3_waste_incineration') ||
+                       (metricCode.includes('scope3_waste_ewaste') && !metricCode.includes('recycl'))
+
+    // IMPORTANT: Only count _total metrics to avoid double-counting subcategories (same as main calculation)
+    if (metricCode.includes('gri_306_3_waste_generated_total') ||
+        metricCode.includes('gri_306_3_total') ||
+        (metricCode.includes('gri_306_3') && !metricCode.includes('_') && metricCode.length <= 9)) {
       prevYearGenerated += value
       if (siteId) {
         prevYearSiteMap.set(siteId, (prevYearSiteMap.get(siteId) || 0) + value)
       }
-    } else if (metricCode.includes('gri_306_4') || metricCode.includes('diverted')) {
+    } else if (metricCode.includes('gri_306_4_diverted_total') ||
+               metricCode.includes('gri_306_4_total') ||
+               (metricCode.includes('gri_306_4') && !metricCode.includes('_') && metricCode.length <= 9) ||
+               isDiverted) {
       prevYearDiverted += value
-    } else if (metricCode.includes('gri_306_5') || metricCode.includes('disposed')) {
+      prevYearGenerated += value // Diverted waste is also generated
+      if (siteId) {
+        prevYearSiteMap.set(siteId, (prevYearSiteMap.get(siteId) || 0) + value)
+      }
+    } else if (metricCode.includes('gri_306_5_disposed_total') ||
+               metricCode.includes('gri_306_5_total') ||
+               (metricCode.includes('gri_306_5') && !metricCode.includes('_') && metricCode.length <= 9) ||
+               isDisposed) {
       prevYearDisposed += value
+      prevYearGenerated += value // Disposed waste is also generated
+      if (siteId) {
+        prevYearSiteMap.set(siteId, (prevYearSiteMap.get(siteId) || 0) + value)
+      }
     }
   })
 
@@ -2589,5 +2690,576 @@ export async function getWasteDashboardData(
     totalDivertedYoY,
     totalDisposedYoY,
     recyclingRateYoY,
+  }
+}
+
+// ============================================================================
+// GRI GAP ANALYSIS & METRICS OPPORTUNITIES
+// ============================================================================
+
+export interface MetricOpportunity {
+  code: string
+  name: string
+  description: string
+  category: string
+  subcategory: string | null
+  unit: string
+  gri_standard: string // e.g., "302", "305", "306"
+  gri_disclosure: string | null // e.g., "302-1", "305-2"
+  scope: 'scope_1' | 'scope_2' | 'scope_3'
+
+  // Priorização
+  priority: 'high' | 'medium' | 'low'
+  difficulty: 'easy' | 'medium' | 'hard'
+  impact: 'high' | 'medium' | 'low'
+
+  // Context
+  peer_adoption_rate: number | null // % de peers tracking
+  is_esrs_required: boolean
+  is_sector_recommended: boolean
+
+  // Quick wins
+  is_quick_win: boolean // high priority + easy difficulty
+}
+
+// New interface for disclosure-level grouping
+export interface DisclosureGroupOpportunity {
+  disclosure: string // e.g., "302-1"
+  disclosure_title: string // e.g., "Energy consumption within the organization"
+  disclosure_description: string // Official GRI description
+  gri_standard: string // e.g., "302"
+
+  // Metrics within this disclosure
+  total_metrics: number
+  metrics_tracking: number
+  metrics_available: MetricOpportunity[]
+
+  // Aggregate scores for the disclosure
+  avg_difficulty: 'easy' | 'medium' | 'hard'
+  highest_priority: 'high' | 'medium' | 'low'
+  has_quick_wins: boolean
+  quick_win_count: number
+}
+
+export interface GRIStandardGapAnalysis {
+  gri_standard: string // "302", "305", etc.
+  standard_name: string // "Energy", "Emissions", etc.
+
+  // Tracking status
+  total_available_metrics: number
+  metrics_tracking: number
+  metrics_not_tracking: number
+  coverage_percentage: number
+
+  // Opportunities
+  opportunities: MetricOpportunity[]
+  quick_wins: MetricOpportunity[]
+  strategic_priorities: MetricOpportunity[]
+
+  // Peer comparison
+  peer_avg_coverage: number | null
+  is_above_peer_avg: boolean
+}
+
+export interface GapAnalysisDashboard {
+  standards: GRIStandardGapAnalysis[]
+
+  // NEW: Disclosure-level grouping
+  disclosure_groups: DisclosureGroupOpportunity[]
+
+  // Summary stats
+  total_available_metrics: number
+  total_tracking_metrics: number
+  total_opportunities: number
+  total_quick_wins: number
+  total_disclosures: number // Total unique disclosures
+  disclosures_with_gaps: number // Disclosures with untracked metrics
+
+  // Categorized opportunities
+  high_priority_opportunities: MetricOpportunity[]
+  esrs_required_opportunities: MetricOpportunity[]
+  sector_recommended_opportunities: MetricOpportunity[]
+
+  organization_name: string
+  industry_sector: string
+}
+
+/**
+ * Map scope/category to GRI Standard
+ */
+function mapToGRIStandard(scope: string, category: string): { gri_standard: string; standard_name: string } | null {
+  // GRI 301 - Materials
+  if (category.includes('Materials') || category.includes('Packaging') || category.includes('Reclamation')) {
+    return { gri_standard: '301', standard_name: 'Materials' }
+  }
+
+  // GRI 302 - Energy
+  if (category.includes('Energy') || category.includes('Electricity')) {
+    return { gri_standard: '302', standard_name: 'Energy' }
+  }
+
+  // GRI 303 - Water (all water-related categories)
+  if (category.includes('Water')) {
+    return { gri_standard: '303', standard_name: 'Water & Effluents' }
+  }
+
+  // GRI 304 - Biodiversity
+  if (category.includes('Biodiversity')) {
+    return { gri_standard: '304', standard_name: 'Biodiversity' }
+  }
+
+  // GRI 306 - Waste (check before GRI 305 to avoid conflicts)
+  if (category.includes('Waste') || category.includes('End-of-Life')) {
+    return { gri_standard: '306', standard_name: 'Waste' }
+  }
+
+  // GRI 308 - Supplier Assessment
+  if (category.includes('Supplier')) {
+    return { gri_standard: '308', standard_name: 'Supplier Environmental Assessment' }
+  }
+
+  // GRI 307 - Environmental Compliance
+  if (category.includes('Compliance')) {
+    return { gri_standard: '307', standard_name: 'Environmental Compliance' }
+  }
+
+  // GRI 305 - Emissions (most comprehensive - includes all scopes)
+  // This covers:
+  // - Scope 1: Stationary/Mobile Combustion, Fugitive Emissions, Process Emissions
+  // - Scope 2: Already covered by Energy above, but map scope_2 here as fallback
+  // - Scope 3: Business Travel, Employee Commuting, Transportation, Purchased Goods, etc.
+  if (scope === 'scope_1' ||
+      scope === 'scope_2' ||
+      scope === 'scope_3' ||
+      category.includes('Emissions') ||
+      category.includes('Combustion') ||
+      category.includes('Fugitive') ||
+      category.includes('Process') ||
+      category.includes('Travel') ||
+      category.includes('Commuting') ||
+      category.includes('Transportation') ||
+      category.includes('Purchased Goods') ||
+      category.includes('Capital Goods') ||
+      category.includes('Fuel & Energy') ||
+      category.includes('Leased Assets') ||
+      category.includes('Franchises') ||
+      category.includes('Investments') ||
+      category.includes('Use of Sold Products') ||
+      category.includes('Processing of Sold Products')) {
+    return { gri_standard: '305', standard_name: 'Emissions' }
+  }
+
+  return null
+}
+
+/**
+ * Calculate priority, difficulty, and impact for a metric
+ */
+function calculateMetricScores(
+  metric: any,
+  peerAdoptionRate: number | null,
+  industrySector: string
+): {
+  priority: 'high' | 'medium' | 'low'
+  difficulty: 'easy' | 'medium' | 'hard'
+  impact: 'high' | 'medium' | 'low'
+  is_esrs_required: boolean
+  is_sector_recommended: boolean
+} {
+  // Priority based on peer adoption, ESRS, and core ESG metrics
+  let priority: 'high' | 'medium' | 'low' = 'medium'
+  const is_esrs_required = false // TODO: Add ESRS mapping
+  const is_sector_recommended = (peerAdoptionRate || 0) > 60
+
+  // Core ESG metrics that are typically high priority
+  const isCoreESGMetric =
+    metric.category.includes('Electricity') ||
+    metric.category.includes('Stationary Combustion') ||
+    metric.category.includes('Mobile Combustion') ||
+    metric.category.includes('Water Withdrawal') ||
+    metric.category.includes('Water Consumption') ||
+    metric.category.includes('Waste') ||
+    metric.category.includes('Fugitive Emissions') ||
+    metric.category.includes('Business Travel') ||
+    metric.category.includes('Employee Commuting')
+
+  if (is_esrs_required || (peerAdoptionRate || 0) > 75 || isCoreESGMetric) {
+    priority = 'high'
+  } else if ((peerAdoptionRate || 0) < 30 && !isCoreESGMetric) {
+    priority = 'low'
+  }
+
+  // Difficulty based on data availability and complexity
+  let difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+
+  // Easy metrics: direct measurements and readily available data
+  if (metric.category.includes('Electricity') ||
+      metric.category.includes('Water') ||
+      metric.category.includes('Waste') ||
+      metric.category.includes('Stationary Combustion') ||
+      metric.category.includes('Mobile Combustion') ||
+      metric.category.includes('Fugitive Emissions') ||
+      metric.category.includes('Business Travel') ||
+      metric.category.includes('Employee Commuting')) {
+    difficulty = 'easy'
+  }
+
+  // Hard metrics: require supply chain data or complex calculations
+  if (metric.scope === 'scope_3' &&
+      (metric.category.includes('Supplier') ||
+       metric.category.includes('Upstream Transportation') ||
+       metric.category.includes('Downstream Transportation') ||
+       metric.category.includes('Use of Sold Products') ||
+       metric.category.includes('Capital Goods') ||
+       metric.category.includes('Purchased Goods & Services') ||
+       metric.category.includes('End-of-Life'))) {
+    difficulty = 'hard'
+  }
+
+  // Impact based on typical materiality
+  let impact: 'high' | 'medium' | 'low' = 'medium'
+
+  // High impact categories
+  if (metric.category.includes('Emissions') ||
+      metric.category.includes('Energy') ||
+      metric.category.includes('Water') ||
+      metric.category.includes('Waste')) {
+    impact = 'high'
+  }
+
+  return {
+    priority,
+    difficulty,
+    impact,
+    is_esrs_required,
+    is_sector_recommended,
+  }
+}
+
+/**
+ * Get GRI Gap Analysis Dashboard Data
+ */
+export async function getGRIGapAnalysis(
+  organizationId: string,
+  options?: {
+    siteId?: string
+  }
+): Promise<GapAnalysisDashboard> {
+  const supabase = await createClient()
+
+  // Get organization details
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('name, industry_sector')
+    .eq('id', organizationId)
+    .single()
+
+  if (!org) {
+    throw new Error('Organization not found')
+  }
+
+  const industrySector = org.industry_sector || 'Professional Services'
+
+  // Get all available metrics from catalog (including calculated/derived info + disclosure grouping)
+  const { data: allMetrics } = await supabase
+    .from('metrics_catalog')
+    .select('code, name, description, scope, category, subcategory, unit, is_calculated, parent_metric_id, parent:parent_metric_id(code), gri_disclosure, gri_disclosure_title, gri_disclosure_description')
+    .eq('is_active', true)
+    .order('gri_disclosure')
+    .order('code')
+
+  // Get unique metric codes being tracked by this org
+  // Use RPC call to get distinct codes efficiently
+  const { data: trackedCodes } = await supabase
+    .rpc('get_tracked_metric_codes', {
+      org_id: organizationId,
+      site_filter: options?.siteId || null
+    })
+
+  // Fallback: if RPC doesn't exist, fetch all and deduplicate client-side
+  let trackedMetricIds: any[] = []
+
+  if (!trackedCodes) {
+    // Fetch with pagination (Supabase max is 1000 records per request)
+    const limit = 1000
+    let allData: any[] = []
+    let page = 0
+    let hasMore = true
+
+    while (hasMore) {
+      let query = supabase
+        .from('metrics_data')
+        .select('metric:metrics_catalog!inner(code)')
+        .eq('organization_id', organizationId)
+        .not('metric_id', 'is', null)
+        .range(page * limit, (page + 1) * limit - 1)
+
+      if (options?.siteId) {
+        query = query.eq('site_id', options.siteId)
+      }
+
+      const { data } = await query
+
+      if (!data || data.length === 0) {
+        hasMore = false
+      } else {
+        allData.push(...data)
+        // Continue if we got a full page (there might be more)
+        if (data.length < limit) {
+          hasMore = false
+        }
+        page++
+      }
+    }
+
+    trackedMetricIds = allData
+  }
+
+  // Extract the codes
+  const trackedMetricSet = trackedCodes
+    ? new Set(trackedCodes.map((row: any) => row.code))
+    : new Set(
+        (trackedMetricIds || [])
+          .map((m: any) => m.metric?.code)
+          .filter((code: string | undefined) => code !== undefined)
+      )
+
+  // Get industry benchmarks (peer adoption rates)
+  const { data: industryMetrics } = await supabase
+    .from('industry_metrics')
+    .select('metric_code, adoption_rate')
+    .eq('industry_sector', industrySector)
+
+  const peerAdoptionMap = new Map<string, number>()
+  if (industryMetrics) {
+    industryMetrics.forEach((im: any) => {
+      peerAdoptionMap.set(im.metric_code, im.adoption_rate || 0)
+    })
+  }
+
+  // Group metrics by GRI Standard
+  const standardsMap = new Map<string, {
+    gri_standard: string
+    standard_name: string
+    all_metrics: any[]
+    tracked_metrics: any[]
+    opportunities: MetricOpportunity[]
+  }>()
+
+  allMetrics?.forEach((metric: any) => {
+    const griMapping = mapToGRIStandard(metric.scope, metric.category)
+    if (!griMapping) return
+
+    const { gri_standard, standard_name } = griMapping
+
+    if (!standardsMap.has(gri_standard)) {
+      standardsMap.set(gri_standard, {
+        gri_standard,
+        standard_name,
+        all_metrics: [],
+        tracked_metrics: [],
+        opportunities: [],
+      })
+    }
+
+    const standard = standardsMap.get(gri_standard)!
+    standard.all_metrics.push(metric)
+
+    const isTracked = trackedMetricSet.has(metric.code)
+
+    // Check if this is a calculated/derived metric whose parent is already tracked
+    // e.g., GRI 305-2 emissions calculated from electricity consumption
+    const isCalculatedWithTrackedParent =
+      metric.is_calculated &&
+      metric.parent?.code &&
+      trackedMetricSet.has(metric.parent.code)
+
+    if (isTracked || isCalculatedWithTrackedParent) {
+      standard.tracked_metrics.push(metric)
+    } else {
+      // This is an opportunity!
+      const peerAdoptionRate = peerAdoptionMap.get(metric.code) || null
+      const scores = calculateMetricScores(metric, peerAdoptionRate, industrySector)
+
+      const opportunity: MetricOpportunity = {
+        code: metric.code,
+        name: metric.name,
+        description: metric.description || '',
+        category: metric.category,
+        subcategory: metric.subcategory,
+        unit: metric.unit,
+        gri_standard,
+        gri_disclosure: metric.gri_disclosure || null,
+        scope: metric.scope,
+        priority: scores.priority,
+        difficulty: scores.difficulty,
+        impact: scores.impact,
+        peer_adoption_rate: peerAdoptionRate,
+        is_esrs_required: scores.is_esrs_required,
+        is_sector_recommended: scores.is_sector_recommended,
+        is_quick_win: scores.priority === 'high' && scores.difficulty === 'easy',
+      }
+
+      standard.opportunities.push(opportunity)
+    }
+  })
+
+  // Build GRIStandardGapAnalysis for each standard
+  const standards: GRIStandardGapAnalysis[] = Array.from(standardsMap.values()).map((standard) => {
+    const total_available = standard.all_metrics.length
+    const metrics_tracking = standard.tracked_metrics.length
+    const metrics_not_tracking = standard.opportunities.length
+    const coverage_percentage = total_available > 0 ? (metrics_tracking / total_available) * 100 : 0
+
+    const quick_wins = standard.opportunities.filter((o) => o.is_quick_win)
+    const strategic_priorities = standard.opportunities.filter(
+      (o) => o.priority === 'high' && o.difficulty === 'hard'
+    )
+
+    return {
+      gri_standard: standard.gri_standard,
+      standard_name: standard.standard_name,
+      total_available_metrics: total_available,
+      metrics_tracking,
+      metrics_not_tracking,
+      coverage_percentage: Math.round(coverage_percentage),
+      opportunities: standard.opportunities.sort((a, b) => {
+        // Sort by priority, then difficulty
+        const priorityOrder = { high: 0, medium: 1, low: 2 }
+        const difficultyOrder = { easy: 0, medium: 1, hard: 2 }
+
+        if (a.priority !== b.priority) {
+          return priorityOrder[a.priority] - priorityOrder[b.priority]
+        }
+        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
+      }),
+      quick_wins,
+      strategic_priorities,
+      peer_avg_coverage: null, // TODO: Calculate from industry_metrics
+      is_above_peer_avg: false,
+    }
+  }).sort((a, b) => parseInt(a.gri_standard) - parseInt(b.gri_standard))
+
+  // Calculate summary stats
+  const total_available_metrics = standards.reduce((sum, s) => sum + s.total_available_metrics, 0)
+  const total_tracking_metrics = standards.reduce((sum, s) => sum + s.metrics_tracking, 0)
+  const all_opportunities = standards.flatMap((s) => s.opportunities)
+  const total_opportunities = all_opportunities.length
+  const total_quick_wins = all_opportunities.filter((o) => o.is_quick_win).length
+
+  const high_priority_opportunities = all_opportunities
+    .filter((o) => o.priority === 'high')
+    .slice(0, 10) // Top 10
+
+  const esrs_required_opportunities = all_opportunities.filter((o) => o.is_esrs_required)
+  const sector_recommended_opportunities = all_opportunities.filter((o) => o.is_sector_recommended)
+
+  // Build disclosure-level groups
+  const disclosureMap = new Map<string, {
+    disclosure_title: string
+    disclosure_description: string
+    gri_standard: string
+    all_metrics: any[]
+    tracked_metrics: any[]
+    opportunities: MetricOpportunity[]
+  }>()
+
+  allMetrics?.forEach((metric: any) => {
+    if (!metric.gri_disclosure) return // Skip metrics without disclosure mapping
+
+    const disclosure = metric.gri_disclosure
+
+    if (!disclosureMap.has(disclosure)) {
+      const griMapping = mapToGRIStandard(metric.scope, metric.category)
+      disclosureMap.set(disclosure, {
+        disclosure_title: metric.gri_disclosure_title || '',
+        disclosure_description: metric.gri_disclosure_description || '',
+        gri_standard: griMapping?.gri_standard || '',
+        all_metrics: [],
+        tracked_metrics: [],
+        opportunities: [],
+      })
+    }
+
+    const disclosureGroup = disclosureMap.get(disclosure)!
+    disclosureGroup.all_metrics.push(metric)
+
+    const isTracked = trackedMetricSet.has(metric.code)
+    const isCalculatedWithTrackedParent =
+      metric.is_calculated &&
+      metric.parent?.code &&
+      trackedMetricSet.has(metric.parent.code)
+
+    if (isTracked || isCalculatedWithTrackedParent) {
+      disclosureGroup.tracked_metrics.push(metric)
+    } else {
+      // Find the corresponding opportunity
+      const opportunity = all_opportunities.find(o => o.code === metric.code)
+      if (opportunity) {
+        disclosureGroup.opportunities.push(opportunity)
+      }
+    }
+  })
+
+  // Build DisclosureGroupOpportunity array
+  const disclosure_groups: DisclosureGroupOpportunity[] = Array.from(disclosureMap.entries())
+    .map(([disclosure, data]) => {
+      const total_metrics = data.all_metrics.length
+      const metrics_tracking = data.tracked_metrics.length
+      const metrics_available = data.opportunities
+
+      // Calculate aggregate difficulty (most common)
+      const difficultyCount = metrics_available.reduce((acc, m) => {
+        acc[m.difficulty] = (acc[m.difficulty] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+      const avg_difficulty = (Object.entries(difficultyCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'medium') as 'easy' | 'medium' | 'hard'
+
+      // Calculate highest priority
+      const hasHigh = metrics_available.some(m => m.priority === 'high')
+      const hasMedium = metrics_available.some(m => m.priority === 'medium')
+      const highest_priority = hasHigh ? 'high' : hasMedium ? 'medium' : 'low'
+
+      // Count quick wins
+      const quick_win_count = metrics_available.filter(m => m.is_quick_win).length
+      const has_quick_wins = quick_win_count > 0
+
+      return {
+        disclosure,
+        disclosure_title: data.disclosure_title,
+        disclosure_description: data.disclosure_description,
+        gri_standard: data.gri_standard,
+        total_metrics,
+        metrics_tracking,
+        metrics_available,
+        avg_difficulty,
+        highest_priority,
+        has_quick_wins,
+        quick_win_count,
+      }
+    })
+    .filter(d => d.metrics_available.length > 0) // Only show disclosures with opportunities
+    .sort((a, b) => {
+      // Sort by disclosure code (e.g., "302-1" < "305-2")
+      return a.disclosure.localeCompare(b.disclosure)
+    })
+
+  const total_disclosures = disclosureMap.size
+  const disclosures_with_gaps = disclosure_groups.length
+
+  return {
+    standards,
+    disclosure_groups,
+    total_available_metrics,
+    total_tracking_metrics,
+    total_opportunities,
+    total_quick_wins,
+    total_disclosures,
+    disclosures_with_gaps,
+    high_priority_opportunities,
+    esrs_required_opportunities,
+    sector_recommended_opportunities,
+    organization_name: org.name,
+    industry_sector: industrySector,
   }
 }

@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { WasteDashboardData } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 
@@ -6,12 +9,15 @@ interface WasteMetricsCardsProps {
 }
 
 export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
+  const t = useTranslations('gri.waste.metrics')
+  const tCommon = useTranslations('gri.common')
+
   return (
     <div className={styles.kpiGrid}>
       {/* Total Waste Generated */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Total Waste Generated</span>
+          <span className={styles.kpiLabel}>{t('totalGenerated')}</span>
           <span className={styles.kpiStandard}>GRI 306-3</span>
         </div>
         <div className={styles.kpiValue}>
@@ -28,13 +34,13 @@ export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
                 {data.totalGeneratedYoY < 0 ? '↓' : '↑'}
               </span>
               <span style={{ color: data.totalGeneratedYoY < 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.totalGeneratedYoY).toFixed(1)}% vs same period last year
+                {Math.abs(data.totalGeneratedYoY).toFixed(1)}% {tCommon('vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>🗑️</span>
-              <span>All waste types</span>
+              <span>{t('allWasteTypes')}</span>
             </>
           )}
         </div>
@@ -43,7 +49,7 @@ export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
       {/* Waste Diverted */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Waste Diverted</span>
+          <span className={styles.kpiLabel}>{t('wasteDiverted')}</span>
           <span className={styles.kpiStandard}>GRI 306-4</span>
         </div>
         <div className={styles.kpiValue}>
@@ -60,13 +66,13 @@ export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
                 {data.totalDivertedYoY > 0 ? '↑' : '↓'}
               </span>
               <span style={{ color: data.totalDivertedYoY > 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.totalDivertedYoY).toFixed(1)}% vs same period last year
+                {Math.abs(data.totalDivertedYoY).toFixed(1)}% {tCommon('vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>♻️</span>
-              <span>Recycled & recovered</span>
+              <span>{t('recycledRecovered')}</span>
             </>
           )}
         </div>
@@ -75,7 +81,7 @@ export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
       {/* Waste Disposed */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Waste Disposed</span>
+          <span className={styles.kpiLabel}>{t('wasteDisposed')}</span>
           <span className={styles.kpiStandard}>GRI 306-5</span>
         </div>
         <div className={styles.kpiValue}>
@@ -92,13 +98,13 @@ export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
                 {data.totalDisposedYoY < 0 ? '↓' : '↑'}
               </span>
               <span style={{ color: data.totalDisposedYoY < 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.totalDisposedYoY).toFixed(1)}% vs same period last year
+                {Math.abs(data.totalDisposedYoY).toFixed(1)}% {tCommon('vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>🚮</span>
-              <span>Landfill & incineration</span>
+              <span>{t('landfillIncineration')}</span>
             </>
           )}
         </div>
@@ -107,7 +113,7 @@ export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
       {/* Recycling Rate */}
       <div className={styles.kpiCard}>
         <div className={styles.kpiHeader}>
-          <span className={styles.kpiLabel}>Recycling Rate</span>
+          <span className={styles.kpiLabel}>{t('recyclingRate')}</span>
           <span className={styles.kpiStandard}>GRI 306</span>
         </div>
         <div className={styles.kpiValue}>
@@ -124,13 +130,13 @@ export function WasteMetricsCards({ data }: WasteMetricsCardsProps) {
                 {data.recyclingRateYoY > 0 ? '↑' : '↓'}
               </span>
               <span style={{ color: data.recyclingRateYoY > 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(data.recyclingRateYoY).toFixed(1)}pp vs same period last year
+                {Math.abs(data.recyclingRateYoY).toFixed(1)}pp {tCommon('vsLastYear')}
               </span>
             </>
           ) : (
             <>
               <span className={styles.trendIcon}>📊</span>
-              <span>Diversion rate</span>
+              <span>{t('diversionRate')}</span>
             </>
           )}
         </div>

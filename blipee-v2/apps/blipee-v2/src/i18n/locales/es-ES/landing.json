@@ -1,5 +1,4 @@
 {
-  "landing": {
     "nav": {
       "company": "Empresa",
       "about": "Acerca de",
@@ -7,12 +6,12 @@
       "signIn": "Iniciar Sesión"
     },
     "hero": {
-      "badge": "8 Agentes de IA Trabajando 24/7 para tus Objetivos de Sostenibilidad",
-      "title": "Deja de Gestionar la Sostenibilidad.",
-      "titleHighlight": "Comienza a Vivirla",
-      "description": "Mientras tus competidores contratan consultores y crean hojas de cálculo, tú obtienes una fuerza laboral de IA completa que nunca duerme. 8 agentes autónomos analizando datos, prediciendo riesgos, encontrando ahorros y garantizando el compliance — automáticamente.",
-      "primaryCta": "Comenzar",
-      "secondaryCta": "Descubre Qué Nos Hace Diferentes"
+      "badge": "8 Agentes de IA Trabajando 24/7 para Tus Objetivos de Sostenibilidad",
+      "title": "Deja de Gestionar Sostenibilidad.",
+      "titleHighlight": "Empieza a Vivirla",
+      "description": "Mientras tus competidores contratan consultores y crean spreadsheets, tú tienes un equipo completo de IA que nunca duerme. 8 agentes autónomos analizando datos, prediciendo riesgos, encontrando ahorros y garantizando compliance — automáticamente.",
+      "primaryCta": "Empezar Ahora",
+      "secondaryCta": "Ver Cómo Funciona"
     },
     "problem": {
       "titlePrefix": "El Desafío de la Sostenibilidad es",
@@ -112,37 +111,36 @@
       "primaryCta": "Contactar Ventas",
       "secondaryCta": "Saber Más"
     },
-    "footer": {
-      "product": {
-        "title": "Producto",
-        "aiWorkforce": "Fuerza Laboral de IA",
-        "capabilities": "Capacidades",
-        "pricing": "Precios",
-        "updates": "Actualizaciones"
-      },
-      "company": {
-        "title": "Empresa",
-        "aboutUs": "Sobre Nosotros",
-        "ourStory": "Nuestra Historia",
-        "careers": "Carreras",
-        "contact": "Contacto"
-      },
-      "resources": {
-        "title": "Recursos",
-        "documentation": "Documentación",
-        "api": "API",
-        "faq": "FAQ",
-        "support": "Soporte",
-        "status": "Estado"
-      },
-      "brand": "blipee",
-      "description": "Plataforma de sostenibilidad potenciada por IA con 8 agentes autónomos trabajando 24/7 para optimizar tus operaciones.",
-      "newsletterPlaceholder": "Introduce tu email",
-      "newsletterCta": "Suscribirse",
-      "copyright": "© 2025 blipee. Todos los derechos reservados.",
-      "socialTwitter": "Twitter",
-      "socialLinkedIn": "LinkedIn",
-      "socialGitHub": "GitHub"
-    }
+  "footer": {
+    "product": {
+      "title": "Producto",
+      "aiWorkforce": "Fuerza Laboral de IA",
+      "capabilities": "Capacidades",
+      "pricing": "Precios",
+      "updates": "Actualizaciones"
+    },
+    "company": {
+      "title": "Empresa",
+      "aboutUs": "Sobre Nosotros",
+      "ourStory": "Nuestra Historia",
+      "careers": "Carreras",
+      "contact": "Contacto"
+    },
+    "resources": {
+      "title": "Recursos",
+      "documentation": "Documentación",
+      "api": "API",
+      "faq": "FAQ",
+      "support": "Soporte",
+      "status": "Estado"
+    },
+    "brand": "blipee",
+    "description": "Plataforma de sostenibilidad potenciada por IA con 8 agentes autónomos trabajando 24/7 para optimizar tus operaciones.",
+    "newsletterPlaceholder": "Introduce tu email",
+    "newsletterCta": "Suscribirse",
+    "copyright": "© 2025 blipee. Todos los derechos reservados.",
+    "socialTwitter": "Twitter",
+    "socialLinkedIn": "LinkedIn",
+    "socialGitHub": "GitHub"
   }
 }

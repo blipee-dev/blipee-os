@@ -38,6 +38,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       // No saved org, use first one
       setActiveOrganizationState(allOrganizations[0])
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allOrganizations])
 
   const setActiveOrganization = (org: Organization | null) => {

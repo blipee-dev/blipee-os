@@ -333,11 +333,15 @@
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  height: 100%;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
 }
 
 .lineChartSvg {
   width: 100%;
-  height: auto;
+  height: 100%;
   max-width: 100%;
   display: block;
 }
@@ -345,9 +349,10 @@
 /* Donut Chart Simple (for Energy Dashboard) */
 .donutChartSimple {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
+  gap: 1.5rem;
   position: relative;
   width: 100%;
   max-width: 100%;
@@ -355,8 +360,8 @@
 }
 
 .donutChartSimple svg {
-  width: 280px;
-  height: 280px;
+  width: 320px;
+  height: 320px;
 }
 
 .donutLegendSimple {
@@ -379,6 +384,22 @@
   min-width: 240px;
 }
 
+.donutLegendCompact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  max-width: 600px;
+  justify-content: center;
+}
+
+.legendItemCompact {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: opacity 0.2s ease;
+  font-size: 0.8125rem;
+}
+
 .legendItemDetailed {
   display: flex;
   flex-direction: column;
@@ -390,21 +411,42 @@
   opacity: 0.8;
 }
 
+.donutTooltip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 140px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
 /* Responsive Charts */
 @media (max-width: 768px) {
   .donutChartSimple {
-    flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .donutChartSimple svg {
-    width: 200px;
-    height: 200px;
+    width: 240px;
+    height: 240px;
   }
 
   .donutLegendDetailed {
     min-width: 100%;
     width: 100%;
+  }
+
+  .donutLegendCompact {
+    max-width: 100%;
+    gap: 0.4rem 1rem;
   }
 
   .lineChart {

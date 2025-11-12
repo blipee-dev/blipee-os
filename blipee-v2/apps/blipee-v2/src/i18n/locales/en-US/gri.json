@@ -159,26 +159,35 @@
   },
   "waste": {
     "title": "GRI 306 - Waste",
-    "subtitle": "Monitor waste generation and recycling rates",
+    "subtitle": "Monitor waste generation, diversion, and disposal across all facilities",
     "metrics": {
+      "totalGenerated": "Total Waste Generated",
+      "wasteDiverted": "Waste Diverted",
+      "wasteDisposed": "Waste Disposed",
+      "recyclingRate": "Recycling Rate",
+      "allWasteTypes": "All waste types",
+      "recycledRecovered": "Recycled & recovered",
+      "landfillIncineration": "Landfill & incineration",
+      "diversionRate": "Diversion rate",
       "totalWaste": "Total Waste",
       "hazardousWaste": "Hazardous Waste",
       "nonHazardousWaste": "Non-Hazardous Waste",
-      "diversionRate": "Diversion Rate",
       "allWasteStreams": "All streams",
       "wasteManagement": "Waste management",
-      "recyclingRate": "Recycling rate",
       "targetEighty": "Target: 80%"
     },
     "charts": {
       "generationTrend": "Waste Generation Trend",
-      "monthlyGeneration": "Monthly generation over time (kg)",
-      "wasteComposition": "Waste Composition",
-      "hazardousVsNonHazardous": "Hazardous vs Non-Hazardous waste",
-      "disposalMethods": "Disposal Methods",
-      "breakdownByMethod": "Breakdown by method (kg)",
+      "monthlyGeneration": "Monthly waste generated over time (kg)",
+      "wasteComposition": "Waste by Type",
+      "hazardousVsNonHazardous": "Hazardous vs non-hazardous breakdown",
+      "disposalMethods": "Top Treatment Methods",
+      "breakdownByMethod": "Top 5 waste treatment methods (kg)",
       "hazardous": "Hazardous",
-      "nonHazardous": "Non-Hazardous"
+      "nonHazardous": "Non-Hazardous",
+      "noData": "No data available",
+      "noDataPeriod": "No data available for this period",
+      "noTreatmentData": "No treatment data available"
     },
     "intensity": {
       "perEmployee": "Per Employee",
@@ -188,18 +197,99 @@
       "unitEmployee": "kg / employee",
       "unitRevenue": "kg / $M revenue",
       "unitFloorArea": "kg / m²",
-      "unitCustomer": "kg / customer"
+      "unitCustomer": "kg / customer",
+      "noYoYData": "No YoY data"
     },
     "table": {
       "title": "Waste by Site",
-      "description": "Detailed waste generation breakdown by site",
+      "description": "Detailed waste breakdown by site",
       "site": "Site",
+      "generated": "Generated (kg)",
+      "diverted": "Diverted (kg)",
+      "disposed": "Disposed (kg)",
       "hazardous": "Hazardous (kg)",
       "nonHazardous": "Non-Hazardous (kg)",
       "total": "Total (kg)",
+      "recyclingRate": "Recycling Rate",
       "diversionRate": "Diversion Rate",
       "yoy": "YoY",
-      "shareOfTotal": "Share of Total"
+      "share": "Share",
+      "shareOfTotal": "Share of Total",
+      "noData": "No waste data available for this period"
+    }
+  },
+  "gapAnalysis": {
+    "title": "GRI Gap Analysis & Opportunities",
+    "subtitle": "Discover opportunities to enhance your sustainability reporting",
+    "summaryCards": {
+      "coverage": "Coverage",
+      "coverageUnit": "%",
+      "coverageDescription": "metrics",
+      "opportunities": "Opportunities",
+      "opportunitiesUnit": "metrics",
+      "opportunitiesDescription": "Not yet tracked",
+      "quickWins": "Quick Wins",
+      "quickWinsUnit": "metrics",
+      "quickWinsDescription": "Easy to implement",
+      "standards": "GRI Standards",
+      "standardsUnit": "standards",
+      "standardsDescription": "Environmental topics",
+      "standardsRange": "301-308",
+      "overall": "Overall"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "quickWins": "Quick Wins",
+      "byStandard": "By Standard"
+    },
+    "sections": {
+      "highPriority": "High Priority Opportunities",
+      "highPriorityDesc": "Metrics recommended for sector",
+      "sectorRecommended": "Sector Recommended",
+      "sectorRecommendedDesc": ">60% of peers track these metrics",
+      "quickWinsTitle": "Quick Wins",
+      "quickWinsDesc": "High priority metrics that are easy to implement",
+      "availableOpportunities": "Available Opportunities"
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "impact": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "badges": {
+      "quickWin": "Quick Win",
+      "recommended": "Recommended"
+    },
+    "metrics": {
+      "tracked": "tracked",
+      "notTracked": "opportunities",
+      "coverage": "coverage",
+      "of": "of",
+      "peerAdoption": "peers"
+    },
+    "emptyStates": {
+      "noQuickWins": "No quick wins available. All high-priority easy metrics are already being tracked!",
+      "fullCoverage": "All available metrics for this standard are being tracked!"
+    },
+    "standards": {
+      "301": "Materials",
+      "302": "Energy",
+      "303": "Water and Effluents",
+      "304": "Biodiversity",
+      "305": "Emissions",
+      "306": "Waste",
+      "307": "Environmental Compliance",
+      "308": "Supplier Environmental Assessment"
     }
   }
 }

@@ -87,7 +87,7 @@ export default async function DashboardPage() {
             </svg>
           </div>
           <div className={styles.kpiValue}>621 tCO₂</div>
-          <div className={styles.kpiTrend} className={styles.trendPositive}>
+          <div className={`${styles.kpiTrend} ${styles.trendPositive}`}>
             <span>↓ 5.8%</span>
             <span className={styles.trendNeutral}>{t('kpis.vsLastYear')}</span>
           </div>

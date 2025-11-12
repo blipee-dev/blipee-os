@@ -83,10 +83,11 @@ export function Navbar({ user }: NavbarProps) {
     }
     
     window.addEventListener('avatarSettingsUpdated', handleAvatarUpdate)
-    
+
     return () => {
       window.removeEventListener('avatarSettingsUpdated', handleAvatarUpdate)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id])
 
   async function loadAvatarSettings() {

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import type { WasteDashboardData } from '@/lib/data/gri'
 import styles from '../../dashboard.module.css'
 
@@ -8,22 +9,24 @@ interface WasteSiteTableProps {
 }
 
 export function WasteSiteTable({ data }: WasteSiteTableProps) {
+  const t = useTranslations('gri.waste.table')
+
   return (
     <div className={styles.tableCard}>
       <div className={styles.chartHeader}>
-        <h2 className={styles.chartTitle}>Waste by Site</h2>
-        <p className={styles.chartDescription}>Detailed waste breakdown by site</p>
+        <h2 className={styles.chartTitle}>{t('title')}</h2>
+        <p className={styles.chartDescription}>{t('description')}</p>
       </div>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Site</th>
-            <th>Generated (kg)</th>
-            <th>Diverted (kg)</th>
-            <th>Disposed (kg)</th>
-            <th>Recycling Rate</th>
-            <th>YoY</th>
-            <th>Share</th>
+            <th>{t('site')}</th>
+            <th>{t('generated')}</th>
+            <th>{t('diverted')}</th>
+            <th>{t('disposed')}</th>
+            <th>{t('recyclingRate')}</th>
+            <th>{t('yoy')}</th>
+            <th>{t('share')}</th>
           </tr>
         </thead>
         <tbody>
@@ -84,7 +87,7 @@ export function WasteSiteTable({ data }: WasteSiteTableProps) {
           ) : (
             <tr>
               <td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>
-                No waste data available for this period
+                {t('noData')}
               </td>
             </tr>
           )}

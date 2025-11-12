@@ -196,15 +196,29 @@ export function Sidebar({ currentPath }: SidebarProps) {
             </Link>
           </div>
           <div className={styles.sidebarItemWrapper} data-tooltip={t('initiatives')}>
-            <Link href="/dashboard/initiatives" className={styles.sidebarItem}>
+            <Link
+              href="/dashboard/initiatives"
+              className={`${styles.sidebarItem} ${activePath.startsWith('/dashboard/initiatives') ? styles.active : ''}`}
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                 <polyline points="22 4 12 14.01 9 11.01" />
-                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-                <path d="M8 12h8" />
-                <path d="M12 8v8" />
               </svg>
               <span className={styles.sidebarItemText}>{t('initiatives')}</span>
+            </Link>
+          </div>
+          <div className={styles.sidebarItemWrapper} data-tooltip={t('sbtiTargets')}>
+            <Link
+              href="/dashboard/sbti"
+              className={`${styles.sidebarItem} ${activePath.startsWith('/dashboard/sbti') ? styles.active : ''}`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+                <path d="M16 2v4" />
+                <path d="M8 2v4" />
+              </svg>
+              <span className={styles.sidebarItemText}>{t('sbtiTargets')}</span>
             </Link>
           </div>
         </div>
