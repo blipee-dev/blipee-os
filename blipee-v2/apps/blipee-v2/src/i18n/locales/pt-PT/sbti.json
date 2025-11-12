@@ -1,0 +1,313 @@
+{
+  "title": "Objetivos Baseados em Ciência (SBTi)",
+  "subtitle": "Definir, acompanhar e atingir metas climáticas alinhadas com 1.5°C",
+  "loading": "A carregar...",
+
+  "overview": {
+    "title": "Visão Geral SBTi",
+    "subtitle": "Estado dos seus objetivos baseados em ciência"
+  },
+
+  "summary": {
+    "totalTargets": "Total de Objetivos",
+    "validatedTargets": "Objetivos Validados",
+    "draftTargets": "Rascunhos",
+    "nearTermTargets": "Objetivos de Curto Prazo",
+    "longTermTargets": "Objetivos de Longo Prazo (Net-Zero)",
+    "baseEmissions": "Emissões Ano-Base",
+    "targetEmissions": "Emissões Alvo",
+    "totalReduction": "Redução Total",
+    "averageReduction": "Redução Média",
+    "onTrack": "No Caminho Certo",
+    "atRisk": "Em Risco",
+    "complianceScore": "Pontuação de Conformidade"
+  },
+
+  "targetTypes": {
+    "near_term": "Curto Prazo (5-10 anos)",
+    "long_term": "Longo Prazo (Net-Zero ≤2050)"
+  },
+
+  "scopes": {
+    "scope1": "Âmbito 1 (Emissões Diretas)",
+    "scope1_2": "Âmbitos 1 & 2",
+    "scope3": "Âmbito 3 (Cadeia de Valor)",
+    "scope1_2_3": "Âmbitos 1, 2 & 3 (Completo)"
+  },
+
+  "methods": {
+    "absolute_contraction": "Contração Absoluta",
+    "sda": "Abordagem Setorial (SDA)",
+    "re_procurement": "Aquisição de Energias Renováveis",
+    "physical_intensity": "Intensidade Física",
+    "economic_intensity": "Intensidade Económica"
+  },
+
+  "ambition": {
+    "1.5C": "1.5°C (Mais Ambicioso)",
+    "well_below_2C": "Bem Abaixo de 2°C",
+    "2C": "2°C"
+  },
+
+  "sectors": {
+    "cross_sector": "Multi-Setorial",
+    "buildings": "Edifícios",
+    "flag": "FLAG (Floresta, Terra e Agricultura)",
+    "power_generation": "Geração de Energia",
+    "cement": "Cimento",
+    "iron_steel": "Ferro e Aço",
+    "aluminum": "Alumínio",
+    "pulp_paper": "Pasta e Papel",
+    "transport": "Transportes",
+    "financial_institutions": "Instituições Financeiras",
+    "oil_gas": "Petróleo e Gás"
+  },
+
+  "status": {
+    "draft": "Rascunho",
+    "submitted": "Submetido",
+    "validated": "Validado pelo SBTi",
+    "rejected": "Rejeitado",
+    "needs_recalculation": "Requer Recalculação"
+  },
+
+  "wizard": {
+    "title": "Criar Novo Objetivo SBTi",
+    "steps": {
+      "type": "Tipo de Objetivo",
+      "emissions": "Dados de Emissões",
+      "parameters": "Parâmetros",
+      "validation": "Validação"
+    },
+
+    "step1": {
+      "title": "Que tipo de objetivo deseja definir?",
+      "nearTerm": {
+        "label": "Objetivo de Curto Prazo (5-10 anos)",
+        "description": "Reduzir emissões no curto prazo (2025-2035). Obrigatório para validação SBTi."
+      },
+      "longTerm": {
+        "label": "Objetivo de Longo Prazo Net-Zero (≤2050)",
+        "description": "Compromisso de net-zero até meados do século. Requer objetivo de curto prazo primeiro."
+      },
+      "both": {
+        "label": "Ambos os objetivos (recomendado)",
+        "description": "Definir curto e longo prazo como pacote completo."
+      }
+    },
+
+    "step2": {
+      "title": "Dados de Inventário de Emissões",
+      "baseYear": "Ano-Base",
+      "baseYearHelp": "Deve ser ≥2015 (Critério C13)",
+      "targetYear": "Ano-Alvo",
+      "targetYearHelp": "5-10 anos a partir do ano-base para curto prazo",
+      "scope1": "Emissões Âmbito 1 (diretas)",
+      "scope2Location": "Emissões Âmbito 2 (baseadas na localização)",
+      "scope2Market": "Emissões Âmbito 2 (baseadas no mercado)",
+      "scope3": "Emissões Âmbito 3 (cadeia de valor)",
+      "biogenicNet": "CO₂ Biogénico Líquido",
+      "biogenicNetHelp": "Emissões líquidas (libertações - remoções). Obrigatório - Critério C10",
+      "scope3Categories": "Categorias Âmbito 3",
+      "category": "Categoria",
+      "coverage": "Cobertura Total Âmbito 3",
+      "coverageHelp": "Mínimo 67% para curto prazo, 90% para longo prazo",
+      "prefillFromGRI": "Pré-preencher a partir de dados GRI",
+      "prefilled": "Dados pré-preenchidos do GRI {{year}}"
+    },
+
+    "step3": {
+      "title": "Configuração do Objetivo",
+      "scopeCoverage": "Cobertura de Âmbitos",
+      "method": "Método de Definição",
+      "ambitionLevel": "Nível de Ambição",
+      "sector": "Setor",
+      "calculate": "Calcular Redução Necessária",
+      "calculating": "A calcular...",
+      "results": {
+        "title": "Resultados do Cálculo",
+        "requiredReduction": "Redução Necessária",
+        "baseYear": "Ano-Base ({{year}})",
+        "targetYear": "Ano-Alvo ({{year}})",
+        "annualReduction": "Redução Anual",
+        "compliant": "Cumpre ambição {{ambition}}",
+        "notCompliant": "Não cumpre ambição {{ambition}}",
+        "shortfall": "Défice"
+      },
+      "activityData": {
+        "title": "Dados de Atividade (para métodos de intensidade)",
+        "metric": "Métrica",
+        "unit": "Unidade",
+        "baseYearValue": "Valor Ano-Base",
+        "targetYearValue": "Valor Ano-Alvo"
+      },
+      "neutralization": {
+        "title": "Plano de Neutralização (para net-zero)",
+        "required": "Obrigatório para objetivos net-zero (Critério C28)",
+        "residualEmissions": "Emissões Residuais Esperadas",
+        "method": "Método de Remoção de Carbono",
+        "volume": "Volume Anual (tCO₂e)",
+        "permanence": "Permanência",
+        "methods": {
+          "DACCS": "Captura Direta do Ar + Armazenamento",
+          "BECCS": "Bioenergia + Captura e Armazenamento",
+          "enhanced_weathering": "Meteorização Melhorada",
+          "biochar": "Biochar Permanente",
+          "ocean_alkalinity": "Alcalinidade Oceânica"
+        },
+        "permanenceOptions": {
+          ">100_years": ">100 anos",
+          "geological_storage": "Armazenamento Geológico",
+          "mineralization": "Mineralização"
+        }
+      }
+    },
+
+    "step4": {
+      "title": "Conformidade com Critérios SBTi",
+      "subtitle": "O seu objetivo foi validado contra {{total}} critérios SBTi",
+      "score": "Pontuação de Conformidade",
+      "readyToSubmit": "Pronto para submeter ao SBTi",
+      "needsWork": "Requer ajustes antes de submeter",
+      "criteriaTable": {
+        "code": "Código",
+        "criterion": "Critério",
+        "status": "Estado",
+        "details": "Detalhes"
+      },
+      "criteriaStatus": {
+        "pass": "Aprovado",
+        "fail": "Reprovado",
+        "warning": "Aviso",
+        "not_applicable": "Não Aplicável"
+      },
+      "warnings": {
+        "title": "Avisos",
+        "description": "Os seguintes critérios têm avisos (não impedem validação):"
+      },
+      "errors": {
+        "title": "Erros",
+        "description": "Os seguintes critérios devem ser corrigidos:"
+      }
+    },
+
+    "actions": {
+      "back": "Voltar",
+      "next": "Próximo",
+      "saveAsDraft": "Guardar como Rascunho",
+      "submit": "Submeter ao SBTi",
+      "calculate": "Calcular Trajetória"
+    }
+  },
+
+  "detail": {
+    "title": "Detalhes do Objetivo",
+    "submissionDate": "Data de Submissão",
+    "validationDate": "Data de Validação",
+    "targetSummary": "Resumo do Objetivo",
+    "progressTimeline": "Linha do Tempo de Progresso",
+    "annualProgress": "Progresso Anual",
+    "year": "Ano",
+    "actual": "Real",
+    "target": "Alvo",
+    "variance": "Variação",
+    "status": "Estado",
+    "baseline": "Linha de Base",
+    "onTrack": "No Caminho",
+    "atRisk": "Em Risco",
+    "offTrack": "Fora do Caminho",
+    "actions": {
+      "export": "Exportar para SBTi",
+      "recalculate": "Recalcular",
+      "viewCriteria": "Ver Critérios"
+    }
+  },
+
+  "progress": {
+    "title": "Acompanhamento de Progresso",
+    "addProgress": "Adicionar Progresso",
+    "reportingYear": "Ano de Reporte",
+    "actualEmissions": "Emissões Reais",
+    "notes": "Notas",
+    "save": "Guardar Progresso"
+  },
+
+  "sectorRequirements": {
+    "title": "Verificador de Requisitos Setoriais",
+    "subtitle": "Determine quais requisitos SBTi específicos de setor se aplicam",
+    "enterData": "Insira o breakdown de emissões da sua organização",
+    "totalEmissions": "Total de Emissões (Âmbito 1+2+3)",
+    "threshold": "Limite",
+    "status": "Estado",
+    "required": "OBRIGATÓRIO",
+    "notRequired": "Não obrigatório",
+    "notApplicable": "Não aplicável",
+    "requirement": "Requisito",
+    "summaryTitle": "Resumo de Requisitos",
+    "noRequirements": "Nenhum requisito setorial específico se aplica",
+    "continueToSetup": "Continuar para Configuração de Objetivo"
+  },
+
+  "criteria": {
+    "C1": "Fronteira organizacional",
+    "C2": "Alinhamento com Protocolo GEE",
+    "C3": "Inclusão Âmbito 1",
+    "C4": "Inclusão Âmbito 2",
+    "C5": "Inclusão Âmbito 3",
+    "C6": "Limites de cobertura",
+    "C7": "Justificação de exclusões",
+    "C8": "Fontes de emissões",
+    "C9": "Valores GWP",
+    "C10": "Contabilização biogénica",
+    "C11": "Desagregação FLAG",
+    "C12": "Categorias Âmbito 3",
+    "C13": "Cronograma",
+    "C14": "Formulação de objetivo",
+    "C15": "Ambição Âmbito 1+2",
+    "C16": "Cálculo Âmbito 1+2",
+    "C17": "Denominador de intensidade",
+    "C18": "Ambição Âmbito 3",
+    "C19": "Cálculo Âmbito 3",
+    "C20": "Envolvimento de fornecedores",
+    "C21": "Envolvimento de clientes",
+    "C22": "Setor de combustíveis fósseis",
+    "C23": "Instituições financeiras",
+    "C24": "Comunicação SBT",
+    "C25": "Divulgação pública",
+    "C26": "Política de recalculação",
+    "C27": "Revisão e atualização",
+    "C28": "Neutralização"
+  },
+
+  "messages": {
+    "targetCreated": "Objetivo SBTi criado com sucesso",
+    "targetUpdated": "Objetivo atualizado",
+    "targetDeleted": "Objetivo eliminado",
+    "progressAdded": "Progresso registado",
+    "validationFailed": "Validação falhou: {{errors}}",
+    "calculationError": "Erro ao calcular trajetória",
+    "fetchError": "Erro ao carregar dados",
+    "unauthorized": "Não autorizado a realizar esta ação"
+  },
+
+  "empty": {
+    "title": "Ainda sem objetivos SBTi",
+    "description": "Comece por definir o seu primeiro objetivo baseado em ciência alinhado com limitar o aquecimento global a 1.5°C.",
+    "cta": "Criar Primeiro Objetivo"
+  },
+
+  "help": {
+    "whatIsSBTi": {
+      "title": "O que é SBTi?",
+      "content": "A Science Based Targets initiative (SBTi) é uma parceria global que ajuda empresas a definir objetivos de redução de emissões alinhados com a ciência climática."
+    },
+    "nearTermVsLongTerm": {
+      "title": "Curto prazo vs Longo prazo?",
+      "content": "Objetivos de curto prazo (5-10 anos) mostram ação imediata. Objetivos de longo prazo (net-zero ≤2050) demonstram compromisso a longo prazo."
+    },
+    "coverage": {
+      "title": "Requisitos de cobertura?",
+      "content": "Âmbito 1+2: mínimo 95%. Âmbito 3: mínimo 67% (curto prazo) ou 90% (longo prazo) das emissões devem ser incluídas."
+    }
+  }
+}

@@ -1,0 +1,468 @@
+.container {
+  padding: 1.5rem;
+}
+
+.errorMessage {
+  padding: 2rem;
+  background: var(--background-error);
+  border: 1px solid var(--border-error);
+  border-radius: 8px;
+  color: var(--text-error);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.summaryCard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.summaryCard__title {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.summaryCard__icon {
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+
+/* Sector Mapping Card */
+.sectorCard {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.sectorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.sectorHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.confidenceBadge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  border: 2px solid;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sectorContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectorMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sectorName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sectorMethod {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.sectorDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background-primary);
+  border-radius: 8px;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detailValue {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.scenarioTags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.scenarioTag {
+  padding: 0.375rem 0.75rem;
+  background: var(--accent-primary);
+  color: white;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.sectorAlternatives {
+  border-top: 1px solid var(--border-primary);
+  padding-top: 1rem;
+}
+
+.alternativesToggle {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease;
+}
+
+.alternativesToggle:hover {
+  color: var(--accent-secondary);
+}
+
+.alternativesList {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-primary);
+  border-radius: 8px;
+}
+
+.alternativesNote {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.alternativeItem {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+}
+
+.alternativeItem:last-child {
+  margin-bottom: 0;
+}
+
+.alternativeItem strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alternativeItem p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.sectorWarning {
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.summaryCard__value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.summaryCard__subtitle {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.mainContent {
+  padding: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.header__actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-size: 0.875rem;
+}
+
+.button--primary {
+  background: var(--primary);
+  color: white;
+}
+
+.button--primary:hover {
+  background: var(--primary-hover);
+}
+
+.button--secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.button--secondary:hover {
+  background: var(--background-tertiary);
+}
+
+.empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--background-secondary);
+  border-radius: 12px;
+  border: 2px dashed var(--border-primary);
+}
+
+.empty__icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.empty__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.empty__description {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.targetsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.targetCard {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.targetCard:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.targetCard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.targetCard__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.targetCard__subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.badge--validated {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge--draft {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.badge--submitted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge--rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.targetCard__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric__label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.metric__value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.progress {
+  margin-top: 1rem;
+}
+
+.progress__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progress__label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.progress__value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: var(--background-tertiary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressBar__fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.progressBar__fill--onTrack {
+  background: #22c55e;
+}
+
+.progressBar__fill--atRisk {
+  background: #f59e0b;
+}
+
+.progressBar__fill--offTrack {
+  background: #ef4444;
+}

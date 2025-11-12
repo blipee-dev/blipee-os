@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 export type Json =
   | string
   | number
@@ -1726,6 +1724,167 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_agent_execution_logs: {
+        Row: {
+          details: Json | null
+          id: string
+          job_id: string | null
+          level: string
+          logged_at: string | null
+          message: string
+        }
+        Insert: {
+          details?: Json | null
+          id?: string
+          job_id?: string | null
+          level?: string
+          logged_at?: string | null
+          message: string
+        }
+        Update: {
+          details?: Json | null
+          id?: string
+          job_id?: string | null
+          level?: string
+          logged_at?: string | null
+          message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_agent_execution_logs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agent_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_agent_jobs: {
+        Row: {
+          completed_at: string | null
+          config: Json | null
+          created_at: string | null
+          created_by: string | null
+          cron_expression: string | null
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          job_name: string
+          job_type: string
+          last_run_at: string | null
+          max_retries: number | null
+          next_run_at: string | null
+          result: Json | null
+          retry_count: number | null
+          schedule_type: string
+          started_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          cron_expression?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          job_name: string
+          job_type: string
+          last_run_at?: string | null
+          max_retries?: number | null
+          next_run_at?: string | null
+          result?: Json | null
+          retry_count?: number | null
+          schedule_type?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          cron_expression?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          job_name?: string
+          job_type?: string
+          last_run_at?: string | null
+          max_retries?: number | null
+          next_run_at?: string | null
+          result?: Json | null
+          retry_count?: number | null
+          schedule_type?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_agent_service_state: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          health_check_interval_ms: number | null
+          hostname: string | null
+          id: string
+          instance_id: string
+          jobs_completed: number | null
+          jobs_failed: number | null
+          last_heartbeat: string | null
+          pid: number | null
+          port: number | null
+          service_name: string
+          started_at: string | null
+          status: string
+          stopped_at: string | null
+          updated_at: string | null
+          uptime_ms: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          health_check_interval_ms?: number | null
+          hostname?: string | null
+          id?: string
+          instance_id: string
+          jobs_completed?: number | null
+          jobs_failed?: number | null
+          last_heartbeat?: string | null
+          pid?: number | null
+          port?: number | null
+          service_name?: string
+          started_at?: string | null
+          status?: string
+          stopped_at?: string | null
+          updated_at?: string | null
+          uptime_ms?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          health_check_interval_ms?: number | null
+          hostname?: string | null
+          id?: string
+          instance_id?: string
+          jobs_completed?: number | null
+          jobs_failed?: number | null
+          last_heartbeat?: string | null
+          pid?: number | null
+          port?: number | null
+          service_name?: string
+          started_at?: string | null
+          status?: string
+          stopped_at?: string | null
+          updated_at?: string | null
+          uptime_ms?: number | null
+        }
+        Relationships: []
+      }
       ai_conversation_analytics: {
         Row: {
           analyzed_at: string | null
@@ -2442,6 +2601,53 @@ export type Database = {
             columns: ["api_key_id"]
             isOneToOne: false
             referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_usage_tracking: {
+        Row: {
+          api_name: string
+          cache_hit: boolean | null
+          called_at: string | null
+          created_at: string | null
+          endpoint: string
+          id: string
+          organization_id: string | null
+          request_params: Json | null
+          response_status: number | null
+          year_month: string
+        }
+        Insert: {
+          api_name: string
+          cache_hit?: boolean | null
+          called_at?: string | null
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          organization_id?: string | null
+          request_params?: Json | null
+          response_status?: number | null
+          year_month: string
+        }
+        Update: {
+          api_name?: string
+          cache_hit?: boolean | null
+          called_at?: string | null
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          organization_id?: string | null
+          request_params?: Json | null
+          response_status?: number | null
+          year_month?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_usage_tracking_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -3165,13 +3371,6 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "baseline_restatements_target_id_fkey"
-            columns: ["target_id"]
-            isOneToOne: false
-            referencedRelation: "sbti_validation_status"
             referencedColumns: ["id"]
           },
           {
@@ -4025,13 +4224,6 @@ export type Database = {
             foreignKeyName: "category_targets_parent_target_id_fkey"
             columns: ["parent_target_id"]
             isOneToOne: false
-            referencedRelation: "sbti_validation_status"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "category_targets_parent_target_id_fkey"
-            columns: ["parent_target_id"]
-            isOneToOne: false
             referencedRelation: "sustainability_targets"
             referencedColumns: ["id"]
           },
@@ -4578,6 +4770,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      consent_log: {
+        Row: {
+          created_at: string
+          id: string
+          ip_hash: string | null
+          preferences: Json
+          privacy_policy_version: string
+          timestamp: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          preferences: Json
+          privacy_policy_version: string
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          preferences?: Json
+          privacy_policy_version?: string
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      contact_submissions: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          email: string
+          id: string
+          message: string
+          name: string
+          source: string | null
+          subject: string
+          submitted_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          message: string
+          name: string
+          source?: string | null
+          subject: string
+          submitted_at: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          source?: string | null
+          subject?: string
+          submitted_at?: string
+        }
+        Relationships: []
       }
       conversation_analytics: {
         Row: {
@@ -6153,6 +6414,78 @@ export type Database = {
         }
         Relationships: []
       }
+      emission_factors_cache: {
+        Row: {
+          activity_name: string
+          api_calls_saved: number | null
+          category: string
+          ch4_factor: number | null
+          climatiq_activity_id: string | null
+          climatiq_id: string
+          co2_factor: number | null
+          co2e_total: number | null
+          created_at: string | null
+          factor_calculation_method: string | null
+          factor_unit: string
+          factor_value: number
+          ghg_protocol_compliant: boolean | null
+          id: string
+          last_validated_at: string | null
+          n2o_factor: number | null
+          region_code: string
+          sector: string | null
+          source_dataset: string
+          source_year: number
+          updated_at: string | null
+        }
+        Insert: {
+          activity_name: string
+          api_calls_saved?: number | null
+          category: string
+          ch4_factor?: number | null
+          climatiq_activity_id?: string | null
+          climatiq_id: string
+          co2_factor?: number | null
+          co2e_total?: number | null
+          created_at?: string | null
+          factor_calculation_method?: string | null
+          factor_unit: string
+          factor_value: number
+          ghg_protocol_compliant?: boolean | null
+          id?: string
+          last_validated_at?: string | null
+          n2o_factor?: number | null
+          region_code: string
+          sector?: string | null
+          source_dataset: string
+          source_year: number
+          updated_at?: string | null
+        }
+        Update: {
+          activity_name?: string
+          api_calls_saved?: number | null
+          category?: string
+          ch4_factor?: number | null
+          climatiq_activity_id?: string | null
+          climatiq_id?: string
+          co2_factor?: number | null
+          co2e_total?: number | null
+          created_at?: string | null
+          factor_calculation_method?: string | null
+          factor_unit?: string
+          factor_value?: number
+          ghg_protocol_compliant?: boolean | null
+          id?: string
+          last_validated_at?: string | null
+          n2o_factor?: number | null
+          region_code?: string
+          sector?: string | null
+          source_dataset?: string
+          source_year?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       emission_sources: {
         Row: {
           category: Database["public"]["Enums"]["emission_source_category"]
@@ -6234,462 +6567,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      emissions: {
-        Row: {
-          activity_description: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at: string | null
-          approved_by: string | null
-          calculation_method: string | null
-          ch4_tonnes: number | null
-          co2_tonnes: number | null
-          co2e_tonnes: number
-          created_at: string | null
-          created_by: string
-          data_quality: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id: string | null
-          emission_factor_source: string | null
-          emission_factor_unit: string
-          evidence_documents: string[] | null
-          id: string
-          metadata: Json | null
-          n2o_tonnes: number | null
-          notes: string | null
-          organization_id: string
-          other_ghg: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags: string[] | null
-          uncertainty_percent: number | null
-          updated_at: string | null
-          updated_by: string | null
-          verification_status:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at: string | null
-          verified_by: string | null
-        }
-        Insert: {
-          activity_description?: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes: number
-          created_at?: string | null
-          created_by: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id: string
-          other_ghg?: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Update: {
-          activity_description?: string | null
-          activity_unit?: string
-          activity_value?: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes?: number
-          created_at?: string | null
-          created_by?: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor?: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit?: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id?: string
-          other_ghg?: Json | null
-          period_end?: string
-          period_start?: string
-          source_id?: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Relationships: []
-      }
-      emissions_2023: {
-        Row: {
-          activity_description: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at: string | null
-          approved_by: string | null
-          calculation_method: string | null
-          ch4_tonnes: number | null
-          co2_tonnes: number | null
-          co2e_tonnes: number
-          created_at: string | null
-          created_by: string
-          data_quality: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id: string | null
-          emission_factor_source: string | null
-          emission_factor_unit: string
-          evidence_documents: string[] | null
-          id: string
-          metadata: Json | null
-          n2o_tonnes: number | null
-          notes: string | null
-          organization_id: string
-          other_ghg: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags: string[] | null
-          uncertainty_percent: number | null
-          updated_at: string | null
-          updated_by: string | null
-          verification_status:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at: string | null
-          verified_by: string | null
-        }
-        Insert: {
-          activity_description?: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes: number
-          created_at?: string | null
-          created_by: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id: string
-          other_ghg?: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Update: {
-          activity_description?: string | null
-          activity_unit?: string
-          activity_value?: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes?: number
-          created_at?: string | null
-          created_by?: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor?: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit?: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id?: string
-          other_ghg?: Json | null
-          period_end?: string
-          period_start?: string
-          source_id?: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Relationships: []
-      }
-      emissions_2024: {
-        Row: {
-          activity_description: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at: string | null
-          approved_by: string | null
-          calculation_method: string | null
-          ch4_tonnes: number | null
-          co2_tonnes: number | null
-          co2e_tonnes: number
-          created_at: string | null
-          created_by: string
-          data_quality: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id: string | null
-          emission_factor_source: string | null
-          emission_factor_unit: string
-          evidence_documents: string[] | null
-          id: string
-          metadata: Json | null
-          n2o_tonnes: number | null
-          notes: string | null
-          organization_id: string
-          other_ghg: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags: string[] | null
-          uncertainty_percent: number | null
-          updated_at: string | null
-          updated_by: string | null
-          verification_status:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at: string | null
-          verified_by: string | null
-        }
-        Insert: {
-          activity_description?: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes: number
-          created_at?: string | null
-          created_by: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id: string
-          other_ghg?: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Update: {
-          activity_description?: string | null
-          activity_unit?: string
-          activity_value?: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes?: number
-          created_at?: string | null
-          created_by?: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor?: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit?: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id?: string
-          other_ghg?: Json | null
-          period_end?: string
-          period_start?: string
-          source_id?: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Relationships: []
-      }
-      emissions_2025: {
-        Row: {
-          activity_description: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at: string | null
-          approved_by: string | null
-          calculation_method: string | null
-          ch4_tonnes: number | null
-          co2_tonnes: number | null
-          co2e_tonnes: number
-          created_at: string | null
-          created_by: string
-          data_quality: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id: string | null
-          emission_factor_source: string | null
-          emission_factor_unit: string
-          evidence_documents: string[] | null
-          id: string
-          metadata: Json | null
-          n2o_tonnes: number | null
-          notes: string | null
-          organization_id: string
-          other_ghg: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags: string[] | null
-          uncertainty_percent: number | null
-          updated_at: string | null
-          updated_by: string | null
-          verification_status:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at: string | null
-          verified_by: string | null
-        }
-        Insert: {
-          activity_description?: string | null
-          activity_unit: string
-          activity_value: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes: number
-          created_at?: string | null
-          created_by: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id: string
-          other_ghg?: Json | null
-          period_end: string
-          period_start: string
-          source_id: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Update: {
-          activity_description?: string | null
-          activity_unit?: string
-          activity_value?: number
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_method?: string | null
-          ch4_tonnes?: number | null
-          co2_tonnes?: number | null
-          co2e_tonnes?: number
-          created_at?: string | null
-          created_by?: string
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"]
-          emission_factor?: number
-          emission_factor_id?: string | null
-          emission_factor_source?: string | null
-          emission_factor_unit?: string
-          evidence_documents?: string[] | null
-          id?: string
-          metadata?: Json | null
-          n2o_tonnes?: number | null
-          notes?: string | null
-          organization_id?: string
-          other_ghg?: Json | null
-          period_end?: string
-          period_start?: string
-          source_id?: string
-          tags?: string[] | null
-          uncertainty_percent?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at?: string | null
-          verified_by?: string | null
-        }
-        Relationships: []
       }
       emissions_adjustments: {
         Row: {
@@ -6848,240 +6725,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      energy_consumption: {
-        Row: {
-          consumption_mwh: number | null
-          consumption_unit: string
-          consumption_value: number
-          cost_amount: number | null
-          cost_currency: string | null
-          created_at: string | null
-          created_by: string | null
-          data_quality: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source: string | null
-          energy_type: string
-          facility_id: string | null
-          id: string
-          invoice_reference: string | null
-          is_renewable: boolean | null
-          metadata: Json | null
-          meter_id: string | null
-          organization_id: string
-          period_end: string
-          period_start: string
-          renewable_certificates: Json | null
-          renewable_source: string | null
-          tags: string[] | null
-          updated_at: string | null
-        }
-        Insert: {
-          consumption_mwh?: number | null
-          consumption_unit: string
-          consumption_value: number
-          cost_amount?: number | null
-          cost_currency?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source?: string | null
-          energy_type: string
-          facility_id?: string | null
-          id?: string
-          invoice_reference?: string | null
-          is_renewable?: boolean | null
-          metadata?: Json | null
-          meter_id?: string | null
-          organization_id: string
-          period_end: string
-          period_start: string
-          renewable_certificates?: Json | null
-          renewable_source?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-        }
-        Update: {
-          consumption_mwh?: number | null
-          consumption_unit?: string
-          consumption_value?: number
-          cost_amount?: number | null
-          cost_currency?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source?: string | null
-          energy_type?: string
-          facility_id?: string | null
-          id?: string
-          invoice_reference?: string | null
-          is_renewable?: boolean | null
-          metadata?: Json | null
-          meter_id?: string | null
-          organization_id?: string
-          period_end?: string
-          period_start?: string
-          renewable_certificates?: Json | null
-          renewable_source?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      energy_consumption_2024: {
-        Row: {
-          consumption_mwh: number | null
-          consumption_unit: string
-          consumption_value: number
-          cost_amount: number | null
-          cost_currency: string | null
-          created_at: string | null
-          created_by: string | null
-          data_quality: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source: string | null
-          energy_type: string
-          facility_id: string | null
-          id: string
-          invoice_reference: string | null
-          is_renewable: boolean | null
-          metadata: Json | null
-          meter_id: string | null
-          organization_id: string
-          period_end: string
-          period_start: string
-          renewable_certificates: Json | null
-          renewable_source: string | null
-          tags: string[] | null
-          updated_at: string | null
-        }
-        Insert: {
-          consumption_mwh?: number | null
-          consumption_unit: string
-          consumption_value: number
-          cost_amount?: number | null
-          cost_currency?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source?: string | null
-          energy_type: string
-          facility_id?: string | null
-          id?: string
-          invoice_reference?: string | null
-          is_renewable?: boolean | null
-          metadata?: Json | null
-          meter_id?: string | null
-          organization_id: string
-          period_end: string
-          period_start: string
-          renewable_certificates?: Json | null
-          renewable_source?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-        }
-        Update: {
-          consumption_mwh?: number | null
-          consumption_unit?: string
-          consumption_value?: number
-          cost_amount?: number | null
-          cost_currency?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source?: string | null
-          energy_type?: string
-          facility_id?: string | null
-          id?: string
-          invoice_reference?: string | null
-          is_renewable?: boolean | null
-          metadata?: Json | null
-          meter_id?: string | null
-          organization_id?: string
-          period_end?: string
-          period_start?: string
-          renewable_certificates?: Json | null
-          renewable_source?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      energy_consumption_2025: {
-        Row: {
-          consumption_mwh: number | null
-          consumption_unit: string
-          consumption_value: number
-          cost_amount: number | null
-          cost_currency: string | null
-          created_at: string | null
-          created_by: string | null
-          data_quality: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source: string | null
-          energy_type: string
-          facility_id: string | null
-          id: string
-          invoice_reference: string | null
-          is_renewable: boolean | null
-          metadata: Json | null
-          meter_id: string | null
-          organization_id: string
-          period_end: string
-          period_start: string
-          renewable_certificates: Json | null
-          renewable_source: string | null
-          tags: string[] | null
-          updated_at: string | null
-        }
-        Insert: {
-          consumption_mwh?: number | null
-          consumption_unit: string
-          consumption_value: number
-          cost_amount?: number | null
-          cost_currency?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source?: string | null
-          energy_type: string
-          facility_id?: string | null
-          id?: string
-          invoice_reference?: string | null
-          is_renewable?: boolean | null
-          metadata?: Json | null
-          meter_id?: string | null
-          organization_id: string
-          period_end: string
-          period_start: string
-          renewable_certificates?: Json | null
-          renewable_source?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-        }
-        Update: {
-          consumption_mwh?: number | null
-          consumption_unit?: string
-          consumption_value?: number
-          cost_amount?: number | null
-          cost_currency?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          data_quality?: Database["public"]["Enums"]["data_quality_tier"] | null
-          data_source?: string | null
-          energy_type?: string
-          facility_id?: string | null
-          id?: string
-          invoice_reference?: string | null
-          is_renewable?: boolean | null
-          metadata?: Json | null
-          meter_id?: string | null
-          organization_id?: string
-          period_end?: string
-          period_start?: string
-          renewable_certificates?: Json | null
-          renewable_source?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       environmental_incidents: {
         Row: {
@@ -7499,6 +7142,13 @@ export type Database = {
             referencedRelation: "waste_metrics_view"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "framework_mappings_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
         ]
       }
       ghg_inventory_settings: {
@@ -7634,6 +7284,150 @@ export type Database = {
           verified?: boolean | null
         }
         Relationships: []
+      }
+      gri_framework_mappings: {
+        Row: {
+          applies_to_sectors: string[] | null
+          automation_percentage: number | null
+          automation_source: string | null
+          calculation_formula: string | null
+          can_automate: boolean | null
+          created_at: string | null
+          data_collection_method: string | null
+          disclosure_description: string | null
+          disclosure_title: string
+          gri_disclosure: string
+          gri_standard: string
+          gri_topic: string
+          id: string
+          is_mandatory: boolean | null
+          metric_id: string
+          reporting_requirement: string | null
+          typical_data_sources: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          applies_to_sectors?: string[] | null
+          automation_percentage?: number | null
+          automation_source?: string | null
+          calculation_formula?: string | null
+          can_automate?: boolean | null
+          created_at?: string | null
+          data_collection_method?: string | null
+          disclosure_description?: string | null
+          disclosure_title: string
+          gri_disclosure: string
+          gri_standard: string
+          gri_topic: string
+          id?: string
+          is_mandatory?: boolean | null
+          metric_id: string
+          reporting_requirement?: string | null
+          typical_data_sources?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          applies_to_sectors?: string[] | null
+          automation_percentage?: number | null
+          automation_source?: string | null
+          calculation_formula?: string | null
+          can_automate?: boolean | null
+          created_at?: string | null
+          data_collection_method?: string | null
+          disclosure_description?: string | null
+          disclosure_title?: string
+          gri_disclosure?: string
+          gri_standard?: string
+          gri_topic?: string
+          id?: string
+          is_mandatory?: boolean | null
+          metric_id?: string
+          reporting_requirement?: string | null
+          typical_data_sources?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gri_framework_mappings_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gri_framework_mappings_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "waste_metrics_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gri_framework_mappings_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+        ]
+      }
+      gri_reporting_periods: {
+        Row: {
+          completeness_percentage: number | null
+          created_at: string | null
+          gri_standards_covered: string[] | null
+          id: string
+          metrics_completed: number | null
+          organization_id: string
+          period_end: string
+          period_name: string | null
+          period_start: string
+          published_at: string | null
+          report_url: string | null
+          status: string | null
+          total_metrics: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          completeness_percentage?: number | null
+          created_at?: string | null
+          gri_standards_covered?: string[] | null
+          id?: string
+          metrics_completed?: number | null
+          organization_id: string
+          period_end: string
+          period_name?: string | null
+          period_start: string
+          published_at?: string | null
+          report_url?: string | null
+          status?: string | null
+          total_metrics?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          completeness_percentage?: number | null
+          created_at?: string | null
+          gri_standards_covered?: string[] | null
+          id?: string
+          metrics_completed?: number | null
+          organization_id?: string
+          period_end?: string
+          period_name?: string | null
+          period_start?: string
+          published_at?: string | null
+          report_url?: string | null
+          status?: string | null
+          total_metrics?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gri_reporting_periods_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gri_sector_material_topics: {
         Row: {
@@ -8037,6 +7831,13 @@ export type Database = {
             referencedRelation: "waste_metrics_view"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "industry_materiality_metric_catalog_id_fkey"
+            columns: ["metric_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
         ]
       }
       industry_metrics: {
@@ -8142,6 +7943,286 @@ export type Database = {
           sector_name?: string
         }
         Relationships: []
+      }
+      initiative_activity_log: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string
+          id: string
+          initiative_id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          initiative_id: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          initiative_id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiative_activity_log_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiative_metrics: {
+        Row: {
+          baseline_date: string | null
+          baseline_value: number | null
+          created_at: string | null
+          current_value: number | null
+          current_value_date: string | null
+          id: string
+          initiative_id: string
+          metric_code: string
+          notes: string | null
+          progress_percentage: number | null
+          target_unit: string | null
+          target_value: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          baseline_date?: string | null
+          baseline_value?: number | null
+          created_at?: string | null
+          current_value?: number | null
+          current_value_date?: string | null
+          id?: string
+          initiative_id: string
+          metric_code: string
+          notes?: string | null
+          progress_percentage?: number | null
+          target_unit?: string | null
+          target_value?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          baseline_date?: string | null
+          baseline_value?: number | null
+          created_at?: string | null
+          current_value?: number | null
+          current_value_date?: string | null
+          id?: string
+          initiative_id?: string
+          metric_code?: string
+          notes?: string | null
+          progress_percentage?: number | null
+          target_unit?: string | null
+          target_value?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiative_metrics_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiative_milestones: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          due_date: string | null
+          id: string
+          initiative_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          due_date?: string | null
+          id?: string
+          initiative_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          due_date?: string | null
+          id?: string
+          initiative_id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiative_milestones_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiative_participants: {
+        Row: {
+          access_token: string
+          can_add_comments: boolean
+          can_edit: boolean
+          can_view_metrics: boolean
+          created_at: string
+          email: string
+          id: string
+          initiative_id: string
+          invitation_status: string
+          invited_at: string
+          invited_by: string | null
+          last_accessed_at: string | null
+          name: string | null
+          responded_at: string | null
+          role: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          access_token?: string
+          can_add_comments?: boolean
+          can_edit?: boolean
+          can_view_metrics?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          initiative_id: string
+          invitation_status?: string
+          invited_at?: string
+          invited_by?: string | null
+          last_accessed_at?: string | null
+          name?: string | null
+          responded_at?: string | null
+          role: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          access_token?: string
+          can_add_comments?: boolean
+          can_edit?: boolean
+          can_view_metrics?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          initiative_id?: string
+          invitation_status?: string
+          invited_at?: string
+          invited_by?: string | null
+          last_accessed_at?: string | null
+          name?: string | null
+          responded_at?: string | null
+          role?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiative_participants_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiatives: {
+        Row: {
+          budget: number | null
+          budget_spent: number | null
+          completion_date: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          owner_id: string | null
+          priority: Database["public"]["Enums"]["initiative_priority"]
+          start_date: string | null
+          status: Database["public"]["Enums"]["initiative_status"]
+          target_date: string | null
+          team_members: string[] | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          budget?: number | null
+          budget_spent?: number | null
+          completion_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          owner_id?: string | null
+          priority?: Database["public"]["Enums"]["initiative_priority"]
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["initiative_status"]
+          target_date?: string | null
+          team_members?: string[] | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          budget?: number | null
+          budget_spent?: number | null
+          completion_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          owner_id?: string | null
+          priority?: Database["public"]["Enums"]["initiative_priority"]
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["initiative_status"]
+          target_date?: string | null
+          team_members?: string[] | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiatives_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       legal_documents: {
         Row: {
@@ -8573,12 +8654,105 @@ export type Database = {
           },
         ]
       }
+      metric_domain_filters: {
+        Row: {
+          created_at: string | null
+          domain: string
+          filter_column: string
+          filter_operator: string
+          filter_value: string
+          id: string
+          is_active: boolean | null
+          priority: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          filter_column: string
+          filter_operator?: string
+          filter_value: string
+          id?: string
+          is_active?: boolean | null
+          priority?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          filter_column?: string
+          filter_operator?: string
+          filter_value?: string
+          id?: string
+          is_active?: boolean | null
+          priority?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      metric_reactivations: {
+        Row: {
+          created_at: string | null
+          id: string
+          organization_id: string
+          original_dismiss_category: string | null
+          original_dismiss_date: string | null
+          original_dismiss_reason: string | null
+          reactivated_at: string | null
+          reactivated_by: string | null
+          reactivation_reason: string | null
+          recommendation_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          organization_id: string
+          original_dismiss_category?: string | null
+          original_dismiss_date?: string | null
+          original_dismiss_reason?: string | null
+          reactivated_at?: string | null
+          reactivated_by?: string | null
+          reactivation_reason?: string | null
+          recommendation_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          organization_id?: string
+          original_dismiss_category?: string | null
+          original_dismiss_date?: string | null
+          original_dismiss_reason?: string | null
+          reactivated_at?: string | null
+          reactivated_by?: string | null
+          reactivation_reason?: string | null
+          recommendation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metric_reactivations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metric_reactivations_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "metric_recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       metric_recommendations: {
         Row: {
           accepted_at: string | null
+          affects_materiality: boolean | null
           created_at: string | null
           created_by: string | null
           dismissed_at: string | null
+          dismissed_category: string | null
+          dismissed_notes: string | null
           dismissed_reason: string | null
           estimated_annual_savings: number | null
           estimated_baseline_unit: string | null
@@ -8589,6 +8763,7 @@ export type Database = {
           estimation_method: string | null
           gri_disclosure: string | null
           id: string
+          is_reactivatable: boolean | null
           metric_catalog_id: string
           organization_id: string
           peer_adoption_percent: number | null
@@ -8601,9 +8776,12 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          affects_materiality?: boolean | null
           created_at?: string | null
           created_by?: string | null
           dismissed_at?: string | null
+          dismissed_category?: string | null
+          dismissed_notes?: string | null
           dismissed_reason?: string | null
           estimated_annual_savings?: number | null
           estimated_baseline_unit?: string | null
@@ -8614,6 +8792,7 @@ export type Database = {
           estimation_method?: string | null
           gri_disclosure?: string | null
           id?: string
+          is_reactivatable?: boolean | null
           metric_catalog_id: string
           organization_id: string
           peer_adoption_percent?: number | null
@@ -8626,9 +8805,12 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          affects_materiality?: boolean | null
           created_at?: string | null
           created_by?: string | null
           dismissed_at?: string | null
+          dismissed_category?: string | null
+          dismissed_notes?: string | null
           dismissed_reason?: string | null
           estimated_annual_savings?: number | null
           estimated_baseline_unit?: string | null
@@ -8639,6 +8821,7 @@ export type Database = {
           estimation_method?: string | null
           gri_disclosure?: string | null
           id?: string
+          is_reactivatable?: boolean | null
           metric_catalog_id?: string
           organization_id?: string
           peer_adoption_percent?: number | null
@@ -8663,6 +8846,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "waste_metrics_view"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metric_recommendations_metric_catalog_id_fkey"
+            columns: ["metric_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
           },
           {
             foreignKeyName: "metric_recommendations_organization_id_fkey"
@@ -8759,17 +8949,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "metric_targets_metric_catalog_id_fkey"
+            columns: ["metric_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+          {
             foreignKeyName: "metric_targets_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "metric_targets_target_id_fkey"
-            columns: ["target_id"]
-            isOneToOne: false
-            referencedRelation: "sbti_validation_status"
             referencedColumns: ["id"]
           },
           {
@@ -8905,7 +9095,58 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "metric_tracking_history_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+          {
             foreignKeyName: "metric_tracking_history_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metric_tracking_status: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          metric_code: string
+          notes: string | null
+          organization_id: string
+          status: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metric_code: string
+          notes?: string | null
+          organization_id: string
+          status: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          metric_code?: string
+          notes?: string | null
+          organization_id?: string
+          status?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metric_tracking_status_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -8928,6 +9169,7 @@ export type Database = {
           period_end: string | null
           period_start: string | null
           period_year: number | null
+          site_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -8944,6 +9186,7 @@ export type Database = {
           period_end?: string | null
           period_start?: string | null
           period_year?: number | null
+          site_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -8960,6 +9203,7 @@ export type Database = {
           period_end?: string | null
           period_start?: string | null
           period_year?: number | null
+          site_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -8970,11 +9214,26 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "metrics_cache_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "effective_site_targets"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "metrics_cache_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
         ]
       }
       metrics_catalog: {
         Row: {
           calculation_method: string | null
+          calculation_type: string | null
           category: string
           code: string
           consumption_rate: number | null
@@ -8990,21 +9249,28 @@ export type Database = {
           fuel_source: string | null
           generation_type: string | null
           ghg_protocol_category: string | null
+          gri_disclosure: string | null
+          gri_disclosure_description: string | null
+          gri_disclosure_title: string | null
           has_energy_recovery: boolean | null
           id: string
           is_active: boolean | null
+          is_calculated: boolean | null
           is_diverted: boolean | null
           is_recycling: boolean | null
           is_renewable: boolean | null
           name: string
+          parent_metric_id: string | null
           scope: string
           subcategory: string | null
           unit: string
           updated_at: string | null
           waste_material_type: string | null
+          water_type: string | null
         }
         Insert: {
           calculation_method?: string | null
+          calculation_type?: string | null
           category: string
           code: string
           consumption_rate?: number | null
@@ -9020,21 +9286,28 @@ export type Database = {
           fuel_source?: string | null
           generation_type?: string | null
           ghg_protocol_category?: string | null
+          gri_disclosure?: string | null
+          gri_disclosure_description?: string | null
+          gri_disclosure_title?: string | null
           has_energy_recovery?: boolean | null
           id?: string
           is_active?: boolean | null
+          is_calculated?: boolean | null
           is_diverted?: boolean | null
           is_recycling?: boolean | null
           is_renewable?: boolean | null
           name: string
+          parent_metric_id?: string | null
           scope: string
           subcategory?: string | null
           unit: string
           updated_at?: string | null
           waste_material_type?: string | null
+          water_type?: string | null
         }
         Update: {
           calculation_method?: string | null
+          calculation_type?: string | null
           category?: string
           code?: string
           consumption_rate?: number | null
@@ -9050,20 +9323,48 @@ export type Database = {
           fuel_source?: string | null
           generation_type?: string | null
           ghg_protocol_category?: string | null
+          gri_disclosure?: string | null
+          gri_disclosure_description?: string | null
+          gri_disclosure_title?: string | null
           has_energy_recovery?: boolean | null
           id?: string
           is_active?: boolean | null
+          is_calculated?: boolean | null
           is_diverted?: boolean | null
           is_recycling?: boolean | null
           is_renewable?: boolean | null
           name?: string
+          parent_metric_id?: string | null
           scope?: string
           subcategory?: string | null
           unit?: string
           updated_at?: string | null
           waste_material_type?: string | null
+          water_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "metrics_catalog_parent_metric_id_fkey"
+            columns: ["parent_metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metrics_catalog_parent_metric_id_fkey"
+            columns: ["parent_metric_id"]
+            isOneToOne: false
+            referencedRelation: "waste_metrics_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metrics_catalog_parent_metric_id_fkey"
+            columns: ["parent_metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+        ]
       }
       metrics_data: {
         Row: {
@@ -9164,6 +9465,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "waste_metrics_view"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metrics_data_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
           },
           {
             foreignKeyName: "metrics_data_organization_id_fkey"
@@ -9752,34 +10060,75 @@ export type Database = {
       ml_model_storage: {
         Row: {
           id: string
+          metric_id: string | null
           model_data: Json
           model_type: string
           organization_id: string
           path: string | null
+          site_id: string | null
           updated_at: string | null
         }
         Insert: {
           id?: string
+          metric_id?: string | null
           model_data: Json
           model_type: string
           organization_id: string
           path?: string | null
+          site_id?: string | null
           updated_at?: string | null
         }
         Update: {
           id?: string
+          metric_id?: string | null
           model_data?: Json
           model_type?: string
           organization_id?: string
           path?: string | null
+          site_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ml_model_storage_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_model_storage_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "waste_metrics_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_model_storage_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
           {
             foreignKeyName: "ml_model_storage_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_model_storage_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "effective_site_targets"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "ml_model_storage_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -9828,11 +10177,13 @@ export type Database = {
           framework: string
           hyperparameters: Json
           id: string
+          metric_id: string | null
           model_name: string
           model_size_bytes: number | null
           model_type: string
           organization_id: string
           performance_metrics: Json | null
+          site_id: string | null
           status: string
           training_data_info: Json | null
           training_duration_ms: number | null
@@ -9846,11 +10197,13 @@ export type Database = {
           framework?: string
           hyperparameters?: Json
           id?: string
+          metric_id?: string | null
           model_name: string
           model_size_bytes?: number | null
           model_type: string
           organization_id: string
           performance_metrics?: Json | null
+          site_id?: string | null
           status?: string
           training_data_info?: Json | null
           training_duration_ms?: number | null
@@ -9864,11 +10217,13 @@ export type Database = {
           framework?: string
           hyperparameters?: Json
           id?: string
+          metric_id?: string | null
           model_name?: string
           model_size_bytes?: number | null
           model_type?: string
           organization_id?: string
           performance_metrics?: Json | null
+          site_id?: string | null
           status?: string
           training_data_info?: Json | null
           training_duration_ms?: number | null
@@ -9877,10 +10232,45 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "ml_models_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_models_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "waste_metrics_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_models_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+          {
             foreignKeyName: "ml_models_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_models_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "effective_site_targets"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "ml_models_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -9889,6 +10279,8 @@ export type Database = {
         Row: {
           actual_value: Json | null
           confidence: number | null
+          confidence_lower: Json | null
+          confidence_upper: Json | null
           created_at: string
           features_used: Json | null
           feedback: string | null
@@ -9896,15 +10288,19 @@ export type Database = {
           id: string
           inference_time_ms: number | null
           input_data: Json
-          model_id: string
+          metadata: Json | null
+          model_id: string | null
           organization_id: string
           prediction: Json
           prediction_type: string
+          site_id: string | null
           uncertainty: Json | null
         }
         Insert: {
           actual_value?: Json | null
           confidence?: number | null
+          confidence_lower?: Json | null
+          confidence_upper?: Json | null
           created_at?: string
           features_used?: Json | null
           feedback?: string | null
@@ -9912,15 +10308,19 @@ export type Database = {
           id?: string
           inference_time_ms?: number | null
           input_data: Json
-          model_id: string
+          metadata?: Json | null
+          model_id?: string | null
           organization_id: string
           prediction: Json
           prediction_type: string
+          site_id?: string | null
           uncertainty?: Json | null
         }
         Update: {
           actual_value?: Json | null
           confidence?: number | null
+          confidence_lower?: Json | null
+          confidence_upper?: Json | null
           created_at?: string
           features_used?: Json | null
           feedback?: string | null
@@ -9928,10 +10328,12 @@ export type Database = {
           id?: string
           inference_time_ms?: number | null
           input_data?: Json
-          model_id?: string
+          metadata?: Json | null
+          model_id?: string | null
           organization_id?: string
           prediction?: Json
           prediction_type?: string
+          site_id?: string | null
           uncertainty?: Json | null
         }
         Relationships: [
@@ -9947,6 +10349,20 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_predictions_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "effective_site_targets"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "ml_predictions_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -10415,6 +10831,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          source: string | null
+          subscribed_at: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          source?: string | null
+          subscribed_at: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          source?: string | null
+          subscribed_at?: string
+        }
+        Relationships: []
       }
       notification_configs: {
         Row: {
@@ -10960,6 +11400,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "organization_metrics_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+          {
             foreignKeyName: "organization_metrics_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
@@ -11027,6 +11474,8 @@ export type Database = {
           base_year: number | null
           billing_address: Json | null
           brand_colors: Json | null
+          business_metrics_updated_at: string | null
+          business_metrics_year: number | null
           company_size: string | null
           company_size_category: string | null
           compliance_frameworks: string[] | null
@@ -11036,9 +11485,11 @@ export type Database = {
           custom_settings: Json | null
           data_residency_region: string | null
           deleted_at: string | null
+          employee_count: number | null
           employees: number | null
           enabled_features: string[] | null
           feature_flags: Json | null
+          floor_area_m2: number | null
           gri_sector_code: string | null
           gri_sector_id: string | null
           headquarters_address: Json | null
@@ -11053,14 +11504,17 @@ export type Database = {
           logo_url: string | null
           metadata: Json | null
           name: string
+          preferred_locale: string | null
           primary_contact_email: string | null
           primary_contact_phone: string | null
           production_unit: string | null
           public_company: boolean | null
           region: string | null
+          revenue_currency: string | null
           sector_category: string | null
           settings: Json | null
           slug: string
+          status: string | null
           stock_ticker: string | null
           subscription_expires_at: string | null
           subscription_seats: number | null
@@ -11081,6 +11535,8 @@ export type Database = {
           base_year?: number | null
           billing_address?: Json | null
           brand_colors?: Json | null
+          business_metrics_updated_at?: string | null
+          business_metrics_year?: number | null
           company_size?: string | null
           company_size_category?: string | null
           compliance_frameworks?: string[] | null
@@ -11090,9 +11546,11 @@ export type Database = {
           custom_settings?: Json | null
           data_residency_region?: string | null
           deleted_at?: string | null
+          employee_count?: number | null
           employees?: number | null
           enabled_features?: string[] | null
           feature_flags?: Json | null
+          floor_area_m2?: number | null
           gri_sector_code?: string | null
           gri_sector_id?: string | null
           headquarters_address?: Json | null
@@ -11107,14 +11565,17 @@ export type Database = {
           logo_url?: string | null
           metadata?: Json | null
           name: string
+          preferred_locale?: string | null
           primary_contact_email?: string | null
           primary_contact_phone?: string | null
           production_unit?: string | null
           public_company?: boolean | null
           region?: string | null
+          revenue_currency?: string | null
           sector_category?: string | null
           settings?: Json | null
           slug: string
+          status?: string | null
           stock_ticker?: string | null
           subscription_expires_at?: string | null
           subscription_seats?: number | null
@@ -11135,6 +11596,8 @@ export type Database = {
           base_year?: number | null
           billing_address?: Json | null
           brand_colors?: Json | null
+          business_metrics_updated_at?: string | null
+          business_metrics_year?: number | null
           company_size?: string | null
           company_size_category?: string | null
           compliance_frameworks?: string[] | null
@@ -11144,9 +11607,11 @@ export type Database = {
           custom_settings?: Json | null
           data_residency_region?: string | null
           deleted_at?: string | null
+          employee_count?: number | null
           employees?: number | null
           enabled_features?: string[] | null
           feature_flags?: Json | null
+          floor_area_m2?: number | null
           gri_sector_code?: string | null
           gri_sector_id?: string | null
           headquarters_address?: Json | null
@@ -11161,14 +11626,17 @@ export type Database = {
           logo_url?: string | null
           metadata?: Json | null
           name?: string
+          preferred_locale?: string | null
           primary_contact_email?: string | null
           primary_contact_phone?: string | null
           production_unit?: string | null
           public_company?: boolean | null
           region?: string | null
+          revenue_currency?: string | null
           sector_category?: string | null
           settings?: Json | null
           slug?: string
+          status?: string | null
           stock_ticker?: string | null
           subscription_expires_at?: string | null
           subscription_seats?: number | null
@@ -11301,6 +11769,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "waste_metrics_view"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "peer_benchmark_data_metric_catalog_id_fkey"
+            columns: ["metric_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
           },
         ]
       }
@@ -11649,6 +12124,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      portugal_grid_mix_reference: {
+        Row: {
+          carbon_intensity: number | null
+          created_at: string | null
+          data_source: string
+          fossil_free_percentage: number | null
+          id: string
+          month: number | null
+          non_renewable_percentage: number
+          notes: string | null
+          quarter: number | null
+          renewable_percentage: number
+          source_url: string | null
+          sources: Json | null
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          carbon_intensity?: number | null
+          created_at?: string | null
+          data_source: string
+          fossil_free_percentage?: number | null
+          id?: string
+          month?: number | null
+          non_renewable_percentage: number
+          notes?: string | null
+          quarter?: number | null
+          renewable_percentage: number
+          source_url?: string | null
+          sources?: Json | null
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          carbon_intensity?: number | null
+          created_at?: string | null
+          data_source?: string
+          fossil_free_percentage?: number | null
+          id?: string
+          month?: number | null
+          non_renewable_percentage?: number
+          notes?: string | null
+          quarter?: number | null
+          renewable_percentage?: number
+          source_url?: string | null
+          sources?: Json | null
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
       }
       predicted_cards: {
         Row: {
@@ -12153,13 +12679,6 @@ export type Database = {
             foreignKeyName: "reduction_initiatives_sustainability_target_id_fkey"
             columns: ["sustainability_target_id"]
             isOneToOne: false
-            referencedRelation: "sbti_validation_status"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reduction_initiatives_sustainability_target_id_fkey"
-            columns: ["sustainability_target_id"]
-            isOneToOne: false
             referencedRelation: "sustainability_targets"
             referencedColumns: ["id"]
           },
@@ -12404,6 +12923,488 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      sbti_criteria: {
+        Row: {
+          created_at: string | null
+          criteria_type: Database["public"]["Enums"]["sbti_target_type"]
+          criterion_code: string
+          criterion_description: string | null
+          criterion_name: string | null
+          deprecated_date: string | null
+          effective_date: string | null
+          id: number
+          is_mandatory: boolean | null
+          validation_rule: Json | null
+          version: string
+        }
+        Insert: {
+          created_at?: string | null
+          criteria_type?: Database["public"]["Enums"]["sbti_target_type"]
+          criterion_code: string
+          criterion_description?: string | null
+          criterion_name?: string | null
+          deprecated_date?: string | null
+          effective_date?: string | null
+          id?: number
+          is_mandatory?: boolean | null
+          validation_rule?: Json | null
+          version: string
+        }
+        Update: {
+          created_at?: string | null
+          criteria_type?: Database["public"]["Enums"]["sbti_target_type"]
+          criterion_code?: string
+          criterion_description?: string | null
+          criterion_name?: string | null
+          deprecated_date?: string | null
+          effective_date?: string | null
+          id?: number
+          is_mandatory?: boolean | null
+          validation_rule?: Json | null
+          version?: string
+        }
+        Relationships: []
+      }
+      sbti_neutralization_commitments: {
+        Row: {
+          budget_allocated: number | null
+          cdr_method: string
+          cdr_volume: number
+          commitment_year: number
+          contract_details: string | null
+          cost_per_tonne: number | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          permanence: string
+          status: string | null
+          target_id: string
+          total_cost: number | null
+          updated_at: string | null
+          verification_standard: string | null
+        }
+        Insert: {
+          budget_allocated?: number | null
+          cdr_method: string
+          cdr_volume: number
+          commitment_year: number
+          contract_details?: string | null
+          cost_per_tonne?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          permanence: string
+          status?: string | null
+          target_id: string
+          total_cost?: number | null
+          updated_at?: string | null
+          verification_standard?: string | null
+        }
+        Update: {
+          budget_allocated?: number | null
+          cdr_method?: string
+          cdr_volume?: number
+          commitment_year?: number
+          contract_details?: string | null
+          cost_per_tonne?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          permanence?: string
+          status?: string | null
+          target_id?: string
+          total_cost?: number | null
+          updated_at?: string | null
+          verification_standard?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sbti_neutralization_commitments_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "sbti_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sbti_pathways: {
+        Row: {
+          created_at: string | null
+          data_source: string | null
+          id: number
+          metric_type: string
+          region: string | null
+          scenario: string
+          sector: Database["public"]["Enums"]["sbti_sector"]
+          unit: string
+          updated_at: string | null
+          value: number
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          data_source?: string | null
+          id?: number
+          metric_type: string
+          region?: string | null
+          scenario: string
+          sector?: Database["public"]["Enums"]["sbti_sector"]
+          unit: string
+          updated_at?: string | null
+          value: number
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          data_source?: string | null
+          id?: number
+          metric_type?: string
+          region?: string | null
+          scenario?: string
+          sector?: Database["public"]["Enums"]["sbti_sector"]
+          unit?: string
+          updated_at?: string | null
+          value?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      sbti_progress: {
+        Row: {
+          actual_biogenic_net: number | null
+          actual_scope1: number | null
+          actual_scope2: number | null
+          actual_scope3: number | null
+          actual_total: number | null
+          explanations: Json | null
+          id: string
+          notes: string | null
+          on_track: boolean | null
+          progress_percentage: number | null
+          reported_at: string | null
+          reported_by: string | null
+          reporting_year: number
+          target_id: string
+          target_trajectory: number | null
+          variance: number | null
+          variance_percentage: number | null
+        }
+        Insert: {
+          actual_biogenic_net?: number | null
+          actual_scope1?: number | null
+          actual_scope2?: number | null
+          actual_scope3?: number | null
+          actual_total?: number | null
+          explanations?: Json | null
+          id?: string
+          notes?: string | null
+          on_track?: boolean | null
+          progress_percentage?: number | null
+          reported_at?: string | null
+          reported_by?: string | null
+          reporting_year: number
+          target_id: string
+          target_trajectory?: number | null
+          variance?: number | null
+          variance_percentage?: number | null
+        }
+        Update: {
+          actual_biogenic_net?: number | null
+          actual_scope1?: number | null
+          actual_scope2?: number | null
+          actual_scope3?: number | null
+          actual_total?: number | null
+          explanations?: Json | null
+          id?: string
+          notes?: string | null
+          on_track?: boolean | null
+          progress_percentage?: number | null
+          reported_at?: string | null
+          reported_by?: string | null
+          reporting_year?: number
+          target_id?: string
+          target_trajectory?: number | null
+          variance?: number | null
+          variance_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sbti_progress_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "sbti_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sbti_recalculations: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          change_percentage: number | null
+          id: string
+          justification: string
+          new_base_emissions: number | null
+          new_base_year: number | null
+          new_target_emissions: number | null
+          old_base_emissions: number | null
+          old_base_year: number | null
+          old_target_emissions: number | null
+          reason_description: string | null
+          recalculated_at: string | null
+          recalculated_by: string | null
+          recalculation_reason: string
+          supporting_documents: string[] | null
+          target_id: string
+          triggers_resubmission: boolean | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_percentage?: number | null
+          id?: string
+          justification: string
+          new_base_emissions?: number | null
+          new_base_year?: number | null
+          new_target_emissions?: number | null
+          old_base_emissions?: number | null
+          old_base_year?: number | null
+          old_target_emissions?: number | null
+          reason_description?: string | null
+          recalculated_at?: string | null
+          recalculated_by?: string | null
+          recalculation_reason: string
+          supporting_documents?: string[] | null
+          target_id: string
+          triggers_resubmission?: boolean | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_percentage?: number | null
+          id?: string
+          justification?: string
+          new_base_emissions?: number | null
+          new_base_year?: number | null
+          new_target_emissions?: number | null
+          old_base_emissions?: number | null
+          old_base_year?: number | null
+          old_target_emissions?: number | null
+          reason_description?: string | null
+          recalculated_at?: string | null
+          recalculated_by?: string | null
+          recalculation_reason?: string
+          supporting_documents?: string[] | null
+          target_id?: string
+          triggers_resubmission?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sbti_recalculations_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "sbti_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sbti_sector_thresholds: {
+        Row: {
+          applies_to: string | null
+          created_at: string | null
+          id: number
+          requirement_description: string | null
+          sector: Database["public"]["Enums"]["sbti_sector"]
+          threshold_type: string
+          threshold_unit: string | null
+          threshold_value: number
+        }
+        Insert: {
+          applies_to?: string | null
+          created_at?: string | null
+          id?: number
+          requirement_description?: string | null
+          sector?: Database["public"]["Enums"]["sbti_sector"]
+          threshold_type: string
+          threshold_unit?: string | null
+          threshold_value: number
+        }
+        Update: {
+          applies_to?: string | null
+          created_at?: string | null
+          id?: number
+          requirement_description?: string | null
+          sector?: Database["public"]["Enums"]["sbti_sector"]
+          threshold_type?: string
+          threshold_unit?: string | null
+          threshold_value?: number
+        }
+        Relationships: []
+      }
+      sbti_targets: {
+        Row: {
+          activity_metric: string | null
+          activity_unit: string | null
+          ambition_level: Database["public"]["Enums"]["sbti_ambition_level"]
+          annual_reduction_rate: number | null
+          base_year: number
+          base_year_activity: number | null
+          base_year_biogenic_net: number | null
+          base_year_intensity: number | null
+          base_year_scope1: number | null
+          base_year_scope2_location: number | null
+          base_year_scope2_market: number | null
+          base_year_scope3: number | null
+          base_year_total: number | null
+          coverage_scope1_2_pct: number | null
+          coverage_scope3_pct: number | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          method: Database["public"]["Enums"]["sbti_target_method"]
+          neutralization_method: string | null
+          neutralization_permanence: string | null
+          neutralization_plan: string | null
+          neutralization_volume: number | null
+          organization_id: string
+          reduction_method: string | null
+          reduction_percentage: number | null
+          residual_emissions: number | null
+          scope: Database["public"]["Enums"]["sbti_target_scope"]
+          scope3_categories: Json | null
+          sector_pathway: Database["public"]["Enums"]["sbti_sector"] | null
+          sector_requirements: Json | null
+          submission_date: string | null
+          target_type: Database["public"]["Enums"]["sbti_target_type"]
+          target_year: number
+          target_year_activity: number | null
+          target_year_intensity: number | null
+          target_year_scope1: number | null
+          target_year_scope2: number | null
+          target_year_scope3: number | null
+          target_year_total: number | null
+          updated_at: string | null
+          updated_by: string | null
+          validation_date: string | null
+          validation_errors: string[] | null
+          validation_results: Json | null
+          validation_status:
+            | Database["public"]["Enums"]["sbti_validation_status"]
+            | null
+          validation_warnings: string[] | null
+        }
+        Insert: {
+          activity_metric?: string | null
+          activity_unit?: string | null
+          ambition_level: Database["public"]["Enums"]["sbti_ambition_level"]
+          annual_reduction_rate?: number | null
+          base_year: number
+          base_year_activity?: number | null
+          base_year_biogenic_net?: number | null
+          base_year_intensity?: number | null
+          base_year_scope1?: number | null
+          base_year_scope2_location?: number | null
+          base_year_scope2_market?: number | null
+          base_year_scope3?: number | null
+          base_year_total?: number | null
+          coverage_scope1_2_pct?: number | null
+          coverage_scope3_pct?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          method: Database["public"]["Enums"]["sbti_target_method"]
+          neutralization_method?: string | null
+          neutralization_permanence?: string | null
+          neutralization_plan?: string | null
+          neutralization_volume?: number | null
+          organization_id: string
+          reduction_method?: string | null
+          reduction_percentage?: number | null
+          residual_emissions?: number | null
+          scope: Database["public"]["Enums"]["sbti_target_scope"]
+          scope3_categories?: Json | null
+          sector_pathway?: Database["public"]["Enums"]["sbti_sector"] | null
+          sector_requirements?: Json | null
+          submission_date?: string | null
+          target_type: Database["public"]["Enums"]["sbti_target_type"]
+          target_year: number
+          target_year_activity?: number | null
+          target_year_intensity?: number | null
+          target_year_scope1?: number | null
+          target_year_scope2?: number | null
+          target_year_scope3?: number | null
+          target_year_total?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+          validation_date?: string | null
+          validation_errors?: string[] | null
+          validation_results?: Json | null
+          validation_status?:
+            | Database["public"]["Enums"]["sbti_validation_status"]
+            | null
+          validation_warnings?: string[] | null
+        }
+        Update: {
+          activity_metric?: string | null
+          activity_unit?: string | null
+          ambition_level?: Database["public"]["Enums"]["sbti_ambition_level"]
+          annual_reduction_rate?: number | null
+          base_year?: number
+          base_year_activity?: number | null
+          base_year_biogenic_net?: number | null
+          base_year_intensity?: number | null
+          base_year_scope1?: number | null
+          base_year_scope2_location?: number | null
+          base_year_scope2_market?: number | null
+          base_year_scope3?: number | null
+          base_year_total?: number | null
+          coverage_scope1_2_pct?: number | null
+          coverage_scope3_pct?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["sbti_target_method"]
+          neutralization_method?: string | null
+          neutralization_permanence?: string | null
+          neutralization_plan?: string | null
+          neutralization_volume?: number | null
+          organization_id?: string
+          reduction_method?: string | null
+          reduction_percentage?: number | null
+          residual_emissions?: number | null
+          scope?: Database["public"]["Enums"]["sbti_target_scope"]
+          scope3_categories?: Json | null
+          sector_pathway?: Database["public"]["Enums"]["sbti_sector"] | null
+          sector_requirements?: Json | null
+          submission_date?: string | null
+          target_type?: Database["public"]["Enums"]["sbti_target_type"]
+          target_year?: number
+          target_year_activity?: number | null
+          target_year_intensity?: number | null
+          target_year_scope1?: number | null
+          target_year_scope2?: number | null
+          target_year_scope3?: number | null
+          target_year_total?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+          validation_date?: string | null
+          validation_errors?: string[] | null
+          validation_results?: Json | null
+          validation_status?:
+            | Database["public"]["Enums"]["sbti_validation_status"]
+            | null
+          validation_warnings?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sbti_targets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       schema_migrations: {
         Row: {
@@ -13299,6 +14300,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "site_metrics_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+          {
             foreignKeyName: "site_metrics_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
@@ -13340,7 +14348,7 @@ export type Database = {
           region_id: string | null
           status: string | null
           timezone: string | null
-          total_area_sqm: number | null
+          total_area_sqm: number
           total_employees: number | null
           type: string | null
           updated_at: string | null
@@ -13363,7 +14371,7 @@ export type Database = {
           region_id?: string | null
           status?: string | null
           timezone?: string | null
-          total_area_sqm?: number | null
+          total_area_sqm: number
           total_employees?: number | null
           type?: string | null
           updated_at?: string | null
@@ -13386,7 +14394,7 @@ export type Database = {
           region_id?: string | null
           status?: string | null
           timezone?: string | null
-          total_area_sqm?: number | null
+          total_area_sqm?: number
           total_employees?: number | null
           type?: string | null
           updated_at?: string | null
@@ -14049,6 +15057,45 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          category: string
+          created_at: string | null
+          email: string
+          id: string
+          message: string
+          name: string
+          priority: string
+          source: string | null
+          status: string
+          submitted_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          email: string
+          id?: string
+          message: string
+          name: string
+          priority: string
+          source?: string | null
+          status?: string
+          submitted_at: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          priority?: string
+          source?: string | null
+          status?: string
+          submitted_at?: string
+        }
+        Relationships: []
+      }
       sustainability_reports: {
         Row: {
           content: Json | null
@@ -14184,7 +15231,7 @@ export type Database = {
           target_description: string | null
           target_emissions: number | null
           target_name: string | null
-          target_reduction_percent: number | null
+          target_reduction_percent: number
           target_scope: Database["public"]["Enums"]["target_scope"] | null
           target_status: Database["public"]["Enums"]["target_status"] | null
           target_type: string
@@ -14251,7 +15298,7 @@ export type Database = {
           target_description?: string | null
           target_emissions?: number | null
           target_name?: string | null
-          target_reduction_percent?: number | null
+          target_reduction_percent: number
           target_scope?: Database["public"]["Enums"]["target_scope"] | null
           target_status?: Database["public"]["Enums"]["target_status"] | null
           target_type: string
@@ -14318,7 +15365,7 @@ export type Database = {
           target_description?: string | null
           target_emissions?: number | null
           target_name?: string | null
-          target_reduction_percent?: number | null
+          target_reduction_percent?: number
           target_scope?: Database["public"]["Enums"]["target_scope"] | null
           target_status?: Database["public"]["Enums"]["target_status"] | null
           target_type?: string
@@ -14335,13 +15382,6 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sustainability_targets_parent_target_id_fkey"
-            columns: ["parent_target_id"]
-            isOneToOne: false
-            referencedRelation: "sbti_validation_status"
             referencedColumns: ["id"]
           },
           {
@@ -14507,13 +15547,6 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "target_replanning_history_sustainability_target_id_fkey"
-            columns: ["sustainability_target_id"]
-            isOneToOne: false
-            referencedRelation: "sbti_validation_status"
             referencedColumns: ["id"]
           },
           {
@@ -15022,6 +16055,7 @@ export type Database = {
           phone_verified: boolean | null
           preferences: Json | null
           preferred_language: string | null
+          preferred_locale: string | null
           recovery_methods: Json | null
           reports_to: string | null
           timezone: string | null
@@ -15055,6 +16089,7 @@ export type Database = {
           phone_verified?: boolean | null
           preferences?: Json | null
           preferred_language?: string | null
+          preferred_locale?: string | null
           recovery_methods?: Json | null
           reports_to?: string | null
           timezone?: string | null
@@ -15088,6 +16123,7 @@ export type Database = {
           phone_verified?: boolean | null
           preferences?: Json | null
           preferred_language?: string | null
+          preferred_locale?: string | null
           recovery_methods?: Json | null
           reports_to?: string | null
           timezone?: string | null
@@ -16042,6 +17078,77 @@ export type Database = {
           },
         ]
       }
+      emission_factor_history: {
+        Row: {
+          activity_name: string | null
+          api_calls_saved: number | null
+          factor_change_pct: number | null
+          factor_unit: string | null
+          factor_value: number | null
+          last_validated_at: string | null
+          previous_year_factor: number | null
+          region_code: string | null
+          source_dataset: string | null
+          source_year: number | null
+        }
+        Relationships: []
+      }
+      gri_yearly_completeness: {
+        Row: {
+          completeness_pct: number | null
+          gri_standard: string | null
+          metrics_reported: number | null
+          organization_id: string | null
+          total_metrics_in_standard: number | null
+          year: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metrics_data_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      migration_summary: {
+        Row: {
+          count: number | null
+          dismissed_category: string | null
+          organization_id: string | null
+          sample_metrics: string[] | null
+          status: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metric_recommendations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mv_conversation_quality_summary: {
+        Row: {
+          avg_quality_score: number | null
+          avg_satisfaction: number | null
+          conversation_type: string | null
+          date: string | null
+          organization_id: string | null
+          total_conversations: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mv_org_dashboard_metrics: {
         Row: {
           avg_emissions_tonnes: number | null
@@ -16058,53 +17165,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "emissions_data_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sbti_validation_status: {
-        Row: {
-          board_approval: boolean | null
-          ghg_inventory_complete: boolean | null
-          id: string | null
-          name: string | null
-          organization_id: string | null
-          ready_for_submission: boolean | null
-          sbti_validated: boolean | null
-          scope_1_2_adequate: boolean | null
-          scope_3_adequate: boolean | null
-          target_type: string | null
-        }
-        Insert: {
-          board_approval?: boolean | null
-          ghg_inventory_complete?: boolean | null
-          id?: string | null
-          name?: string | null
-          organization_id?: string | null
-          ready_for_submission?: never
-          sbti_validated?: boolean | null
-          scope_1_2_adequate?: never
-          scope_3_adequate?: never
-          target_type?: string | null
-        }
-        Update: {
-          board_approval?: boolean | null
-          ghg_inventory_complete?: boolean | null
-          id?: string | null
-          name?: string | null
-          organization_id?: string | null
-          ready_for_submission?: never
-          sbti_validated?: boolean | null
-          scope_1_2_adequate?: never
-          scope_3_adequate?: never
-          target_type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sustainability_targets_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -16250,6 +17310,102 @@ export type Database = {
           },
         ]
       }
+      yearly_metrics_summary: {
+        Row: {
+          avg_co2e: number | null
+          avg_value: number | null
+          category: string | null
+          data_points: number | null
+          max_value: number | null
+          metric_code: string | null
+          metric_id: string | null
+          metric_name: string | null
+          min_value: number | null
+          organization_id: string | null
+          predominant_quality: string | null
+          scope: string | null
+          site_id: string | null
+          total_co2e: number | null
+          total_value: number | null
+          unit: string | null
+          verification_rate_pct: number | null
+          year: number | null
+          year_end: string | null
+          year_start: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metrics_data_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metrics_data_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "effective_site_targets"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "metrics_data_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      yearly_yoy_comparison: {
+        Row: {
+          co2e_change: number | null
+          co2e_change_pct: number | null
+          current_co2e: number | null
+          current_value: number | null
+          current_year: number | null
+          metric_code: string | null
+          metric_id: string | null
+          metric_name: string | null
+          organization_id: string | null
+          previous_co2e: number | null
+          previous_value: number | null
+          previous_year: number | null
+          unit: string | null
+          value_change: number | null
+          value_change_pct: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metrics_data_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metrics_data_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "waste_metrics_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metrics_data_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "yearly_metrics_summary"
+            referencedColumns: ["metric_id"]
+          },
+          {
+            foreignKeyName: "metrics_data_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_recommendation: {
@@ -16276,6 +17432,16 @@ export type Database = {
           total_time: number
         }[]
       }
+      analyze_table_performance: {
+        Args: never
+        Returns: {
+          index_size: string
+          row_estimate: number
+          table_name: string
+          table_size: string
+          total_size: string
+        }[]
+      }
       apply_target_replanning: {
         Args: {
           p_metric_targets: Json
@@ -16293,6 +17459,38 @@ export type Database = {
         Returns: undefined
       }
       backfill_app_users: { Args: never; Returns: undefined }
+      calculate_gri_completeness: {
+        Args: {
+          p_organization_id: string
+          p_period_end: string
+          p_period_start: string
+        }
+        Returns: {
+          completed_metrics: number
+          completeness_percentage: number
+          gri_standard: string
+          total_metrics: number
+        }[]
+      }
+      calculate_gri_materiality: {
+        Args: { p_organization_id: string }
+        Returns: {
+          gri_standard: string
+          is_material: boolean
+          material_disclosures: string[]
+          material_metrics: number
+          materiality_percentage: number
+          not_material_metrics: number
+          peer_adoption_avg: number
+          pending_assessment: number
+          standard_name: string
+          total_metrics: number
+        }[]
+      }
+      calculate_initiative_progress: {
+        Args: { p_initiative_id: string }
+        Returns: number
+      }
       calculate_materials_metrics: {
         Args: { p_organization_id: string; p_year: number }
         Returns: {
@@ -16312,6 +17510,10 @@ export type Database = {
           performance_change: number
           prediction_distribution: Json
         }[]
+      }
+      calculate_organization_status: {
+        Args: { org_id: string }
+        Returns: string
       }
       calculate_peer_percentile: {
         Args: {
@@ -16355,6 +17557,15 @@ export type Database = {
       }
       check_and_recalculate_baseline: { Args: never; Returns: undefined }
       check_database_health: { Args: never; Returns: undefined }
+      check_sector_threshold: {
+        Args: {
+          p_organization_id: string
+          p_sector: Database["public"]["Enums"]["sbti_sector"]
+          p_sector_emissions: number
+          p_total_emissions: number
+        }
+        Returns: boolean
+      }
       check_user_permission: {
         Args: {
           p_action: string
@@ -16377,6 +17588,7 @@ export type Database = {
       cleanup_expired_sso_auth_requests: { Args: never; Returns: undefined }
       cleanup_expired_sso_sessions: { Args: never; Returns: undefined }
       cleanup_expired_webauthn_challenges: { Args: never; Returns: number }
+      cleanup_old_agent_logs: { Args: never; Returns: number }
       cleanup_old_audit_events: {
         Args: { p_keep_security_days?: number; p_retention_days?: number }
         Returns: {
@@ -16542,6 +17754,26 @@ export type Database = {
         Args: { organization_id_param?: string; user_id_param: string }
         Returns: Json
       }
+      get_correct_emission_factor: {
+        Args: { p_activity_name: string; p_region_code: string; p_year: number }
+        Returns: {
+          factor_id: string
+          factor_unit: string
+          factor_value: number
+          source_dataset: string
+          source_year: number
+        }[]
+      }
+      get_dismissed_metrics_breakdown: {
+        Args: { p_organization_id: string }
+        Returns: {
+          affects_materiality: boolean
+          category: string
+          category_label: string
+          is_reactivatable: boolean
+          metric_count: number
+        }[]
+      }
       get_edp_renewable_percentage: {
         Args: { period_date: string }
         Returns: number
@@ -16567,6 +17799,27 @@ export type Database = {
           topic_name: string
         }[]
       }
+      get_initiatives_summary: {
+        Args: { p_organization_id: string }
+        Returns: {
+          completed: number
+          completed_milestones: number
+          in_progress: number
+          on_hold: number
+          planning: number
+          total_initiatives: number
+          total_metrics_tracked: number
+          total_milestones: number
+        }[]
+      }
+      get_latest_consent: {
+        Args: { p_user_id: string }
+        Returns: {
+          consent_timestamp: string
+          preferences: Json
+          privacy_policy_version: string
+        }[]
+      }
       get_metric_target_progress: {
         Args: { p_metric_target_id: string; p_month: number; p_year: number }
         Returns: {
@@ -16575,6 +17828,53 @@ export type Database = {
           planned_ytd: number
           variance_ytd: number
         }[]
+      }
+      get_metric_trend: {
+        Args: {
+          p_end_year?: number
+          p_metric_code: string
+          p_organization_id: string
+          p_start_year?: number
+        }
+        Returns: {
+          data_points: number
+          total_co2e: number
+          total_value: number
+          trend: string
+          unit: string
+          year: number
+          yoy_change_pct: number
+        }[]
+      }
+      get_next_pending_job: {
+        Args: never
+        Returns: {
+          completed_at: string | null
+          config: Json | null
+          created_at: string | null
+          created_by: string | null
+          cron_expression: string | null
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          job_name: string
+          job_type: string
+          last_run_at: string | null
+          max_retries: number | null
+          next_run_at: string | null
+          result: Json | null
+          retry_count: number | null
+          schedule_type: string
+          started_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ai_agent_jobs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       get_optimization_job_status: {
         Args: { p_job_id: string }
@@ -16596,6 +17896,14 @@ export type Database = {
           organization_level: boolean
           total_sites_using: number
         }[]
+      }
+      get_pathway_value: {
+        Args: {
+          p_scenario: string
+          p_sector: Database["public"]["Enums"]["sbti_sector"]
+          p_year: number
+        }
+        Returns: number
       }
       get_prioritized_cards: {
         Args: { p_user_id: string }
@@ -16643,6 +17951,21 @@ export type Database = {
           created_at: string
           id: string
           metadata: Json
+        }[]
+      }
+      get_sbti_summary: {
+        Args: { p_organization_id: string }
+        Returns: {
+          at_risk_count: number
+          average_reduction_pct: number
+          draft_targets: number
+          long_term_targets: number
+          near_term_targets: number
+          on_track_count: number
+          total_base_emissions: number
+          total_target_emissions: number
+          total_targets: number
+          validated_targets: number
         }[]
       }
       get_site_target: {
@@ -16814,6 +18137,10 @@ export type Database = {
       }
       hash_api_key: { Args: { key: string }; Returns: string }
       increment_cache_hit: { Args: { cache_id: string }; Returns: undefined }
+      increment_cache_saved: {
+        Args: { p_factor_id: string }
+        Returns: undefined
+      }
       increment_recovery_attempts: {
         Args: { token_id: string }
         Returns: undefined
@@ -16922,6 +18249,7 @@ export type Database = {
       }
       refresh_dashboard_metrics: { Args: never; Returns: undefined }
       refresh_org_dashboard_metrics: { Args: never; Returns: undefined }
+      refresh_performance_views: { Args: never; Returns: undefined }
       revoke_super_admin: { Args: { target_user_id: string }; Returns: boolean }
       rollback_target_replanning: {
         Args: { p_history_id: string; p_user_id?: string }
@@ -16936,6 +18264,10 @@ export type Database = {
           p_task_name: string
           p_task_type: string
         }
+        Returns: string
+      }
+      schedule_next_run: {
+        Args: { p_cron_expression: string; p_job_id: string }
         Returns: string
       }
       search_conversation_memories: {
@@ -17050,6 +18382,14 @@ export type Database = {
         Args: { min_role?: string; site_id: string }
         Returns: boolean
       }
+      user_organization_ids: {
+        Args: { user_uuid: string }
+        Returns: {
+          is_owner: boolean
+          organization_id: string
+          role: string
+        }[]
+      }
       user_organizations: { Args: never; Returns: string[] }
       validate_organization_invitation_token: {
         Args: { invitation_token: string }
@@ -17157,6 +18497,13 @@ export type Database = {
         | "hospitality"
         | "other"
       feedback_type: "positive" | "negative" | "suggestion" | "bug_report"
+      initiative_priority: "high" | "medium" | "low"
+      initiative_status:
+        | "planning"
+        | "in_progress"
+        | "completed"
+        | "on_hold"
+        | "cancelled"
       invitation_status:
         | "pending"
         | "accepted"
@@ -17194,6 +18541,33 @@ export type Database = {
         | "other"
       risk_appetite: "averse" | "minimal" | "cautious" | "open" | "hungry"
       sbti_ambition: "1.5C" | "well-below-2C" | "net-zero"
+      sbti_ambition_level: "1.5C" | "well_below_2C" | "2C"
+      sbti_sector:
+        | "cross_sector"
+        | "buildings"
+        | "flag"
+        | "power_generation"
+        | "cement"
+        | "iron_steel"
+        | "aluminum"
+        | "pulp_paper"
+        | "transport"
+        | "financial_institutions"
+        | "oil_gas"
+      sbti_target_method:
+        | "absolute_contraction"
+        | "sda"
+        | "re_procurement"
+        | "physical_intensity"
+        | "economic_intensity"
+      sbti_target_scope: "scope1" | "scope1_2" | "scope3" | "scope1_2_3"
+      sbti_target_type: "near_term" | "long_term"
+      sbti_validation_status:
+        | "draft"
+        | "submitted"
+        | "validated"
+        | "rejected"
+        | "needs_recalculation"
       score_grade: "A+" | "A" | "B" | "C" | "D" | "F"
       sso_provider: "saml" | "oidc"
       sso_status: "active" | "inactive" | "configuring" | "error"
@@ -17469,6 +18843,14 @@ export const Constants = {
         "other",
       ],
       feedback_type: ["positive", "negative", "suggestion", "bug_report"],
+      initiative_priority: ["high", "medium", "low"],
+      initiative_status: [
+        "planning",
+        "in_progress",
+        "completed",
+        "on_hold",
+        "cancelled",
+      ],
       invitation_status: [
         "pending",
         "accepted",
@@ -17510,6 +18892,36 @@ export const Constants = {
       ],
       risk_appetite: ["averse", "minimal", "cautious", "open", "hungry"],
       sbti_ambition: ["1.5C", "well-below-2C", "net-zero"],
+      sbti_ambition_level: ["1.5C", "well_below_2C", "2C"],
+      sbti_sector: [
+        "cross_sector",
+        "buildings",
+        "flag",
+        "power_generation",
+        "cement",
+        "iron_steel",
+        "aluminum",
+        "pulp_paper",
+        "transport",
+        "financial_institutions",
+        "oil_gas",
+      ],
+      sbti_target_method: [
+        "absolute_contraction",
+        "sda",
+        "re_procurement",
+        "physical_intensity",
+        "economic_intensity",
+      ],
+      sbti_target_scope: ["scope1", "scope1_2", "scope3", "scope1_2_3"],
+      sbti_target_type: ["near_term", "long_term"],
+      sbti_validation_status: [
+        "draft",
+        "submitted",
+        "validated",
+        "rejected",
+        "needs_recalculation",
+      ],
       score_grade: ["A+", "A", "B", "C", "D", "F"],
       sso_provider: ["saml", "oidc"],
       sso_status: ["active", "inactive", "configuring", "error"],
