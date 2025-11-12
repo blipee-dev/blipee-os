@@ -1,21 +1,18 @@
 /**
- * Anthropic Claude SDK Client
- * Handles all communication with Claude API
+ * Anthropic Claude Client - Powered by Vercel AI SDK
+ * Handles all communication with Claude API using Vercel AI SDK
  *
  * Features:
- * - Singleton pattern for client reuse
- * - Streaming support
+ * - Unified provider interface
+ * - Native streaming support
  * - Token counting
  * - Cost calculation
  * - Error handling
+ * - Easy provider switching
  */
 
-import Anthropic from '@anthropic-ai/sdk'
-import type {
-  Message,
-  MessageCreateParams,
-  MessageStreamEvent,
-} from '@anthropic-ai/sdk/resources/messages'
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { generateText, streamText } from 'ai'
 import { LLMError } from '@/types/chat'
 
 // ============================================
@@ -50,13 +47,13 @@ const PRICING = {
 } as const
 
 // ============================================
-// SINGLETON CLIENT
+// PROVIDER SETUP
 // ============================================
 
-let anthropicClient: Anthropic | null = null
+let anthropicProvider: ReturnType<typeof createAnthropic> | null = null
 
-export function getAnthropicClient(): Anthropic {
-  if (!anthropicClient) {
+export function getAnthropicProvider() {
+  if (!anthropicProvider) {
     if (!ANTHROPIC_CONFIG.apiKey) {
       throw new LLMError(
         'ANTHROPIC_API_KEY is not configured. Please add it to your .env.local file.',
@@ -64,12 +61,12 @@ export function getAnthropicClient(): Anthropic {
       )
     }
 
-    anthropicClient = new Anthropic({
+    anthropicProvider = createAnthropic({
       apiKey: ANTHROPIC_CONFIG.apiKey,
     })
   }
 
-  return anthropicClient
+  return anthropicProvider
 }
 
 // ============================================
@@ -123,11 +120,9 @@ export function calculateCost(
 
 /**
  * Rough token estimation (for pre-request validation)
- * For accurate counting, use @anthropic-ai/tokenizer
  */
 export function estimateTokens(text: string): number {
   // Rough estimation: ~4 characters per token for English
-  // This is conservative; actual count may be lower
   return Math.ceil(text.length / 4)
 }
 
@@ -161,78 +156,69 @@ function validateMessages(messages: ChatCompletionOptions['messages']): void {
 
 /**
  * Create a chat completion (non-streaming)
+ * Uses Vercel AI SDK's generateText()
  */
 export async function createChatCompletion(
   options: ChatCompletionOptions
 ): Promise<ChatCompletionResult> {
-  const client = getAnthropicClient()
   const startTime = Date.now()
 
   // Validate
   validateMessages(options.messages)
 
-  // Build request params
-  const params: MessageCreateParams = {
-    model: options.model || ANTHROPIC_CONFIG.model,
-    max_tokens: options.max_tokens || ANTHROPIC_CONFIG.maxTokens,
-    temperature: options.temperature ?? ANTHROPIC_CONFIG.temperature,
-    messages: options.messages,
-  }
-
-  if (options.system) {
-    params.system = options.system
-  }
+  const provider = getAnthropicProvider()
+  const modelName = options.model || ANTHROPIC_CONFIG.model
 
   try {
-    // Call Anthropic API
-    const response = await client.messages.create(params)
+    // Call Vercel AI SDK generateText
+    const result = await generateText({
+      model: provider(modelName),
+      maxTokens: options.max_tokens || ANTHROPIC_CONFIG.maxTokens,
+      temperature: options.temperature ?? ANTHROPIC_CONFIG.temperature,
+      system: options.system,
+      messages: options.messages,
+    })
 
     const latencyMs = Date.now() - startTime
 
-    // Extract text content
-    const content = response.content
-      .filter((block) => block.type === 'text')
-      .map((block) => (block.type === 'text' ? block.text : ''))
-      .join('')
-
     // Calculate cost
     const costUsd = calculateCost(
-      response.model,
-      response.usage.input_tokens,
-      response.usage.output_tokens
+      modelName,
+      result.usage.promptTokens,
+      result.usage.completionTokens
     )
 
     return {
-      content,
-      model: response.model,
+      content: result.text,
+      model: modelName,
       usage: {
-        input_tokens: response.usage.input_tokens,
-        output_tokens: response.usage.output_tokens,
-        total_tokens: response.usage.input_tokens + response.usage.output_tokens,
+        input_tokens: result.usage.promptTokens,
+        output_tokens: result.usage.completionTokens,
+        total_tokens: result.usage.totalTokens,
       },
-      stop_reason: response.stop_reason || 'unknown',
+      stop_reason: result.finishReason || 'unknown',
       latency_ms: latencyMs,
       cost_usd: costUsd,
     }
   } catch (error: any) {
-    console.error('[Anthropic] Error creating completion:', error)
+    console.error('[Anthropic/Vercel AI SDK] Error creating completion:', error)
 
-    // Handle specific Anthropic errors
-    if (error.status === 429) {
+    // Handle specific errors
+    if (error.message?.includes('429') || error.statusCode === 429) {
       throw new LLMError('Rate limit exceeded. Please try again later.', {
         code: 'RATE_LIMIT',
         originalError: error,
       })
     }
 
-    if (error.status === 401) {
+    if (error.message?.includes('401') || error.statusCode === 401) {
       throw new LLMError('Invalid API key', {
         code: 'INVALID_API_KEY',
         originalError: error,
       })
     }
 
-    if (error.status === 400) {
+    if (error.message?.includes('400') || error.statusCode === 400) {
       throw new LLMError('Invalid request parameters', {
         code: 'INVALID_REQUEST',
         details: error.message,
@@ -249,62 +235,48 @@ export async function createChatCompletion(
 
 /**
  * Create a streaming chat completion
+ * Uses Vercel AI SDK's streamText()
  * Yields text chunks as they arrive
  */
 export async function* createStreamingChatCompletion(
   options: ChatCompletionOptions
 ): AsyncGenerator<string, ChatCompletionResult, unknown> {
-  const client = getAnthropicClient()
   const startTime = Date.now()
 
   // Validate
   validateMessages(options.messages)
 
-  // Build request params
-  const params: MessageCreateParams = {
-    model: options.model || ANTHROPIC_CONFIG.model,
-    max_tokens: options.max_tokens || ANTHROPIC_CONFIG.maxTokens,
-    temperature: options.temperature ?? ANTHROPIC_CONFIG.temperature,
-    messages: options.messages,
-    stream: true,
-  }
-
-  if (options.system) {
-    params.system = options.system
-  }
+  const provider = getAnthropicProvider()
+  const modelName = options.model || ANTHROPIC_CONFIG.model
 
   let fullContent = ''
-  let modelName = params.model
   let inputTokens = 0
   let outputTokens = 0
   let stopReason = 'unknown'
 
   try {
-    const stream = await client.messages.create(params)
+    // Call Vercel AI SDK streamText
+    const result = await streamText({
+      model: provider(modelName),
+      maxTokens: options.max_tokens || ANTHROPIC_CONFIG.maxTokens,
+      temperature: options.temperature ?? ANTHROPIC_CONFIG.temperature,
+      system: options.system,
+      messages: options.messages,
+    })
 
-    for await (const event of stream) {
-      // Handle different event types
-      if (event.type === 'message_start') {
-        // Extract usage from message start
-        if ('message' in event && event.message.usage) {
-          inputTokens = event.message.usage.input_tokens
-        }
-      } else if (event.type === 'content_block_delta') {
-        if (event.delta.type === 'text_delta') {
-          const textChunk = event.delta.text
-          fullContent += textChunk
-          yield textChunk
-        }
-      } else if (event.type === 'message_delta') {
-        // Extract final usage and stop reason
-        if ('usage' in event && event.usage) {
-          outputTokens = event.usage.output_tokens
-        }
-        if ('delta' in event && event.delta.stop_reason) {
-          stopReason = event.delta.stop_reason
-        }
-      }
+    // Stream text chunks
+    for await (const textPart of result.textStream) {
+      fullContent += textPart
+      yield textPart
     }
+
+    // Get final usage stats
+    const usage = await result.usage
+    const finishReason = await result.finishReason
+
+    inputTokens = usage.promptTokens
+    outputTokens = usage.completionTokens
+    stopReason = finishReason || 'unknown'
 
     const latencyMs = Date.now() - startTime
     const costUsd = calculateCost(modelName, inputTokens, outputTokens)
@@ -322,9 +294,9 @@ export async function* createStreamingChatCompletion(
       cost_usd: costUsd,
     }
   } catch (error: any) {
-    console.error('[Anthropic] Error creating streaming completion:', error)
+    console.error('[Anthropic/Vercel AI SDK] Error creating streaming completion:', error)
 
-    if (error.status === 429) {
+    if (error.message?.includes('429') || error.statusCode === 429) {
       throw new LLMError('Rate limit exceeded. Please try again later.', {
         code: 'RATE_LIMIT',
       })
@@ -338,7 +310,7 @@ export async function* createStreamingChatCompletion(
 }
 
 /**
- * Test connection to Anthropic API
+ * Test connection to Anthropic API via Vercel AI SDK
  */
 export async function testAnthropicConnection(): Promise<boolean> {
   try {
@@ -348,7 +320,7 @@ export async function testAnthropicConnection(): Promise<boolean> {
     })
     return true
   } catch (error) {
-    console.error('[Anthropic] Connection test failed:', error)
+    console.error('[Anthropic/Vercel AI SDK] Connection test failed:', error)
     return false
   }
 }
