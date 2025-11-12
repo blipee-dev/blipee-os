@@ -56,6 +56,22 @@ export const passwordResetRateLimit = redis
   : null
 
 /**
+ * Rate limiter for chat API (completions)
+ * 20 requests per minute per user (configurable)
+ */
+export const chatRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(
+        Number(process.env.CHAT_RATE_LIMIT_PER_MINUTE) || 20,
+        '1 m'
+      ),
+      analytics: true,
+      prefix: 'ratelimit:chat',
+    })
+  : null
+
+/**
  * Get client IP address from headers
  * Supports Vercel, Cloudflare, and standard proxies
  */
@@ -147,11 +163,19 @@ export function formatResetTime(resetTimestamp: number): string {
   }
 
   const minutes = Math.ceil(diff / 1000 / 60)
-  
+
   if (minutes < 60) {
     return `${minutes} minute${minutes > 1 ? 's' : ''}`
   }
 
   const hours = Math.ceil(minutes / 60)
   return `${hours} hour${hours > 1 ? 's' : ''}`
+}
+
+/**
+ * Convenience wrapper for chat API rate limiting
+ * Used by: POST /api/chat/completions
+ */
+export async function rateLimit(identifier: string) {
+  return checkRateLimit(chatRateLimit, identifier)
 }

@@ -24,10 +24,10 @@ export async function GET(
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    // 2. Fetch conversation
+    // 2. Fetch conversation with selective fields
     const { data, error } = await supabase
       .from('conversations')
-      .select('*')
+      .select('id, title, type, status, message_count, last_message_at, is_archived, is_pinned, summary, tags, context_type, context_entities, building_id, created_at, updated_at')
       .eq('id', conversationId)
       .eq('user_id', user.id) // Ensure user owns it
       .single()

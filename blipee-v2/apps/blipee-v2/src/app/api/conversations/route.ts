@@ -34,10 +34,10 @@ export async function GET(request: NextRequest) {
     const agentType = searchParams.get('agentType')
     const search = searchParams.get('search')
 
-    // 3. Build query
+    // 3. Build query with selective fields
     let query = supabase
       .from('conversations')
-      .select('*', { count: 'exact' })
+      .select('id, title, type, status, message_count, last_message_at, is_archived, is_pinned, summary, tags, created_at, updated_at', { count: 'exact' })
       .eq('user_id', user.id)
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .range(offset, offset + limit - 1)
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 4. Create conversation
+    // 4. Create conversation with selective fields in response
     const { data, error } = await supabase
       .from('conversations')
       .insert({
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
         context_entities: contextEntities,
         building_id: buildingId,
       })
-      .select()
+      .select('id, title, type, status, message_count, created_at, updated_at')
       .single()
 
     if (error || !data) {

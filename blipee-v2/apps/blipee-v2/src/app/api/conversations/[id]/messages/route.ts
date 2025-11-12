@@ -50,10 +50,10 @@ export async function GET(
     const before = searchParams.get('before')
     const after = searchParams.get('after')
 
-    // 4. Build query
+    // 4. Build query with selective fields
     let query = supabase
       .from('messages')
-      .select('*', { count: 'exact' })
+      .select('id, role, content, model, prompt_tokens, completion_tokens, total_tokens, latency_ms, cost_usd, finish_reason, created_at', { count: 'exact' })
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
       .limit(limit)
