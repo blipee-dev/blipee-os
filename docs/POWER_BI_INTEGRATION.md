@@ -46,6 +46,46 @@ VALUES (
 
 ---
 
+## 🧪 Passo 1.5: Testar Credenciais (Recomendado)
+
+Antes de configurar Power BI, teste se a API key está funcional:
+
+### Via Browser (Mais Simples)
+
+```
+https://seu-dominio.com/api/powerbi/test?organizationId=YOUR_ORG_ID
+```
+
+Quando o browser pedir autenticação:
+- Username: (deixar vazio)
+- Password: (colar API key)
+
+### Via cURL
+
+```bash
+curl -H "x-api-key: YOUR_API_KEY" \
+  "https://seu-dominio.com/api/powerbi/test?organizationId=YOUR_ORG_ID"
+```
+
+### Resposta Esperada
+
+```json
+{
+  "success": true,
+  "message": "🎉 Connection successful!",
+  "data": {
+    "organization": { "name": "Sua Organização" },
+    "statistics": { "total_sites": 3, "total_metrics": 1234 },
+    "available_endpoints": [...]
+  }
+}
+```
+
+✅ Se vir `"success": true`, as credenciais estão corretas!
+❌ Se aparecer erro, verificar API key e Organization ID.
+
+---
+
 ## 📥 Passo 2: Conectar no Power BI Desktop
 
 ### 2.1 Adicionar Data Source
