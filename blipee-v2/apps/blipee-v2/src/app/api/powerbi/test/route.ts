@@ -11,10 +11,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// Hash API key using SHA-256 (matches PostgreSQL hash_api_key function)
+function hashApiKey(key: string): string {
+  return crypto.createHash('sha256').update(key).digest('hex');
+}
 
 // Validate API key
 async function validateApiKey(apiKey: string | null) {
@@ -22,11 +28,14 @@ async function validateApiKey(apiKey: string | null) {
     return { valid: false, error: 'API key missing' };
   }
 
+  // Hash the provided key
+  const keyHash = hashApiKey(apiKey);
+
   const { data: keyData, error } = await supabase
     .from('api_keys')
-    .select('id, organization_id, name, is_active, expires_at')
-    .eq('key', apiKey)
-    .eq('is_active', true)
+    .select('id, organization_id, name, status, expires_at')
+    .eq('key_hash', keyHash)
+    .eq('status', 'active')
     .single();
 
   if (error || !keyData) {
@@ -38,7 +47,7 @@ async function validateApiKey(apiKey: string | null) {
     return { valid: false, error: 'API key expired' };
   }
 
-  return { valid: true, organizationId: keyData.organization_id, keyName: keyData.name };
+  return { valid: true, organizationId: keyData.organization_id, keyName: keyData.name, keyId: keyData.id };
 }
 
 export async function GET(request: NextRequest) {
@@ -115,7 +124,10 @@ export async function GET(request: NextRequest) {
       .eq('organization_id', organizationId);
 
     // Update last_used_at for the API key
-    await supabase.rpc('update_api_key_usage', { api_key_value: apiKey });
+    await supabase
+      .from('api_keys')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('id', auth.keyId);
 
     return NextResponse.json({
       success: true,
