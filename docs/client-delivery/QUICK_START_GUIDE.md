@@ -22,7 +22,7 @@ Antes de configurar o Power BI, vamos confirmar que as credenciais estão corret
 
 1. Abrir browser e colar este URL:
 ```
-https://blipee.io/api/powerbi/test?organizationId=PLMJ
+https://blipee.io/api/powerbi/test?organizationId=22647141-2ee4-4d8d-8b47-16b0cbd830b2
 ```
 
 2. Quando o browser pedir autenticação:
@@ -47,7 +47,7 @@ Abrir terminal e executar (substituir [SUA_API_KEY]):
 
 ```bash
 curl -H "x-api-key: [SUA_API_KEY]" \
-  "https://blipee.io/api/powerbi/test?organizationId=PLMJ"
+  "https://blipee.io/api/powerbi/test?organizationId=22647141-2ee4-4d8d-8b47-16b0cbd830b2"
 ```
 
 ### ✅ Se funcionou:
@@ -102,13 +102,13 @@ https://blipee.io/api/powerbi/emissions
 **Query parameters:**
 | Parameter | Value |
 |-----------|-------|
-| organizationId | PLMJ |
+| organizationId | 22647141-2ee4-4d8d-8b47-16b0cbd830b2 |
 | startDate | 2024-01-01 |
 | endDate | 2024-12-31 |
 
 **URL completo:**
 ```
-https://blipee.io/api/powerbi/emissions?organizationId=PLMJ&startDate=2024-01-01&endDate=2024-12-31
+https://blipee.io/api/powerbi/emissions?organizationId=22647141-2ee4-4d8d-8b47-16b0cbd830b2&startDate=2024-01-01&endDate=2024-12-31
 ```
 
 ### 2.3 Adicionar Header de Autenticação

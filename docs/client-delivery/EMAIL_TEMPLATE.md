@@ -25,7 +25,7 @@ A partir de hoje, podem aceder aos dados de sustentabilidade da vossa organizaç
 ## 🔑 Credenciais de Acesso
 
 **API Key:** `[KEY_GERADA]`
-**Organization ID:** `PLMJ`
+**Organization ID:** `22647141-2ee4-4d8d-8b47-16b0cbd830b2`
 **API Base URL:** `https://blipee.io/api/powerbi`
 
 ⚠️ **Importante:** Guardem a API key num local seguro (password manager). Por questões de segurança, esta key não pode ser recuperada - apenas regenerada.
@@ -34,7 +34,7 @@ A partir de hoje, podem aceder aos dados de sustentabilidade da vossa organizaç
 
 Antes de configurar o Power BI, podem testar se as credenciais estão a funcionar:
 
-**Link de teste:** `https://blipee.io/api/powerbi/test?organizationId=PLMJ`
+**Link de teste:** `https://blipee.io/api/powerbi/test?organizationId=22647141-2ee4-4d8d-8b47-16b0cbd830b2`
 
 Abrir no browser e quando pedir password, colar a API key acima. Devem ver uma mensagem "Connection successful" com informação da vossa organização.
 
