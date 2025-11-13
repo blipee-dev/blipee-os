@@ -1,0 +1,93 @@
+# Railway Dockerfile for Blipee AI Agent Worker + Prophet Forecasting
+# Multi-process container running:
+# - Node.js Agent Worker (Port 8080)
+# - Python Prophet Service (Port 8001)
+# Uses Debian for TensorFlow.js Node backend (requires glibc)
+
+FROM node:20-slim AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+
+# Install Python, build tools, and supervisor
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    make \
+    g++ \
+    gcc \
+    gfortran \
+    build-essential \
+    wget \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy Node.js package files
+COPY package.json package-lock.json* ./
+RUN npm ci && npm cache clean --force
+
+# Copy Python requirements and install
+COPY services/forecast-service/requirements.txt /tmp/
+RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/requirements.txt
+
+# Install cmdstan for Prophet (requires this for stan_backend)
+RUN python3 -c "import cmdstanpy; cmdstanpy.install_cmdstan()"
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=8080
+ENV FORECAST_SERVICE_URL=http://localhost:8001
+ENV CMDSTAN=/root/.cmdstan
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    libgomp1 \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python packages from deps stage
+COPY --from=deps /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
+
+# Copy cmdstan installation from deps stage
+COPY --from=deps /root/.cmdstan /root/.cmdstan
+
+# Create a non-root user
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 worker
+
+# Copy dependencies
+COPY --from=deps --chown=worker:nodejs /app/node_modules ./node_modules
+
+# Copy application code
+COPY --chown=worker:nodejs package.json ./
+COPY --chown=worker:nodejs tsconfig.json ./
+COPY --chown=worker:nodejs next.config.mjs ./
+COPY --chown=worker:nodejs src/ ./src/
+COPY --chown=worker:nodejs supabase/ ./supabase/
+COPY --chown=worker:nodejs scripts/ ./scripts/
+
+# Copy services directory (includes ai-agent-orchestrator.ts and forecast-service)
+COPY --chown=worker:nodejs services/ ./services/
+
+# Create directories
+RUN mkdir -p ./ml-models ./logs && chown -R worker:nodejs ./ml-models ./logs
+
+# Copy supervisor configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose both ports (8080 for Node.js, 8001 for Prophet)
+EXPOSE 8080 8001
+
+# Health check (checks Node.js service)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Start both services with supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

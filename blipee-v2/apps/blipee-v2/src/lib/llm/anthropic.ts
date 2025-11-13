@@ -19,12 +19,20 @@ import { LLMError } from '@/types/chat'
 // CONFIGURATION
 // ============================================
 
-const ANTHROPIC_CONFIG = {
+// Lazy evaluation - read from process.env each time to support runtime config
+const getConfig = () => ({
   apiKey: process.env.ANTHROPIC_API_KEY,
   model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5',
   maxTokens: Number(process.env.ANTHROPIC_MAX_TOKENS) || 4096,
   temperature: Number(process.env.ANTHROPIC_TEMPERATURE) || 0.7,
-} as const
+})
+
+// For backward compatibility
+const ANTHROPIC_CONFIG = new Proxy({} as ReturnType<typeof getConfig>, {
+  get(_, prop: string) {
+    return getConfig()[prop as keyof ReturnType<typeof getConfig>]
+  }
+})
 
 // Pricing per 1M tokens (as of Jan 2025)
 const PRICING = {
