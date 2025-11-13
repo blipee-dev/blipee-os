@@ -13,7 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
 // Hash API key using SHA-256 (matches PostgreSQL hash_api_key function)
@@ -27,7 +27,7 @@ async function validateApiKey(apiKey: string | null): Promise<{ valid: boolean; 
     return { valid: false };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Hash the provided key
   const keyHash = hashApiKey(apiKey);
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Buscar dados de emissões do banco
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     let query = supabase
       .from('metrics_data')

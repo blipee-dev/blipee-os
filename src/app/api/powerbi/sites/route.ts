@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
 // Hash API key using SHA-256 (matches PostgreSQL hash_api_key function)
@@ -16,7 +16,7 @@ function hashApiKey(key: string): string {
 async function validateApiKey(apiKey: string | null): Promise<{ valid: boolean; organizationId?: string }> {
   if (!apiKey) return { valid: false };
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const keyHash = hashApiKey(apiKey);
 
   const { data, error } = await supabase
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Buscar sites
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data: sites, error } = await supabase
       .from('sites')
       .select('*')
