@@ -10,12 +10,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Hash API key using SHA-256 (matches PostgreSQL hash_api_key function)
 function hashApiKey(key: string): string {
@@ -27,6 +23,8 @@ async function validateApiKey(apiKey: string | null) {
   if (!apiKey) {
     return { valid: false, error: 'API key missing' };
   }
+
+  const supabase = createAdminClient();
 
   // Hash the provided key
   const keyHash = hashApiKey(apiKey);
@@ -94,6 +92,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get organization details
+    const supabase = createAdminClient();
     const { data: orgData, error: orgError } = await supabase
       .from('organizations')
       .select('id, name')
