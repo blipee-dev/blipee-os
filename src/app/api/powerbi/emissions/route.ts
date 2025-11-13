@@ -14,28 +14,38 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import crypto from 'crypto';
 
-// Validar API Key (você deve implementar isso de acordo com seu sistema)
+// Hash API key using SHA-256 (matches PostgreSQL hash_api_key function)
+function hashApiKey(key: string): string {
+  return crypto.createHash('sha256').update(key).digest('hex');
+}
+
+// Validar API Key
 async function validateApiKey(apiKey: string | null): Promise<{ valid: boolean; organizationId?: string }> {
   if (!apiKey) {
     return { valid: false };
   }
 
-  // TODO: Implementar validação real da API key no seu sistema
-  // Por enquanto, retornamos válido para desenvolvimento
-  // Em produção, você deve verificar contra uma tabela de API keys no banco
-
   const supabase = await createClient();
 
-  // Exemplo: buscar API key na tabela api_keys
+  // Hash the provided key
+  const keyHash = hashApiKey(apiKey);
+
+  // Buscar API key na tabela api_keys usando hash
   const { data, error } = await supabase
     .from('api_keys')
-    .select('organization_id')
-    .eq('key', apiKey)
-    .eq('is_active', true)
+    .select('organization_id, expires_at')
+    .eq('key_hash', keyHash)
+    .eq('status', 'active')
     .single();
 
   if (error || !data) {
+    return { valid: false };
+  }
+
+  // Check expiration
+  if (data.expires_at && new Date(data.expires_at) < new Date()) {
     return { valid: false };
   }
 

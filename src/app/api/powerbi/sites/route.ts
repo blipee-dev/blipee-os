@@ -6,19 +6,33 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import crypto from 'crypto';
+
+// Hash API key using SHA-256 (matches PostgreSQL hash_api_key function)
+function hashApiKey(key: string): string {
+  return crypto.createHash('sha256').update(key).digest('hex');
+}
 
 async function validateApiKey(apiKey: string | null): Promise<{ valid: boolean; organizationId?: string }> {
   if (!apiKey) return { valid: false };
 
   const supabase = await createClient();
+  const keyHash = hashApiKey(apiKey);
+
   const { data, error } = await supabase
     .from('api_keys')
-    .select('organization_id')
-    .eq('key', apiKey)
-    .eq('is_active', true)
+    .select('organization_id, expires_at')
+    .eq('key_hash', keyHash)
+    .eq('status', 'active')
     .single();
 
   if (error || !data) return { valid: false };
+
+  // Check expiration
+  if (data.expires_at && new Date(data.expires_at) < new Date()) {
+    return { valid: false };
+  }
+
   return { valid: true, organizationId: data.organization_id };
 }
 
